@@ -1,0 +1,144 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pyre/
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Cache
+.cache/
+__pypackages__/
+
+# Django / Flask / FastAPI
+local_settings.py
+db.sqlite3
+instance/
+*.log
+*.pid
+
+# Scrapy
+.scrapy
+
+# Sphinx
+docs/_build/
+doc/_build/
+
+# PyBuilder
+target/
+
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# DOTENV
+*.env
+*.env.*--------------------------------------------------------
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.VolumeIcon.icns
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+
+# Linux
+*~
+.nfs*
+
+*.bin
+*.dat
+*.tmp
+*.temp
+*.bak
+*.old
+*.swp
+*.swo
+
+# Databases
+*.sql
+*.sqlite
+*.sqlite3
+
+# Testing
+test.*
+test/
+tests/
+__tests__/
+*.test
