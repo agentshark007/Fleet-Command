@@ -137,7 +137,7 @@ ehthumbs.db
 *.sqlite3
 
 # Testing
-test.*
+*test*.*
 test/
 tests/
 __tests__/
