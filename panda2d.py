@@ -355,27 +355,31 @@ class PandaWindow:
     # ---------------- Screen Properties ----------------
     @property
     def screen_left(self):
-        return -self.width // 2
+        x, _ = self.pygame_to_panda2d(0, self.height // 2)
+        return x
 
     @property
     def screen_right(self):
-        return self.width // 2
+        x, _ = self.pygame_to_panda2d(self.width, self.height // 2)
+        return x
 
     @property
     def screen_bottom(self):
-        return -self.height // 2
+        _, y = self.pygame_to_panda2d(self.width // 2, self.height)
+        return y
 
     @property
     def screen_top(self):
-        return self.height // 2
+        _, y = self.pygame_to_panda2d(self.width // 2, 0)
+        return y
 
     @property
     def screen_center_x(self):
-        return 0
+        return (self.screen_left + self.screen_right) / 2
 
     @property
     def screen_center_y(self):
-        return 0
+        return (self.screen_bottom + self.screen_top) / 2
 
     @property
     def mouse_world(self):
