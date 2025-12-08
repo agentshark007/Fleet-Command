@@ -4,12 +4,12 @@ class Unit:
     """Represents a unit in the game."""
 
     def __init__(
-        self, image: Image, health: int, attack: int, defense: int,
+        self, image: Image, image_scale: float, health: int, attack: int, defense: int,
         speed: int, rotation_speed: int, friction: float = 0.95, rotation_friction: float = 0.9
     ):
         # Apperance
         self.image = image
-        self.scale = 1.0
+        self.image_scale = 1.0
         self.team = None  # Assigned team
 
         # Stats
@@ -50,6 +50,7 @@ class Battleship(Unit):
     def __init__(self, team, position_x=0, position_y=0, direction=0):
         super().__init__(
             Image("assets/images/battleship.png"),
+            image_scale=0.1,
             health=600,
             attack=150,
             defense=100,

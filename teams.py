@@ -27,3 +27,31 @@ class GreenSquadron(Team):
 
     def __init__(self):
         super().__init__("Green Squadron", Color(0, 255, 0))
+
+
+class YellowLegion(Team):
+    """Represents the Yellow Legion team."""
+
+    def __init__(self):
+        super().__init__("Yellow Legion", Color(255, 255, 0))
+
+
+class PurpleVanguard(Team):
+    """Represents the Purple Vanguard team."""
+
+    def __init__(self):
+        super().__init__("Purple Vanguard", Color(128, 0, 128))
+
+
+class OrangeCrew(Team):
+    """Represents the Orange Crew team."""
+
+    def __init__(self):
+        super().__init__("Orange Crew", Color(255, 165, 0))
+
+
+class CyanForce(Team):
+    """Represents the Cyan Force team."""
+
+    def __init__(self):
+        super().__init__("Cyan Force", Color(0, 255, 255))
