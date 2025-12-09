@@ -83,13 +83,13 @@ class GameWindow(PandaWindow):
         self.gui_scale_max = 5.0
 
         # Water
-        self.water_state_speed = 10
+        self.water_state_speed = 5
 
         # Camera control
         self.camera_zoom_speed = 0.1
         self.min_camera_scale = 0.3
         self.max_camera_scale = 3.0
-        self.camera_move_speed = 100.0
+        self.camera_move_speed = 30.0
         self.camera_move_friction = 0.9
 
 
