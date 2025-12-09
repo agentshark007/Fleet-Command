@@ -10,7 +10,7 @@ class Unit:
         # Apperance
         self.image = image
         self.image_scale = 1.0
-        self.team = None  # Assigned team
+        self.team_index = -1 # Assigned team index
 
         # Stats
         self.health = health
@@ -47,7 +47,7 @@ class Unit:
 class Battleship(Unit):
     """Represents a Battleship unit."""
 
-    def __init__(self, team, position_x=0, position_y=0, direction=0):
+    def __init__(self, team_index, position_x=0, position_y=0, direction=0):
         super().__init__(
             Image("assets/images/battleship.png"),
             image_scale=0.1,
@@ -59,7 +59,7 @@ class Battleship(Unit):
             friction=0.97,
             rotation_friction=0.9
         )
-        self.team = team
+        self.team_index = team_index
         self.position_x = position_x
         self.position_y = position_y
         self.target_position_x = position_x

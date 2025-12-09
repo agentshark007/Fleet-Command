@@ -92,6 +92,9 @@ class GameWindow(PandaWindow):
         self.camera_move_speed = 30.0
         self.camera_move_friction = 0.9
 
+        # Selection arrow
+        self.selection_arrow_scale = 0.05
+
 
     def _initialize_state_variables(self):
         # GUI scale key state tracking
@@ -107,15 +110,11 @@ class GameWindow(PandaWindow):
 
 
     def _initialize_game_logic(self):
-        self.team_types = [RedFleet(), BlueAlliance(), GreenSquadron(), YellowLegion(), PurpleVanguard(), OrangeCrew(), CyanForce()]
         self.unit_types = [Battleship]
-        
 
-        team_count = 5
-        team_count = min([len(self.team_types), team_count]) # Ensure ValueError doesn't occor by capping team_count by how many teams there are.
-
-        self.teams = random.sample(self.team_types, team_count)
-        self.units = []
+        team_count = 4
+        self.teams = random_teams(team_count)
+        self.units = [Battleship(team_index=random.randint(0, len(self.teams) - 1), position_x=random.uniform(-1000, 1000), position_y=random.uniform(-1000, 1000), direction=random.uniform(0, 360)) for _ in range(20)]
 
 
     def _initialize_layout(self):
@@ -206,6 +205,7 @@ class GameWindow(PandaWindow):
     def draw(self):
         self.clear(Color(0, 0, 0))
         self._draw_water()
+        self._draw_units()
         self._draw_ui_panels()
 
 
@@ -256,6 +256,59 @@ class GameWindow(PandaWindow):
                     filter=filter_color,
                     rotation=0
                 )
+
+    def _draw_units(self):
+        # Calculate mouse world position
+        mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+
+        # Get closest unit to mouse
+        closest_unit_index = -1
+        closest_unit_index_selectable = -1
+        closest_distance = float('inf')
+        closest_distance_selectable = float('inf')
+        for index, unit in enumerate(self.units):
+            dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
+            if dist < closest_distance:
+                closest_distance = dist
+                closest_unit_index = index
+            if dist < closest_distance_selectable:
+                closest_distance_selectable = dist
+                closest_unit_index_selectable = index
+
+        # Draw units
+        for index, unit in enumerate(self.units):
+            # Calculate the screen position of the unit
+            screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
+            
+            # Draw the unit
+            self.draw_image(
+                unit.image,
+                screen_x,
+                screen_y,
+                anchor=Anchor.CENTER,
+                xscale=0.5 * self.gui_scale * self.camera.scale,
+                yscale=0.5 * self.gui_scale * self.camera.scale,
+                filter=Color(255, 255, 255, 255),
+                rotation=unit.direction
+            )
+
+        # Draw unit team arrows
+        for index, unit in enumerate(self.units):
+            # Calculate the screen position of the arrow
+            screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
+            
+            # Draw the arrow
+            self.draw_image(
+                self.selection_arrow_image,
+                screen_x,
+                screen_y + 100 * self.gui_scale * self.camera.scale,
+                anchor=Anchor.BOTTOM,
+                xscale=self.selection_arrow_scale * self.gui_scale * self.camera.scale,
+                yscale=self.selection_arrow_scale  * self.gui_scale * self.camera.scale,
+                filter=self.teams[unit.team_index].color.color,
+                rotation=0
+            )
+
 
     def _draw_water(self):
         # Simulate water movement by offsetting the tiling based on water state and also moving other layers in different ways
