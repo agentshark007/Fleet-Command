@@ -116,7 +116,6 @@ class GameWindow(PandaWindow):
 
         self.teams = random.sample(self.team_types, team_count)
         self.units = []
-        print(self.teams)
 
 
     def _initialize_layout(self):
@@ -148,7 +147,6 @@ class GameWindow(PandaWindow):
         self._handle_plus_minus_input()
         self._handle_camera_movement()
         self._update_water()
-        print(self.camera.scale)
 
 
     def _handle_plus_minus_input(self):
@@ -211,43 +209,78 @@ class GameWindow(PandaWindow):
         self._draw_ui_panels()
 
 
+    def _draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0):
+        offset = 5 # Pixels to overlap tiles by to avoid gaps
+
+        # World-space tiling; no gaps; zoom centered
+        world_tile_w = (self.water_image.get_width() - offset) * self.water_image_scale * self.gui_scale
+        world_tile_h = (self.water_image.get_height() - offset) * self.water_image_scale * self.gui_scale
+
+        screen_w = self.screen_right - self.screen_left
+        screen_h = self.screen_top - self.screen_bottom
+
+        # Effective camera position with offsets (simulate camera movement)
+        eff_cam_x = self.camera.x + offset_x
+        eff_cam_y = self.camera.y + offset_y
+
+        # Convert screen edges to world coordinates using effective camera
+        world_left = self.screen_left / self.camera.scale + eff_cam_x
+        world_bottom = self.screen_bottom / self.camera.scale + eff_cam_y
+        world_right = self.screen_right / self.camera.scale + eff_cam_x
+        world_top = self.screen_top / self.camera.scale + eff_cam_y
+
+        start_world_x = world_left - (world_left % world_tile_w) - world_tile_w
+        start_world_y = world_bottom - (world_bottom % world_tile_h) - world_tile_h
+
+        tile_w_screen = world_tile_w * self.camera.scale
+        tile_h_screen = world_tile_h * self.camera.scale
+        cols = int(math.ceil(screen_w / tile_w_screen)) + 3
+        rows = int(math.ceil(screen_h / tile_h_screen)) + 3
+
+        xscale = self.water_image_scale * self.gui_scale * self.camera.scale
+        yscale = xscale
+
+        for col in range(cols):
+            for row in range(rows):
+                wx = start_world_x + col * world_tile_w
+                wy = start_world_y + row * world_tile_h
+                # Project with effective camera by subtracting offsets
+                sx, sy = self.camera.project(wx - offset_x, wy - offset_y)
+                self.draw_image(
+                    self.water_image,
+                    sx,
+                    sy,
+                    anchor=Anchor.BOTTOMLEFT,
+                    xscale=xscale,
+                    yscale=yscale,
+                    filter=filter_color,
+                    rotation=0
+                )
+
     def _draw_water(self):
-        def draw_water(filter: Color = Color(255, 255, 255, 255)):
-            camera_zoom = self.camera.scale
-            scale = self.water_image_scale * self.gui_scale * camera_zoom
-            width = self.water_image.get_width()
-            height = self.water_image.get_height()
-            tile_w = width * scale - 1  # Subtract 1 to prevent gaps
-            tile_h = height * scale - 1
+        # Simulate water movement by offsetting the tiling based on water state and also moving other layers in different ways
+        
+        # Base layer, not moving
+        self._draw_tiled_water(
+            Color(255, 255, 255, 255),
+            0.0,
+            0.0
+        )
 
-            # Calculate offset for seamless tiling
-            offset_x = (self.camera.x * scale) % tile_w
-            offset_y = (self.camera.y * scale) % tile_h
+        # Second layer, moving in one direction
+        self._draw_tiled_water(
+            Color(255, 255, 255, 200),
+            self.water_state * -2,
+            self.water_state * -2
+        )
 
-            # Calculate tiling bounds to always cover screen
-            x_start = self.screen_left - offset_x - tile_w
-            y_start = self.screen_bottom - offset_y - tile_h
-            x_end = self.screen_right
-            y_end = self.screen_top
-            cols = int(math.ceil((x_end - x_start) / tile_w)) + 1
-            rows = int(math.ceil((y_end - y_start) / tile_h)) + 1
+        # Third layer, moving in a circle
+        self._draw_tiled_water(
+            Color(255, 255, 255, 120),
+            math.cos(self.water_state * 0.1) * 20.0,
+            math.sin(self.water_state * 0.1) * 20.0
+        )
 
-            for col in range(cols):
-                for row in range(rows):
-                    x = x_start + col * tile_w
-                    y = y_start + row * tile_h
-                    self.draw_image(
-                        self.water_image,
-                        x,
-                        y,
-                        anchor=Anchor.BOTTOMLEFT,
-                        xscale=scale,
-                        yscale=scale,
-                        filter=filter,
-                        rotation=0
-                    )
-
-        draw_water()
 
 
 
