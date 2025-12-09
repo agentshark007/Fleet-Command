@@ -60,8 +60,7 @@ class Battleship(Unit):
             rotation_friction=0.9
         )
         self.team_index = team_index
+        
         self.position_x = position_x
         self.position_y = position_y
-        self.target_position_x = position_x
-        self.target_position_y = position_y
         self.direction = direction

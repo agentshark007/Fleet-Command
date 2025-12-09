@@ -92,8 +92,10 @@ class GameWindow(PandaWindow):
         self.camera_move_speed = 30.0
         self.camera_move_friction = 0.9
 
-        # Selection arrow
+        # Image scales
         self.selection_arrow_scale = 0.05
+        self.selection_distance = 100
+        self.autonomous_target_image_scale = 0.05
 
 
     def _initialize_state_variables(self):
@@ -108,6 +110,9 @@ class GameWindow(PandaWindow):
         # Camera
         self.camera = Camera(0.0, 0.0, 1.0)
 
+        # Selection
+        self.selected_unit_index = -1 # -1 means none selected
+
 
     def _initialize_game_logic(self):
         self.unit_types = [Battleship]
@@ -118,7 +123,7 @@ class GameWindow(PandaWindow):
 
 
     def _initialize_layout(self):
-        # GUI shapes
+        # GUI colors
         self.side_panel_color = Color(0, 0, 144, 150)
         self.middle_panel_color = Color(0, 0, 70, 150)
         self.panel_outline_color = Color(0, 0, 100, 50)
@@ -127,6 +132,11 @@ class GameWindow(PandaWindow):
         # GUI shapes
         self.panel_outline_thickness = 2
         self.side_panel_roundness = 15
+
+        # Game filters
+        self.other_unit_filter = Color(150, 150, 150, 255)
+        self.hover_unit_filter = Color(200, 200, 200, 255)
+        self.selected_unit_filter = Color(255, 255, 255, 255)
 
 
     def _load_assets(self):
@@ -144,6 +154,7 @@ class GameWindow(PandaWindow):
 
     def update(self):
         self._handle_plus_minus_input()
+        self._handle_selection_input()
         self._handle_camera_movement()
         self._update_water()
 
@@ -175,6 +186,10 @@ class GameWindow(PandaWindow):
         # Set plus/minus down last frame variables
         self.plus_last_frame = self.keydown(Key.EQUALS)
         self.minus_last_frame = self.keydown(Key.MINUS)
+
+
+    def _handle_selection_input(self):
+        pass
 
 
     def _handle_camera_movement(self):
@@ -271,7 +286,7 @@ class GameWindow(PandaWindow):
             if dist < closest_distance:
                 closest_distance = dist
                 closest_unit_index = index
-            if dist < closest_distance_selectable:
+            if dist < closest_distance_selectable and dist < self.selection_distance:
                 closest_distance_selectable = dist
                 closest_unit_index_selectable = index
 
@@ -281,16 +296,55 @@ class GameWindow(PandaWindow):
             screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
             
             # Draw the unit
-            self.draw_image(
-                unit.image,
-                screen_x,
-                screen_y,
-                anchor=Anchor.CENTER,
-                xscale=0.5 * self.gui_scale * self.camera.scale,
-                yscale=0.5 * self.gui_scale * self.camera.scale,
-                filter=Color(255, 255, 255, 255),
-                rotation=unit.direction
-            )
+            if index == self.selected_unit_index:
+                # Selected unit
+                self.draw_image(
+                    unit.image,
+                    screen_x,
+                    screen_y,
+                    anchor=Anchor.CENTER,
+                    xscale=0.5 * self.gui_scale * self.camera.scale,
+                    yscale=0.5 * self.gui_scale * self.camera.scale,
+                    filter=self.selected_unit_filter,
+                    rotation=unit.direction
+                )
+
+                if unit.autonomous:
+                    # Draw autonomous target
+                    target_screen_x, target_screen_y = self.camera.project(unit.autonomous_target_x, unit.autonomous_target_y)
+                    self.draw_image(
+                        self.autonomous_target_image,
+                        target_screen_x,
+                        target_screen_y,
+                        anchor=Anchor.CENTER,
+                        xscale=self.autonomous_target_image_scale * self.gui_scale * self.camera.scale,
+                        yscale=self.autonomous_target_image_scale * self.gui_scale * self.camera.scale,
+                        rotation=0
+                    )
+            elif index == closest_unit_index_selectable:
+                # Hovered unit
+                self.draw_image(
+                    unit.image,
+                    screen_x,
+                    screen_y,
+                    anchor=Anchor.CENTER,
+                    xscale=0.5 * self.gui_scale * self.camera.scale,
+                    yscale=0.5 * self.gui_scale * self.camera.scale,
+                    filter=self.hover_unit_filter,
+                    rotation=unit.direction
+                )
+            else:
+                # Other units
+                self.draw_image(
+                    unit.image,
+                    screen_x,
+                    screen_y,
+                    anchor=Anchor.CENTER,
+                    xscale=0.5 * self.gui_scale * self.camera.scale,
+                    yscale=0.5 * self.gui_scale * self.camera.scale,
+                    filter=self.other_unit_filter,
+                    rotation=unit.direction
+                )
 
         # Draw unit team arrows
         for index, unit in enumerate(self.units):
