@@ -1,11 +1,19 @@
 from panda2d import Color
+from enum import Enum
+
+class TeamType(Enum):
+    """Enumeration for different team types."""
+    PLAYER = "player"
+    AI = "ai"
+
 
 class Team:
     """Represents a team in the game."""
 
-    def __init__(self, name: str, color: Color):
+    def __init__(self, name: str, color: Color, type: TeamType):
         self.name = name
         self.color = color
+        self.type = type
 
 
 class RedFleet(Team):
