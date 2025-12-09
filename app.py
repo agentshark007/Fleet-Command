@@ -154,7 +154,7 @@ class GameWindow(PandaWindow):
 
     def update(self):
         self._handle_plus_minus_input()
-        self._handle_selection_input()
+        self._handle_unit_selection()
         self._handle_camera_movement()
         self._update_water()
 
@@ -188,8 +188,27 @@ class GameWindow(PandaWindow):
         self.minus_last_frame = self.keydown(Key.MINUS)
 
 
-    def _handle_selection_input(self):
-        pass
+    def _handle_unit_selection(self):
+        # Calculate mouse world position
+        mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+        
+        # Get closest unit to mouse
+        closest_unit_index = -1
+        closest_unit_index_selectable = -1
+        closest_distance = float('inf')
+        closest_distance_selectable = float('inf')
+        for index, unit in enumerate(self.units):
+            dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
+            if dist < closest_distance:
+                closest_distance = dist
+                closest_unit_index = index
+            if dist < closest_distance_selectable and dist < self.selection_distance:
+                closest_distance_selectable = dist
+                closest_unit_index_selectable = index
+
+        # Handle selection input
+        if self.mousedownprimary:
+            self.selected_unit_index = closest_unit_index_selectable
 
 
     def _handle_camera_movement(self):
