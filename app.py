@@ -120,8 +120,8 @@ class GameWindow(PandaWindow):
 
     def _initialize_layout(self):
         # GUI shapes
-        self.side_panel_color = Color(0, 0, 144, 200)
-        self.middle_panel_color = Color(0, 0, 70, 200)
+        self.side_panel_color = Color(0, 0, 144, 150)
+        self.middle_panel_color = Color(0, 0, 70, 150)
         self.panel_outline_color = Color(0, 0, 100, 50)
         self.title_text_color = Color(100, 100, 20)
 
@@ -262,21 +262,21 @@ class GameWindow(PandaWindow):
         
         # Base layer, not moving
         self._draw_tiled_water(
-            Color(255, 255, 255, 255),
+            Color(170, 150, 150, 255),
             0.0,
             0.0
         )
 
         # Second layer, moving in one direction
         self._draw_tiled_water(
-            Color(255, 255, 255, 200),
+            Color(150, 170, 150, 200),
             self.water_state * -2,
             self.water_state * -2
         )
 
         # Third layer, moving in a circle
         self._draw_tiled_water(
-            Color(255, 255, 255, 120),
+            Color(150, 150, 170, 120),
             math.cos(self.water_state * 0.1) * 20.0,
             math.sin(self.water_state * 0.1) * 20.0
         )
