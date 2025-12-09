@@ -208,7 +208,10 @@ class GameWindow(PandaWindow):
 
         # Handle selection input
         if self.mousedownprimary:
-            self.selected_unit_index = closest_unit_index_selectable
+            if self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER: # Only allow selecting player team units
+                self.selected_unit_index = closest_unit_index_selectable
+            else:
+                self.selected_unit_index = -1
 
 
     def _handle_camera_movement(self):
