@@ -1,16 +1,8 @@
-"""Core game systems module for Fleet Command.
 
-This module handles initialization of core game systems including asset loading,
-GUI scaling, and per-frame core updates.
-"""
 
 from panda2d import Font, Image, Key, Color
 
-def initialize(self):
-    """Initialize core game systems.
-    
-    Sets up GUI scaling parameters and loads all game assets (fonts, images).
-    """
+def initialize(self) -> None:
     # GUI scaling configuration
     self.gui_scale_factor = 1.3  # Scaling factor for GUI (zoom in/out)
     self.gui_scale_min = 0.3  # Minimum allowed GUI scale
@@ -26,16 +18,10 @@ def initialize(self):
     self.mousemiddle_last_frame = False  # Track middle mouse button state
     self.mousesecondary_last_frame = False  # Track secondary mouse button state
 
-def late_initialize(self):
-    """Late initialization step for core systems (currently unused)."""
+def late_initialize(self) -> None:
     pass
 
-def load_assets(self):
-    """Load and cache all fonts and images used by the game.
-    
-    This function initializes Font and Image objects and stores them as
-    instance variables for use throughout the game.
-    """
+def load_assets(self) -> None:
     # Load fonts for UI text rendering
     self.title_font = Font("assets/fonts/BlackOpsOne-Regular.ttf", size=32)  # Large title font
     self.context_font = Font("assets/fonts/WDXLLubrifontSC-Regular.ttf", size=16)  # Regular UI font
@@ -48,15 +34,10 @@ def load_assets(self):
 
 
 
-def update(self):
-    """Update core systems (called every frame)."""
+def update(self) -> None:
     handle_gui_scaling(self)  # Handle GUI scale input
 
-def late_update(self):
-    """Late update for core systems (called after all other updates).
-    
-    Tracks key states from this frame for use in next frame's input detection.
-    """
+def late_update(self) -> None:
     # Store key state from this frame for next frame's input checks
     self.plus_last_frame = self.keydown(Key.EQUALS)  # Track if plus key was held
     self.minus_last_frame = self.keydown(Key.MINUS)  # Track if minus key was held
@@ -64,12 +45,7 @@ def late_update(self):
     self.mousemiddle_last_frame = self.mousedownmiddle  # Track middle mouse button state
     self.mousesecondary_last_frame = self.mousedownsecondary  # Track secondary mouse button state
 
-def handle_gui_scaling(self):
-    """Handle user input for adjusting GUI scale.
-    
-    Allows the user to zoom the UI in and out using Command+Plus/Minus keys.
-    The scale is clamped between min and max values.
-    """
+def handle_gui_scaling(self) -> None:
 
     # Detect if either command key (left or right) is held down
     command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
@@ -88,10 +64,8 @@ def handle_gui_scaling(self):
 
 
 
-def draw(self):
-    """Draw core systems."""
+def draw(self) -> None:
     self.clear(Color(0, 0, 0))  # Clear screen to black
 
-def late_draw(self):
-    """Late draw for core systems (currently unused)."""
+def late_draw(self) -> None:
     pass

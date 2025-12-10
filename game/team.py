@@ -1,8 +1,4 @@
-"""Team management and team color definitions for Fleet Command.
 
-This module defines team types, team colors, and team classes that represent
-player and AI-controlled factions in the game.
-"""
 
 from panda2d import Color
 from enum import Enum
@@ -10,63 +6,30 @@ import random
 
 
 class TeamType(Enum):
-    """Enumeration for different team types.
-    
-    Distinguishes between player-controlled teams and AI-controlled teams.
-    """
+    pass
     PLAYER = "player"  # Team controlled by the player
     AI = "ai"          # Team controlled by AI
 
 class TeamColor:
-    """Represents a team color with associated display color.
-    
-    Base class for all team types, storing a team name and its associated
-    Color object used for rendering team identifiers and UI elements.
-    """
+    pass
 
-    def __init__(self, name: str, color: Color):
-        """Initialize a team color.
-        
-        Args:
-            name: Display name of the team.
-            color: Color object used for rendering this team.
-        """
+    def __init__(self, name: str, color: Color) -> None:
+        pass
         self.name = name  # Team display name
         self.color = color  # Team color for rendering
 
 
 class Team:
-    """Represents a team in the game.
-    
-    Stores team metadata including type (player or AI) and color.
-    Units reference a team by its index in the game's team list.
-    """
+    pass
 
-    def __init__(self, type: TeamType, color: TeamColor):
-        """Initialize a team.
-        
-        Args:
-            type: TeamType indicating if this is a player or AI team.
-            color: TeamColor object defining the team's appearance.
-        """
+    def __init__(self, type: TeamType, color: TeamColor) -> None:
+        pass
         self.type = type  # Team type (PLAYER or AI)
         self.color = color  # Team color for rendering
 
 
-def random_teams(teams):
-    """Generate a random selection of teams for a game.
-    
-    Creates a list of teams with one player-controlled team and the rest AI teams.
-    Colors are selected randomly from available team colors. If more teams are requested
-    than unique colors available, colors will be reused.
-    
-    Args:
-        teams: Number of total teams to generate (must be >= 1).
-        
-    Returns:
-        List of Team objects with the player team at index 0, followed by AI teams.
-        Returns empty list if teams <= 0.
-    """
+def random_teams(teams: int) -> list[Team]:
+    pass
     # Define all available team colors
     all_team_colors = [
         RedFleet(),
@@ -115,56 +78,56 @@ def random_teams(teams):
 
 
 class RedFleet(TeamColor):
-    """Team with red color."""
+    pass
 
     def __init__(self):
-        """Initialize Red Fleet team with red color."""
+        pass
         super().__init__("Red Fleet", Color(255, 0, 0))
 
 
 class BlueAlliance(TeamColor):
-    """Team with blue color."""
+    pass
 
     def __init__(self):
-        """Initialize Blue Alliance team with blue color."""
+        pass
         super().__init__("Blue Alliance", Color(0, 0, 255))
 
 
 class GreenSquadron(TeamColor):
-    """Team with green color."""
+    pass
 
     def __init__(self):
-        """Initialize Green Squadron team with green color."""
+        pass
         super().__init__("Green Squadron", Color(0, 255, 0))
 
 
 class YellowLegion(TeamColor):
-    """Team with yellow color."""
+    pass
 
     def __init__(self):
-        """Initialize Yellow Legion team with yellow color."""
+        pass
         super().__init__("Yellow Legion", Color(255, 255, 0))
 
 
 class PurpleVanguard(TeamColor):
-    """Team with purple color."""
+    pass
 
     def __init__(self):
-        """Initialize Purple Vanguard team with purple color."""
+        pass
         super().__init__("Purple Vanguard", Color(128, 0, 128))
 
 
 class OrangeCrew(TeamColor):
-    """Team with orange color."""
+    pass
 
     def __init__(self):
-        """Initialize Orange Crew team with orange color."""
+        pass
         super().__init__("Orange Crew", Color(255, 165, 0))
 
 
 class CyanForce(TeamColor):
-    """Team with cyan color."""
+    pass
 
     def __init__(self):
-        """Initialize Cyan Force team with cyan color."""
+        pass
         super().__init__("Cyan Force", Color(0, 255, 255))

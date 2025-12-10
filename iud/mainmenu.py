@@ -1,16 +1,11 @@
-"""Main menu UI module for Fleet Command.
 
-This module handles the main menu state including initialization,
-button detection, button actions, and rendering of the menu.
-"""
 
 from panda2d import *
 from core.enums import ExtendDirection
 from core.utility import mouse_in_area
 from core.enums import GameState
 
-def initialize(self):
-    """Initialize main menu configuration and button layout settings."""
+def initialize(self) -> None:
     # Button positioning
     self.mainmenu_button_extend_x = 50  # Pixels from left edge
     self.mainmenu_button_extend_y = 50  # Pixels from bottom edge
@@ -32,8 +27,7 @@ def initialize(self):
 
 
 
-def update(self):
-    """Handle main menu button interactions and music."""
+def update(self) -> None:
     # Start background music if not already playing
     if not self.music_started:
         if self.menu_state == GameState.MAINMENU:
@@ -56,19 +50,16 @@ def update(self):
                 action(self)
                 break
 
-def newgame(self):
-    """Transition to the new game setup state."""
+def newgame(self) -> None:
     self.menu_state = GameState.GAME
     self.music.stop()
 
-def settings(self):
-    """Transition to the settings menu state."""
+def settings(self) -> None:
     self.menu_state = GameState.SETTINGS
 
 
 
-def draw(self):
-    """Render the main menu frame."""
+def draw(self) -> None:
     # Draw background
     self.fill_rect(
         self.screen_left,
@@ -90,7 +81,7 @@ def draw(self):
         draw_button(self, button_text, index, len(buttons))
 
 
-def get_button_bounds(self, index):
+def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
     button_left = self.extend(
         self.screen_left,
         self.mainmenu_button_extend_x,

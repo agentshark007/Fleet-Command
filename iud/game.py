@@ -1,9 +1,4 @@
-"""Main game state module for Fleet Command.
 
-This module handles all gameplay logic including initialization, unit control,
-camera management, unit rendering, water rendering, and UI panels. It manages
-the core game loop while a player is actively playing.
-"""
 
 import math
 from core.enums import ExtendDirection
@@ -15,10 +10,6 @@ from core.utility import distance, pseudo_random_offset
 from game.projectile import *
 
 def initialize(self):
-    """Initialize all gameplay systems and game state.
-    
-    Sets up settings, state variables, game logic, and UI layout.
-    """
     initialize_settings(self)  # Load configuration values
     initialize_state_variables(self)  # Initialize variables
     initialize_game_logic(self)  # Create teams and units
@@ -26,11 +17,6 @@ def initialize(self):
 
 
 def initialize_settings(self):
-    """Load and configure game settings.
-    
-    Sets up parameters for water animation, camera, image scaling,
-    autonomous unit behavior, and UI markers.
-    """
     # Water animation
     self.water_state_speed = 5  # Speed of water animation cycles
 
@@ -56,10 +42,6 @@ def initialize_settings(self):
 
 
 def initialize_state_variables(self):
-    """Initialize game state variables.
-    
-    Sets up the current game state, camera, unit selection, and animation counters.
-    """
     # GUI scaling key state tracking
     self.gui_scale = 1.0  # Current GUI scale multiplier
 
@@ -75,10 +57,6 @@ def initialize_state_variables(self):
 
 
 def initialize_game_logic(self):
-    """Initialize game logic including teams and units.
-    
-    Creates random teams and spawns initial units on the map.
-    """
     # Available unit types that can be created
     self.unit_types = [Battleship]
 
@@ -102,10 +80,6 @@ def initialize_game_logic(self):
 
 
 def initialize_layout(self):
-    """Initialize UI visual settings and colors.
-    
-    Sets up all colors and styling for panels, text, and unit filters.
-    """
     # GUI panel colors
     self.side_panel_color = Color(0, 0, 144, 150)  # Side panel background color
     self.middle_panel_color = Color(0, 0, 70, 150)  # Middle panel color
@@ -126,11 +100,6 @@ def initialize_layout(self):
 
 
 def update(self):
-    """Update the game state every frame.
-    
-    Handles camera input, unit selection, unit control, and camera movement.
-    Called once per frame during active gameplay.
-    """
     handle_camera_movement(self)  # Process camera movement
     handle_unit_selection(self)  # Handle unit selection clicks
     handle_unit_control(self)  # Process unit movement and physics
@@ -141,11 +110,6 @@ def update(self):
 
 
 def handle_unit_selection(self):
-    """Select a unit under the cursor when clicking.
-    
-    Restricts selection to player-controlled team units. Updates the selected
-    unit index based on the closest unit within the selection distance.
-    """
     # Calculate mouse position in world coordinates (using camera)
     mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
     
@@ -182,14 +146,8 @@ def handle_unit_selection(self):
 
 
 def handle_unit_control(self):
-    """Process unit movement input and update unit physics.
-    
-    Handles player input for manual control, autonomous target setting,
-    physics calculations, and AI behavior (placeholder).
-    """
     # Helper function to check if any manual control keys are held
     def manual_override():
-        """Check if any movement keys (W/A/S/D) are pressed."""
         return any([
             self.keydown(Key.W),  # Forward
             self.keydown(Key.S),  # Backward
@@ -324,7 +282,6 @@ def handle_unit_control(self):
 
 
 def handle_unit_shooting(self):
-    """Handle shooting input from the mouse."""
     for index, unit in enumerate(self.units):
         if index in self.selected_units_index:
             if self.keydown(Key.SPACE):
@@ -344,12 +301,10 @@ def handle_unit_shooting(self):
                 ))
 
 def update_projectiles(self):
-    """Update all projectiles in the game."""
     for projectile in self.projectiles:
         projectile.update(self.deltatime)
 
 def detect_collisions(self):
-    """Detect collisions between units and projectiles."""
     units_to_remove = set()
     projectiles_to_remove = set()
     for unit_index, unit in enumerate(self.units):
@@ -376,10 +331,6 @@ def detect_collisions(self):
 
 
 def handle_camera_movement(self):
-    """Handle camera movement input from arrow keys.
-    
-    Allows smooth camera panning using arrow keys with friction-based deceleration.
-    """
     # Detect command key
     command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
 
@@ -418,20 +369,11 @@ def handle_camera_movement(self):
 
 
 def update_water(self):
-    """Update water animation state.
-    
-    Increments the water state counter which drives the parallax animation.
-    Updates individual layer offsets based on their speed multipliers.
-    """
     self.water_state += self.water_state_speed * self.deltatime
 
 
 
 def draw(self):
-    """Render the current game frame.
-    
-    Draws water background, units, and UI panels in the correct order.
-    """
     draw_water(self)  # Draw water background
     draw_units(self)  # Draw all units
     draw_projectiles(self)  # Draw all projectiles
@@ -439,11 +381,6 @@ def draw(self):
 
 
 def draw_units(self):
-    """Render all units with appropriate visual effects and markers.
-    
-    Draws units with different colors based on selection state (selected, hovered, or normal).
-    Also renders selection markers showing team color and autonomous targets for selected units.
-    """
     # Calculate mouse position in world coordinates for hover detection
     mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
 
@@ -557,14 +494,6 @@ def draw_projectiles(self):
 
 
 def draw_water(self):
-    """Render parallax water layers with varied movement and alpha transparency.
-    
-    Creates a sophisticated multi-layered water effect with:
-    - Different animation speeds per layer for depth
-    - Wave motion effects for natural movement
-    - Color variation for visual richness
-    - Smooth alpha blending between layers
-    """
     # Layer 0: Ocean base layer with slow circular motion (moves in a circular path)
     rotation_speed_0 = 0.03
     rotation_radius_0 = 7.0
@@ -610,14 +539,6 @@ def draw_water(self):
     # )
 
 def draw_water_layer(self, color: Color, color_fluctuation_strength: Color, color_fluctuation__speed: Color, offset_x: float = 0.0, offset_y: float = 0.0, per_tile_offset: bool = False):
-    """Render a single water layer at a given offset.
-    
-    Args:
-        color: Base color to tint the water tiles with (includes alpha).
-        color_fluctuation: Color fluctuation to add dynamic variation.
-        offset_x: Horizontal offset for this layer's animation.
-        offset_y: Vertical offset for this layer's animation.
-    """
     # Combine base color with fluctuation for dynamic effect
     final_color = Color(
         color.r + math.sin(color_fluctuation__speed.r) * color_fluctuation_strength.r,
@@ -629,17 +550,6 @@ def draw_water_layer(self, color: Color, color_fluctuation_strength: Color, colo
 
 
 def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0, per_tile_offset: bool = False):
-    """Render a tiled water layer at a given offset.
-    
-    Uses world-space tiling to ensure smooth parallax scrolling without gaps
-    as the camera moves. The camera position is factored with the offset to
-    create the parallax effect.
-    
-    Args:
-        filter_color: Color to tint the water tiles with (includes alpha).
-        offset_x: Horizontal offset for this layer's animation.
-        offset_y: Vertical offset for this layer's animation.
-    """
     # Small overlap to prevent gaps between tiles
     offset = 5
 
@@ -702,11 +612,6 @@ def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y:
 
 
 def draw_ui_panels(self):
-    """Render all UI panels and title text.
-    
-    Draws the side panels, bottom command panel, top menu panel, and
-    "Fleet Command" title with shadow effect.
-    """
     # Left side panel (with rounded corner)
     self.fill_rounded_rect(
         self.screen_left,

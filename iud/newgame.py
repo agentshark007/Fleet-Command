@@ -1,19 +1,15 @@
-"""New game setup screen module for Fleet Command.
 
-This module handles the new game state (currently a placeholder)
-for future game setup and configuration screens.
-"""
 
-def initialize(self):
-    """Initialize new game screen (placeholder)."""
+def initialize(self) -> None:
+
     pass
 
 
-def update(self):
-    """Update new game screen logic (placeholder)."""
+def update(self) -> None:
+
     pass
 
 
-def draw(self):
-    """Render new game screen (placeholder)."""
+def draw(self) -> None:
+
     pass
