@@ -13,7 +13,7 @@ def initialize(self):
     """Initialize main menu configuration and button layout settings."""
     # Button positioning
     self.mainmenu_button_extend_x = 50  # Pixels from left edge
-    self.mainmenu_button_extend_y = 100  # Pixels from top edge
+    self.mainmenu_button_extend_y = 50  # Pixels from bottom edge
     self.mainmenu_button_spacing = 20  # Pixels between buttons
     self.mainmenu_button_width = 150  # Button width in pixels
     self.mainmenu_button_height = 60  # Button height in pixels
@@ -29,76 +29,35 @@ def initialize(self):
 
 
 def update(self):
-    """Update main menu logic (handle button clicks).
-    
-    Checks for button clicks and transitions to the appropriate game state.
-    """
-    # Define all menu buttons: (id, label)
+    """Handle main menu button interactions."""
+    # Define button actions
     buttons = [
-        ("newgame", "New Game"),
-        ("settings", "Settings"),
-        ("quit", "Quit")
+        ("newgame", newgame),
+        ("settings", settings),
+        ("quit", quit)
     ]
     
-    # Check each button for clicks
-    for i, (button_id, button_label) in enumerate(buttons):
-        # Calculate button position
-        button_x = self.extend(self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT)
-        button_y = self.extend(
-            self.screen_top,
-            self.mainmenu_button_extend_y + i * (self.mainmenu_button_height + self.mainmenu_button_spacing),
-            ExtendDirection.DOWN
-        )
-
-        # Detect button click and handle per button
-        if detect_mainmenu_button(self, button_x, button_y):
-            handle_mainmenu_button_action(self, button_id)
-            self.mousedownprimary = False  # Prevent multiple triggers on hold
-
-
-def detect_mainmenu_button(self, x, y):
-    """Check if a button was clicked.
-    
-    Args:
-        x: Button left edge position.
-        y: Button bottom edge position.
+    for index, (button_id, action) in enumerate(reversed(buttons)):
+        left, bottom, right, top = get_button_bounds(self, index)
         
-    Returns:
-        True if the button is under the mouse and the left mouse button is pressed.
-    """
-    # Calculate button boundaries
-    left = x
-    bottom = y
-    right = self.extend(left, self.mainmenu_button_width, ExtendDirection.RIGHT)
-    top = self.extend(bottom, self.mainmenu_button_height, ExtendDirection.UP)
+        if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top):
+            if self.mousedownprimary:
+                action(self)
+                break
 
-    # Check if mouse is in button area and button is clicked
-    if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top) and self.mousedownprimary:
-        return True
-    return False
+def newgame(self):
+    """Transition to the new game setup state."""
+    self.menu_state = GameState.GAME
 
-def handle_mainmenu_button_action(self, button_id):
-    """Execute the action for a clicked button.
-    
-    Args:
-        button_id: The identifier string of the button that was clicked.
-    """
-    if button_id == "newgame":
-        self.game_state = GameState.GAME  # Start new game
-    elif button_id == "settings":
-        self.game_state = GameState.SETTINGS  # Open settings menu
-    elif button_id == "quit":
-        quit()  # Exit the application
+def settings(self):
+    """Transition to the settings menu state."""
+    self.menu_state = GameState.SETTINGS
 
 
 
 def draw(self):
     """Render the main menu frame."""
-    draw_mainmenu(self)
-
-def draw_mainmenu(self):
-    """Render the main menu: background, buttons, and labels."""
-    # Dark blue background (fills entire screen)
+    # Draw background
     self.fill_rect(
         self.screen_left,
         self.screen_bottom,
@@ -107,59 +66,70 @@ def draw_mainmenu(self):
         color=self.mainmenu_background_color
     )
 
-    # Define all menu buttons: (identifier, label)
+    # Define menu buttons
     buttons = [
         ("newgame", "New Game"),
         ("settings", "Settings"),
         ("quit", "Quit")
     ]
     
-    # Render each button and its label
-    for i, (button_id, button_text) in enumerate(buttons):
-        # Calculate button position
-        button_x = self.extend(self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT)
-        button_y = self.extend(
-            self.screen_top,
-            self.mainmenu_button_extend_y + i * (self.mainmenu_button_height + self.mainmenu_button_spacing),
-            ExtendDirection.DOWN
-        )
-
-        # Draw button rectangle
-        draw_mainmenu_button(self, button_x, button_y)
-
-        # Draw button text (centered on button, scaled with GUI scale)
-        self.draw_text(
-            button_text,
-            x=(button_x + (self.mainmenu_button_width / 2)) * self.gui_scale,
-            y=(button_y + (self.mainmenu_button_height / 2)) * self.gui_scale,
-            font=self.context_font.new_size(int(20 * self.gui_scale)),
-            color=Color(255, 255, 255),
-            anchor=Anchor.CENTER
-        )
+    for index, (button_id, button_text) in enumerate(buttons):
+        # Draw button and text
+        draw_button(self, button_text, index, len(buttons))
 
 
-def draw_mainmenu_button(self, x, y):
-    """Render a single rounded main menu button at `(x, y)`.
-    
-    Changes color based on hover state.
+def get_button_bounds(self, index):
+    button_left = self.extend(
+        self.screen_left,
+        self.mainmenu_button_extend_x,
+        ExtendDirection.RIGHT
+    )
+    button_bottom = self.extend(
+        self.screen_bottom,
+        self.mainmenu_button_extend_y,
+        ExtendDirection.UP
+    )
+    button_right = self.extend(
+        button_left,
+        self.mainmenu_button_width,
+        ExtendDirection.RIGHT
+    )
+    button_top = self.extend(
+        button_bottom,
+        self.mainmenu_button_height,
+        ExtendDirection.UP
+    )
+
+    spacing = (self.mainmenu_button_spacing + self.mainmenu_button_height) * self.gui_scale
+    vertical_offset = spacing * index
+
+    left = button_left
+    bottom = button_bottom + vertical_offset  # Add offset, don't multiply
+    right = button_right
+    top = button_top + vertical_offset
+
+    return left, bottom, right, top
+
+
+def draw_button(self, text, index, max_index):
+    """Draw a button with text.
     
     Args:
         x: Button left edge position.
         y: Button bottom edge position.
+        text: Button label text.
     """
-    # Calculate button boundaries
-    left = x
-    bottom = y
-    right = self.extend(left, self.mainmenu_button_width, ExtendDirection.RIGHT)
-    top = self.extend(bottom, self.mainmenu_button_height, ExtendDirection.UP)
-
+    # Get button bounds
+    left, bottom, right, top = get_button_bounds(self, max_index - index - 1)
+    
     # Determine button color based on hover state
-    if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top):
-        button_color = self.mainmenu_button_color_hover  # Bright blue when hovered
-    else:
-        button_color = self.mainmenu_button_color  # Normal blue when not hovered
+    button_color = (
+        self.mainmenu_button_color_hover
+        if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top)
+        else self.mainmenu_button_color
+    )
 
-    # Draw rounded rectangle button
+    # Draw button background
     self.fill_rounded_rect(
         left,
         bottom,
@@ -172,4 +142,14 @@ def draw_mainmenu_button(self, x, y):
         topright_roundness=self.mainmenu_button_roundness * self.gui_scale,
         bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
         bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale
+    )
+
+    # Draw button text
+    self.draw_text(
+        text,
+        x=(left + right) / 2,
+        y=(bottom + top) / 2,
+        font=self.context_font.new_size(int(20 * self.gui_scale)),
+        color=Color(255, 255, 255),
+        anchor=Anchor.CENTER
     )

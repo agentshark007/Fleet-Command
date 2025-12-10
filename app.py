@@ -57,6 +57,8 @@ class GameWindow(PandaWindow):
         
         Called once at startup to set up core systems, game logic, and all game states.
         """
+        self.menu_state = GameState.MAINMENU # Current game state tracking
+
         core.initialize(self)  # Initialize core systems (assets, GUI scale)
         game.initialize(self)  # Initialize gameplay systems
         mainmenu.initialize(self)  # Initialize main menu UI
@@ -69,12 +71,12 @@ class GameWindow(PandaWindow):
         """Update game logic based on the current game state.
         
         This is called once per frame and routes update calls to the appropriate
-        game state handler based on the current game_state.
+        game state handler based on the current menu_state.
         """
         core.update(self)  # Update core systems (GUI scaling)
 
         # Route update to current game state
-        match self.game_state:
+        match self.menu_state:
             case GameState.MAINMENU:
                 mainmenu.update(self)
             case GameState.NEWGAME:
@@ -98,7 +100,7 @@ class GameWindow(PandaWindow):
         core.draw(self)  # Draw core systems if needed
 
         # Route drawing to current game state
-        match self.game_state:
+        match self.menu_state:
             case GameState.MAINMENU:
                 mainmenu.draw(self)
             case GameState.NEWGAME:

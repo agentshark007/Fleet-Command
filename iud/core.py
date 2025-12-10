@@ -12,8 +12,7 @@ def initialize(self):
     Sets up GUI scaling parameters and loads all game assets (fonts, images).
     """
     # GUI scaling configuration
-    self.gui_scale_factor = 20.0  # Scaling factor for GUI (pixels per second)
-    self.gui_scale_offset = 1.0  # Base multiplier for GUI scale changes
+    self.gui_scale_factor = 1.3  # Scaling factor for GUI (zoom in/out)
     self.gui_scale_min = 0.3  # Minimum allowed GUI scale
     self.gui_scale_max = 5.0  # Maximum allowed GUI scale
 
@@ -61,8 +60,6 @@ def handle_gui_scaling(self):
     Allows the user to zoom the UI in and out using Command+Plus/Minus keys.
     The scale is clamped between min and max values.
     """
-    # Calculate growth rate based on delta time
-    growth = self.gui_scale_offset + self.gui_scale_factor * self.deltatime
 
     # Detect if either command key (left or right) is held down
     command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
@@ -71,10 +68,10 @@ def handle_gui_scaling(self):
     if command_down:
         # Scale up on plus key (only trigger once per key press)
         if self.keydown(Key.EQUALS) and not self.plus_last_frame:
-            self.gui_scale *= growth
+            self.gui_scale *= self.gui_scale_factor
         # Scale down on minus key (only trigger once per key press)
         elif self.keydown(Key.MINUS) and not self.minus_last_frame:
-            self.gui_scale /= growth
+            self.gui_scale /= self.gui_scale_factor
 
     # Clamp GUI scale to valid range
     self.gui_scale = max(self.gui_scale_min, min(self.gui_scale, self.gui_scale_max))

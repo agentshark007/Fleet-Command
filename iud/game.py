@@ -58,9 +58,6 @@ def initialize_state_variables(self):
     
     Sets up the current game state, camera, unit selection, and animation counters.
     """
-    # Game state tracking
-    self.game_state = GameState.MAINMENU  # Current game state (will be set by menu)
-
     # GUI scaling key state tracking
     self.plus_last_frame = False  # Track if plus key was held last frame (prevent repeat)
     self.minus_last_frame = False  # Track if minus key was held last frame (prevent repeat)
@@ -293,10 +290,13 @@ def handle_unit_control(self):
         unit.velocity_y += math.cos(angle_rad) * unit.acceleration * self.deltatime
         unit.velocity_rotation += unit.rotation_acceleration * self.deltatime
 
-        # Apply friction to velocities (exponential decay)
-        unit.velocity_x *= unit.friction
-        unit.velocity_y *= unit.friction
-        unit.velocity_rotation *= unit.rotation_friction
+        # Apply friction to velocities (exponential decay - frame-independent)
+        # friction^(deltatime / frame_time) where frame_time=1/60 for 60 FPS
+        friction_factor = pow(unit.friction, self.deltatime * 60)
+        unit.velocity_x *= friction_factor
+        unit.velocity_y *= friction_factor
+        rotation_friction_factor = pow(unit.rotation_friction, self.deltatime * 60)
+        unit.velocity_rotation *= rotation_friction_factor
         
         # Update position and rotation based on velocities
         unit.direction += unit.velocity_rotation * self.deltatime
@@ -323,9 +323,10 @@ def handle_camera_movement(self):
     if self.keydown(Key.DOWN):
         self.camera.velocity_y -= self.camera_move_speed * self.deltatime  # Move camera down
 
-    # Apply friction to camera velocity (smooth deceleration)
-    self.camera.velocity_x *= self.camera_move_friction
-    self.camera.velocity_y *= self.camera_move_friction
+    # Apply friction to camera velocity (smooth deceleration - frame-independent)
+    friction_factor = pow(self.camera_move_friction, self.deltatime * 60)
+    self.camera.velocity_x *= friction_factor
+    self.camera.velocity_y *= friction_factor
 
     # Update camera position based on velocity
     self.camera.x += self.camera.velocity_x
