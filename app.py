@@ -15,6 +15,14 @@ class ExtendDirection(Enum):
     DOWN = -1   # Used for vertical extension
 
 
+class GameState(Enum):
+    MAINMENU = "mainmenu"
+    NEWGAME = "newgame"
+    GAME = "game"
+    PAUSED = "paused"
+    SETTINGS = "settings"
+
+
 class Camera():
     def __init__(self, x, y, scale):
         self.x = x
@@ -106,6 +114,9 @@ class GameWindow(PandaWindow):
 
 
     def _initialize_state_variables(self):
+        # Game state
+        self.game_state = GameState.MAINMENU
+
         # GUI scale key state tracking
         self.plus_last_frame = False
         self.minus_last_frame = False
