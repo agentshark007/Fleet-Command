@@ -2,7 +2,7 @@ from panda2d import PandaWindow, Color, Font, Image, Sound, Key, Anchor, Resizab
 import math
 from teams import *
 from units import *
-from utility import distance
+from utility import distance, mouse_in_area
 from enum import Enum
 import random
 
@@ -82,9 +82,40 @@ class GameWindow(PandaWindow):
         self._initialize_state_variables()
         self._initialize_game_logic()
         self._initialize_layout()
+        self._load_assets()
         
 
     def _initialize_menus(self):
+        self._initialize_mainmenu()
+        self._initialize_newgame()
+        self._initialize_paused()
+        self._initialize_settings()
+
+
+    def _initialize_mainmenu(self):
+        self.mainmenu_button_extend_x = 50
+        self.mainmenu_button_extend_y = 100
+        self.mainmenu_button_spacing = 20
+        self.mainmenu_button_width = 150
+        self.mainmenu_button_height = 60
+        self.mainmenu_button_roundness = 15
+
+        self.mainmenu_background_color = Color(0, 0, 50)
+        self.mainmenu_button_color = Color(0, 0, 100)
+        self.mainmenu_button_color_hover = Color(30, 30, 130)
+        self.mainmenu_button_outline_thickness = 2
+        self.mainmenu_button_outline_color = Color(0, 0, 0)
+
+
+    def _initialize_newgame(self):
+        pass
+
+
+    def _initialize_paused(self):
+        pass
+
+
+    def _initialize_settings(self):
         pass
     
 
@@ -176,13 +207,16 @@ class GameWindow(PandaWindow):
 
 
     def update(self):
+        # Always handle GUI scale input
+        self._handle_gui_scale_input()
+
         match self.game_state:
             case GameState.MAINMENU:
                 self._update_mainmenu()
             case GameState.NEWGAME:
                 self._update_newgame()
             case GameState.GAME:
-                self._handle_plus_minus_input()
+                self._handle_camera_zoom_input()
                 self._handle_unit_selection()
                 self._handle_unit_control()
                 self._handle_camera_movement()
@@ -193,7 +227,28 @@ class GameWindow(PandaWindow):
                 self._update_settings()
 
     def _update_mainmenu(self):
-        pass
+        buttons = ["newgame", "settings", "quit"]
+        for i, button_text in enumerate(buttons):
+            # Calculate button position
+            button_x = self.extend(self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT)
+            button_y = self.extend(
+                self.screen_top,
+                self.mainmenu_button_extend_y + i * (self.mainmenu_button_height + self.mainmenu_button_spacing),
+                ExtendDirection.DOWN
+            )
+
+            # Detect button click
+            self._detect_mainmenu_button(button_x, button_y)
+
+
+    def _detect_mainmenu_button(self, x, y):
+        left = x
+        bottom = y
+        right = self.extend(left, self.mainmenu_button_width, ExtendDirection.RIGHT)
+        top = self.extend(bottom, self.mainmenu_button_height, ExtendDirection.UP)
+
+        if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top) and self.mousedownprimary:
+            self.game_state = GameState.GAME # Later set to GameState.NEWGAME to show new game menu first
 
 
     def _update_newgame(self):
@@ -208,26 +263,20 @@ class GameWindow(PandaWindow):
         pass
 
 
-    def _handle_plus_minus_input(self):
+    def _handle_gui_scale_input(self):
         # Calculate gui scale growth
         growth = self.gui_scale_offset + self.gui_scale_factor * self.deltatime
 
         # Detect if either command key held down
         command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
 
-        # Get -/+ input
+        # Get -/+ input for GUI scale (only when command is held)
         if command_down:
             if self.keydown(Key.EQUALS) and not self.plus_last_frame:
                 self.gui_scale *= growth
 
             elif self.keydown(Key.MINUS) and not self.minus_last_frame:
                 self.gui_scale /= growth
-        else:
-            if self.keydown(Key.EQUALS) and not self.plus_last_frame:
-                self.camera.scale = min([self.max_camera_scale, self.camera.scale + self.camera_zoom_speed])
-
-            elif self.keydown(Key.MINUS) and not self.minus_last_frame:
-                self.camera.scale = max([self.min_camera_scale, self.camera.scale - self.camera_zoom_speed])
 
         # Clamp gui scale
         self.gui_scale = max(self.gui_scale_min, min(self.gui_scale, self.gui_scale_max))
@@ -235,6 +284,19 @@ class GameWindow(PandaWindow):
         # Set plus/minus down last frame variables
         self.plus_last_frame = self.keydown(Key.EQUALS)
         self.minus_last_frame = self.keydown(Key.MINUS)
+
+
+    def _handle_camera_zoom_input(self):
+        # Detect if either command key held down
+        command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
+
+        # Get -/+ input for camera zoom (only when command is NOT held)
+        if not command_down:
+            if self.keydown(Key.EQUALS) and not self.plus_last_frame:
+                self.camera.scale = min([self.max_camera_scale, self.camera.scale + self.camera_zoom_speed])
+
+            elif self.keydown(Key.MINUS) and not self.minus_last_frame:
+                self.camera.scale = max([self.min_camera_scale, self.camera.scale - self.camera_zoom_speed])
 
 
     def _handle_unit_selection(self):
@@ -418,7 +480,66 @@ class GameWindow(PandaWindow):
 
 
     def _draw_mainmenu(self):
-        pass
+        # Dark blue background
+        self.fill_rect(
+            self.screen_left,
+            self.screen_bottom,
+            self.screen_right,
+            self.screen_top,
+            color=self.mainmenu_background_color
+        )
+
+        buttons = ["New Game", "Settings", "Quit"]
+        for i, button_text in enumerate(buttons):
+            # Calculate button position
+            button_x = self.extend(self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT)
+            button_y = self.extend(
+                self.screen_top,
+                self.mainmenu_button_extend_y + i * (self.mainmenu_button_height + self.mainmenu_button_spacing),
+                ExtendDirection.DOWN
+            )
+
+            # Draw button
+            self._draw_mainmenu_button(button_x, button_y)
+
+            # Draw button text
+            self.draw_text(
+                button_text,
+                x=button_x + self.mainmenu_button_width / 2 * self.gui_scale,
+                y=button_y + self.mainmenu_button_height / 2 * self.gui_scale,
+                font=self.context_font.new_size(int(20 * self.gui_scale)),
+                color=Color(255, 255, 255),
+                anchor=Anchor.CENTER
+            )
+
+
+    def _draw_mainmenu_button(self, x, y):
+        left = x
+        bottom = y
+        right = self.extend(left, self.mainmenu_button_width, ExtendDirection.RIGHT)
+        top = self.extend(bottom, self.mainmenu_button_height, ExtendDirection.UP)
+
+        if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top):
+            # Hovered button color
+            button_color = self.mainmenu_button_color_hover
+        else:
+            # Normal button color
+            button_color = self.mainmenu_button_color
+
+        self.fill_rounded_rect(
+            left,
+            bottom,
+            right,
+            top,
+            color=button_color,
+            outline_thickness=self.mainmenu_button_outline_thickness * self.gui_scale,
+            outline_color=self.mainmenu_button_outline_color,
+            topleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
+            topright_roundness=self.mainmenu_button_roundness * self.gui_scale,
+            bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
+            bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale
+        )
+
 
 
     def _draw_newgame(self):
