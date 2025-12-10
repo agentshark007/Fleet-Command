@@ -1,31 +1,46 @@
+"""Main menu UI module for Fleet Command.
+
+This module handles the main menu state including initialization,
+button detection, button actions, and rendering of the menu.
+"""
+
 from panda2d import *
 from core.enums import ExtendDirection
 from core.utility import mouse_in_area
 from core.enums import GameState
 
 def initialize(self):
-    self.mainmenu_button_extend_x = 50
-    self.mainmenu_button_extend_y = 100
-    self.mainmenu_button_spacing = 20
-    self.mainmenu_button_width = 150
-    self.mainmenu_button_height = 60
-    self.mainmenu_button_roundness = 15
+    """Initialize main menu configuration and button layout settings."""
+    # Button positioning
+    self.mainmenu_button_extend_x = 50  # Pixels from left edge
+    self.mainmenu_button_extend_y = 100  # Pixels from top edge
+    self.mainmenu_button_spacing = 20  # Pixels between buttons
+    self.mainmenu_button_width = 150  # Button width in pixels
+    self.mainmenu_button_height = 60  # Button height in pixels
+    self.mainmenu_button_roundness = 15  # Corner radius in pixels
 
-    self.mainmenu_background_color = Color(0, 0, 50)
-    self.mainmenu_button_color = Color(0, 0, 100)
-    self.mainmenu_button_color_hover = Color(30, 30, 130)
-    self.mainmenu_button_outline_thickness = 2
-    self.mainmenu_button_outline_color = Color(0, 0, 0)
+    # Color scheme
+    self.mainmenu_background_color = Color(0, 0, 50)  # Dark blue background
+    self.mainmenu_button_color = Color(0, 0, 100)  # Normal button color
+    self.mainmenu_button_color_hover = Color(30, 30, 130)  # Hovered button color
+    self.mainmenu_button_outline_thickness = 2  # Button border width
+    self.mainmenu_button_outline_color = Color(0, 0, 0)  # Black border
 
 
 
 def update(self):
-    # Centralized menu: (identifier, label)
+    """Update main menu logic (handle button clicks).
+    
+    Checks for button clicks and transitions to the appropriate game state.
+    """
+    # Define all menu buttons: (id, label)
     buttons = [
         ("newgame", "New Game"),
         ("settings", "Settings"),
         ("quit", "Quit")
     ]
+    
+    # Check each button for clicks
     for i, (button_id, button_label) in enumerate(buttons):
         # Calculate button position
         button_x = self.extend(self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT)
@@ -42,31 +57,48 @@ def update(self):
 
 
 def detect_mainmenu_button(self, x, y):
+    """Check if a button was clicked.
+    
+    Args:
+        x: Button left edge position.
+        y: Button bottom edge position.
+        
+    Returns:
+        True if the button is under the mouse and the left mouse button is pressed.
+    """
+    # Calculate button boundaries
     left = x
     bottom = y
     right = self.extend(left, self.mainmenu_button_width, ExtendDirection.RIGHT)
     top = self.extend(bottom, self.mainmenu_button_height, ExtendDirection.UP)
 
+    # Check if mouse is in button area and button is clicked
     if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top) and self.mousedownprimary:
         return True
     return False
 
 def handle_mainmenu_button_action(self, button_id):
+    """Execute the action for a clicked button.
+    
+    Args:
+        button_id: The identifier string of the button that was clicked.
+    """
     if button_id == "newgame":
-        self.game_state = GameState.GAME  # Or GameState.NEWGAME if you have a new game state
+        self.game_state = GameState.GAME  # Start new game
     elif button_id == "settings":
-        self.game_state = GameState.SETTINGS
+        self.game_state = GameState.SETTINGS  # Open settings menu
     elif button_id == "quit":
-        quit()
+        quit()  # Exit the application
 
 
 
 def draw(self):
+    """Render the main menu frame."""
     draw_mainmenu(self)
 
 def draw_mainmenu(self):
     """Render the main menu: background, buttons, and labels."""
-    # Dark blue background
+    # Dark blue background (fills entire screen)
     self.fill_rect(
         self.screen_left,
         self.screen_bottom,
@@ -75,12 +107,14 @@ def draw_mainmenu(self):
         color=self.mainmenu_background_color
     )
 
-    # Centralized menu: (identifier, label)
+    # Define all menu buttons: (identifier, label)
     buttons = [
         ("newgame", "New Game"),
         ("settings", "Settings"),
         ("quit", "Quit")
     ]
+    
+    # Render each button and its label
     for i, (button_id, button_text) in enumerate(buttons):
         # Calculate button position
         button_x = self.extend(self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT)
@@ -90,10 +124,10 @@ def draw_mainmenu(self):
             ExtendDirection.DOWN
         )
 
-        # Draw button
+        # Draw button rectangle
         draw_mainmenu_button(self, button_x, button_y)
 
-        # Draw button text (centered, scaling applied to position and font)
+        # Draw button text (centered on button, scaled with GUI scale)
         self.draw_text(
             button_text,
             x=(button_x + (self.mainmenu_button_width / 2)) * self.gui_scale,
@@ -105,19 +139,27 @@ def draw_mainmenu(self):
 
 
 def draw_mainmenu_button(self, x, y):
-    """Render a single rounded main menu button at `(x, y)`."""
+    """Render a single rounded main menu button at `(x, y)`.
+    
+    Changes color based on hover state.
+    
+    Args:
+        x: Button left edge position.
+        y: Button bottom edge position.
+    """
+    # Calculate button boundaries
     left = x
     bottom = y
     right = self.extend(left, self.mainmenu_button_width, ExtendDirection.RIGHT)
     top = self.extend(bottom, self.mainmenu_button_height, ExtendDirection.UP)
 
+    # Determine button color based on hover state
     if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top):
-        # Hovered button color
-        button_color = self.mainmenu_button_color_hover
+        button_color = self.mainmenu_button_color_hover  # Bright blue when hovered
     else:
-        # Normal button color
-        button_color = self.mainmenu_button_color
+        button_color = self.mainmenu_button_color  # Normal blue when not hovered
 
+    # Draw rounded rectangle button
     self.fill_rounded_rect(
         left,
         bottom,
