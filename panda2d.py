@@ -239,6 +239,22 @@ class Sound:
             self.sound = pygame.mixer.Sound(path)
         except Exception:
             self.sound = None
+    
+    def play(self):
+        """Play the sound effect."""
+        if self.sound:
+            try:
+                self.sound.play()
+            except Exception:
+                pass
+    
+    def stop(self):
+        """Stop the sound effect."""
+        if self.sound:
+            try:
+                self.sound.stop()
+            except Exception:
+                pass
 
 
 ###########################################################
@@ -606,15 +622,6 @@ class PandaWindow:
         if outline_thickness > 0 and outline_color:
             col = outline_color.rgb_tuple() if outline_color.a == 255 else outline_color.to_tuple()
             pygame.draw.rect(self.screen, col, pygame.Rect(px, py, w, h), outline_thickness)
-
-    def play_sound(self, sound: Sound):
-        """Play a sound effect."""
-        if sound and sound.sound:
-            try:
-                sound.sound.play()
-            except Exception:
-                pass
-
 
     def fill_polygon(self, xlist, ylist, color: Color, outline_thickness=0, outline_color: Color = None):
         """Draw a filled polygon with optional outline."""
