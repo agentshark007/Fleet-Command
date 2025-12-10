@@ -12,6 +12,7 @@ from game.unit import *
 from game.team import *
 from panda2d import Key, Color, Anchor
 from core.utility import distance
+from core.projectile import *
 
 def initialize(self):
     """Initialize all gameplay systems and game state.
@@ -104,6 +105,8 @@ def initialize_game_logic(self):
         ) for _ in range(20)  # Spawn 20 units total
     ]
 
+    self.projectiles = []  # No projectiles at start of game
+
 
 def initialize_layout(self):
     """Initialize UI visual settings and colors.
@@ -138,6 +141,7 @@ def update(self):
     handle_camera_zoom_input(self)  # Process camera zoom keys
     handle_unit_selection(self)  # Handle unit selection clicks
     handle_unit_control(self)  # Process unit movement and physics
+    handle_unit_shooting(self)  # Process unit shooting
     handle_camera_movement(self)  # Process camera movement
     update_water(self)  # Advance water animation
 
@@ -290,22 +294,23 @@ def handle_unit_control(self):
             if self.keydown(Key.D) and acceleration != 0:
                 direction += unit.rotation_speed  # Turn right
 
-            if self.keydown(Key.TAB):
-                # Ship alignment method is similar to autonomous movement
+            if len(self.selected_units_index) > 1:
+                if self.keydown(Key.TAB):
+                    # Ship alignment method is similar to autonomous movement
 
-                # Align to average direction of selected units
-                angle_diff = (avg_direction - unit.direction + 360) % 360
-                if angle_diff > 180:
-                    angle_diff -= 360
-                direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff)) 
-                
-                # Decide movement direction based on angle
-                if abs(angle_diff) < 90:
-                    # Move forward while turning
-                    acceleration = unit.speed
-                else:
-                    # Move backward while turning
-                    acceleration = -unit.speed
+                    # Align to average direction of selected units
+                    angle_diff = (avg_direction - unit.direction + 360) % 360
+                    if angle_diff > 180:
+                        angle_diff -= 360
+                    direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff)) 
+                    
+                    # Decide movement direction based on angle
+                    if abs(angle_diff) < 90:
+                        # Move forward while turning
+                        acceleration = unit.speed
+                    else:
+                        # Move backward while turning
+                        acceleration = -unit.speed
             
             # Clamp accelerations to valid ranges
             acceleration = min(acceleration, unit.speed)
@@ -344,6 +349,21 @@ def handle_unit_control(self):
         # Reset accelerations for next frame
         unit.acceleration = 0
         unit.rotation_acceleration = 0
+
+
+def handle_unit_shooting(self):
+    """Handle shooting input from the mouse."""
+    for index, unit in enumerate(self.units):
+        if index in self.selected_units_index:
+            if self.keydown(Key.SPACE):
+                mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+                self.projectiles.append(Missile(
+                    x=unit.position_x,
+                    y=unit.position_y,
+                    target_x=mouse_world_x,
+                    target_y=mouse_world_y,
+                    shooter_index=self.units.index(unit)
+                ))
 
 
 def handle_camera_movement(self):
@@ -392,6 +412,7 @@ def draw(self):
     """
     draw_water(self)  # Draw water background
     draw_units(self)  # Draw all units
+    draw_projectiles(self)  # Draw all projectiles
     draw_ui_panels(self)  # Draw UI panels and title
 
 
@@ -492,6 +513,24 @@ def draw_units(self):
             yscale=self.selection_marker_scale * self.camera.scale,
             filter=self.teams[unit.team_index].color.color,
             rotation=0
+        )
+
+
+def draw_projectiles(self):
+    for projectile in self.projectiles:
+        # Project projectile world position to screen coordinates
+        screen_x, screen_y = self.camera.project(projectile.x, projectile.y)
+        
+        # Draw projectile image
+        self.draw_image(
+            self.projectile_images[random.randint(0, len(self.projectile_images) - 1)],
+            screen_x,
+            screen_y,
+            anchor=Anchor.CENTER,
+            xscale=1 * self.camera.scale,
+            yscale=1 * self.camera.scale,
+            filter=Color(255, 255, 255, 255),
+            rotation=math.degrees(projectile.visible_direction)
         )
 
 
