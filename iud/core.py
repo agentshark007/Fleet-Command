@@ -4,7 +4,7 @@ This module handles initialization of core game systems including asset loading,
 GUI scaling, and per-frame core updates.
 """
 
-from panda2d import Font, Image, Key
+from panda2d import Font, Image, Key, Color
 
 def initialize(self):
     """Initialize core game systems.
@@ -89,5 +89,9 @@ def handle_gui_scaling(self):
 
 
 def draw(self):
-    """Draw core systems (currently unused)."""
+    """Draw core systems."""
+    self.clear(Color(0, 0, 0))  # Clear screen to black
+
+def late_draw(self):
+    """Late draw for core systems (currently unused)."""
     pass

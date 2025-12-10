@@ -60,11 +60,14 @@ class GameWindow(PandaWindow):
         self.menu_state = GameState.MAINMENU # Current game state tracking
 
         core.initialize(self)  # Initialize core systems (assets, GUI scale)
+
         game.initialize(self)  # Initialize gameplay systems
         mainmenu.initialize(self)  # Initialize main menu UI
         newgame.initialize(self)  # Initialize new game screen
         paused.initialize(self)  # Initialize pause menu
         settings.initialize(self)  # Initialize settings menu
+
+        core.late_initialize(self)  # Finalize core systems if needed
 
 
     def update(self):
@@ -112,6 +115,7 @@ class GameWindow(PandaWindow):
             case GameState.SETTINGS:
                 settings.draw(self)
 
+        core.late_draw(self)  # Finalize core drawing if needed
 
 
 def main():

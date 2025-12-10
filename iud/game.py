@@ -43,7 +43,7 @@ def initialize_settings(self):
     ]
 
     # Camera controls
-    self.camera_zoom_speed = 0.1  # Rate of zoom change per frame
+    self.camera_zoom_speed = 0.5  # Rate of zoom change per frame
     self.min_camera_scale = 0.3  # Minimum zoom level
     self.max_camera_scale = 3.0  # Maximum zoom level
     self.camera_move_speed = 50.0  # Pixels per second for camera movement
@@ -137,10 +137,10 @@ def update(self):
     Handles camera input, unit selection, unit control, and camera movement.
     Called once per frame during active gameplay.
     """
+    handle_camera_movement(self)  # Process camera movement
     handle_unit_selection(self)  # Handle unit selection clicks
     handle_unit_control(self)  # Process unit movement and physics
     handle_unit_shooting(self)  # Process unit shooting
-    handle_camera_movement(self)  # Process camera movement
     update_water(self)  # Advance water animation
 
 
@@ -361,14 +361,17 @@ def handle_camera_movement(self):
             self.camera.scale = max([self.min_camera_scale, self.camera.scale - self.camera_zoom_speed])
 
     # Accelerate camera based on arrow key input
+    factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
+    factor_y = self.camera_move_speed / self.camera.scale * self.deltatime
+
     if self.keydown(Key.LEFT):
-        self.camera.velocity_x -= self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera left
+        self.camera.velocity_x -= factor_x  # Move camera left
     if self.keydown(Key.RIGHT):
-        self.camera.velocity_x += self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera right
+        self.camera.velocity_x += factor_x  # Move camera right
     if self.keydown(Key.UP):
-        self.camera.velocity_y += self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera up
+        self.camera.velocity_y += factor_y  # Move camera up
     if self.keydown(Key.DOWN):
-        self.camera.velocity_y -= self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera down
+        self.camera.velocity_y -= factor_y  # Move camera down
 
     # Apply friction to camera velocity (smooth deceleration - frame-independent)
     friction_factor = pow(self.camera_move_friction, self.deltatime * 60)
