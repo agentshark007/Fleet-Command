@@ -26,10 +26,21 @@ def initialize(self):
     self.mainmenu_button_outline_thickness = 2  # Button border width
     self.mainmenu_button_outline_color = Color(0, 0, 0)  # Black border
 
+    # Music
+    self.music = Sound("assets/sounds/cinematic-powerful-battle-music-414692.mp3")
+    self.music_started = False
+
 
 
 def update(self):
-    """Handle main menu button interactions."""
+    """Handle main menu button interactions and music."""
+    # Start background music if not already playing
+    if not self.music_started:
+        if self.menu_state == GameState.MAINMENU:
+            self.music.play()
+            self.music_started = True
+
+
     # Define button actions
     buttons = [
         ("newgame", newgame),
@@ -48,6 +59,7 @@ def update(self):
 def newgame(self):
     """Transition to the new game setup state."""
     self.menu_state = GameState.GAME
+    self.music.stop()
 
 def settings(self):
     """Transition to the settings menu state."""
