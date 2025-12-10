@@ -171,11 +171,21 @@ class GameWindow(PandaWindow):
 
 
     def update(self):
-        self._handle_plus_minus_input()
-        self._handle_unit_selection()
-        self._handle_unit_control()
-        self._handle_camera_movement()
-        self._update_water()
+        match self.game_state:
+            case GameState.MAINMENU:
+                pass
+            case GameState.NEWGAME:
+                pass
+            case GameState.GAME:
+                self._handle_plus_minus_input()
+                self._handle_unit_selection()
+                self._handle_unit_control()
+                self._handle_camera_movement()
+                self._update_water()
+            case GameState.PAUSED:
+                pass
+            case GameState.SETTINGS:
+                pass
 
 
     def _handle_plus_minus_input(self):
@@ -371,9 +381,20 @@ class GameWindow(PandaWindow):
 
     def draw(self):
         self.clear(Color(0, 0, 0))
-        self._draw_water()
-        self._draw_units()
-        self._draw_ui_panels()
+
+        match self.game_state:
+            case GameState.MAINMENU:
+                pass
+            case GameState.NEWGAME:
+                pass
+            case GameState.GAME:
+                self._draw_water()
+                self._draw_units()
+                self._draw_ui_panels()
+            case GameState.PAUSED:
+                pass
+            case GameState.SETTINGS:
+                pass
 
 
     def _draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0):
