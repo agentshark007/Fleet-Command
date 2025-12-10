@@ -19,6 +19,13 @@ def initialize(self):
     # Load all game assets
     load_assets(self)
 
+    # Reset key state tracking variables
+    self.plus_last_frame = False  # Track plus key state
+    self.minus_last_frame = False  # Track minus key state
+    self.mouseprimary_last_frame = False  # Track primary mouse button state
+    self.mousemiddle_last_frame = False  # Track middle mouse button state
+    self.mousesecondary_last_frame = False  # Track secondary mouse button state
+
 def late_initialize(self):
     """Late initialization step for core systems (currently unused)."""
     pass
@@ -54,6 +61,9 @@ def late_update(self):
     # Store key state from this frame for next frame's input checks
     self.plus_last_frame = self.keydown(Key.EQUALS)  # Track if plus key was held
     self.minus_last_frame = self.keydown(Key.MINUS)  # Track if minus key was held
+    self.mouseprimary_last_frame = self.mousedownprimary  # Track primary mouse button state
+    self.mousemiddle_last_frame = self.mousedownmiddle  # Track middle mouse button state
+    self.mousesecondary_last_frame = self.mousedownsecondary  # Track secondary mouse button state
 
 def handle_gui_scaling(self):
     """Handle user input for adjusting GUI scale.

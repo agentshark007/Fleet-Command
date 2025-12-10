@@ -68,8 +68,6 @@ def initialize_state_variables(self):
     Sets up the current game state, camera, unit selection, and animation counters.
     """
     # GUI scaling key state tracking
-    self.plus_last_frame = False  # Track if plus key was held last frame (prevent repeat)
-    self.minus_last_frame = False  # Track if minus key was held last frame (prevent repeat)
     self.gui_scale = 1.0  # Current GUI scale multiplier
 
     # Water animation
@@ -193,11 +191,14 @@ def handle_unit_selection(self):
             closest_unit_index_selectable = index
 
     # Handle selection input (left mouse button)
-    if self.mousedownprimary:
+    if self.mousedownprimary and not self.mouseprimary_last_frame:
         # Only allow selecting units from the player team
         if closest_unit_index_selectable != -1 and self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
             if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
-                self.selected_units_index.append(closest_unit_index_selectable)
+                if self.selected_units_index.count(closest_unit_index_selectable) == 0:
+                    self.selected_units_index.append(closest_unit_index_selectable)
+                else:
+                    self.selected_units_index.remove(closest_unit_index_selectable)
             else:
                 self.selected_units_index = [closest_unit_index_selectable]
         else:
