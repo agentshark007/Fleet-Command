@@ -32,6 +32,14 @@ def initialize_settings(self):
     """
     # Water animation
     self.water_state_speed = 5  # Speed of water animation cycles
+    self.water_layer_speeds = [0.0, 2.0, 3.5, 5.0]  # Speed multiplier for each layer
+    self.water_layer_opacities = [255, 200, 150, 120]  # Alpha for each layer
+    self.water_base_colors = [
+        (170, 150, 150),  # Base brownish
+        (145, 165, 145),  # Greenish
+        (140, 155, 170),  # Blueish
+        (130, 150, 175)   # Deep blue
+    ]
 
     # Camera controls
     self.camera_zoom_speed = 0.1  # Rate of zoom change per frame
@@ -65,6 +73,7 @@ def initialize_state_variables(self):
 
     # Water animation
     self.water_state = 0  # Current animation frame counter for water
+    self.water_layer_offsets = [0.0, 0.0, 0.0, 0.0]  # Tracking offset for each layer
 
     # Camera
     self.camera = Camera(0.0, 0.0, 1.0)  # Create camera at origin with default zoom
@@ -366,8 +375,13 @@ def update_water(self):
     """Update water animation state.
     
     Increments the water state counter which drives the parallax animation.
+    Updates individual layer offsets based on their speed multipliers.
     """
     self.water_state += self.water_state_speed * self.deltatime
+    
+    # Update individual layer offsets for smooth animation
+    for i in range(len(self.water_layer_offsets)):
+        self.water_layer_offsets[i] += self.water_state_speed * self.water_layer_speeds[i] * self.deltatime
 
 
 
@@ -484,31 +498,55 @@ def draw_units(self):
 def draw_water(self):
     """Render parallax water layers with varied movement and alpha transparency.
     
-    Creates a layered water effect using three animated tiles moving at different
-    speeds and with different opacity levels for visual depth.
+    Creates a sophisticated multi-layered water effect with:
+    - Different animation speeds per layer for depth
+    - Wave motion effects for natural movement
+    - Color variation for visual richness
+    - Smooth alpha blending between layers
     """
-    # Base layer: stationary
+    # Layer 0: Base stationary layer (bedrock)
+    offset_x = 0.0
+    offset_y = 0.0
+    r, g, b = self.water_base_colors[0]
     draw_tiled_water(
         self,
-        Color(170, 150, 150, 255),  # Brownish base layer
-        0.0,  # No horizontal offset
-        0.0   # No vertical offset
+        Color(r, g, b, self.water_layer_opacities[0]),
+        offset_x,
+        offset_y
     )
 
-    # Second layer: moving diagonally
+    # Layer 1: Slow diagonal movement with subtle wave
+    offset_x = self.water_layer_offsets[1] * -1.5 + math.sin(self.water_state * 0.05) * 10.0
+    offset_y = self.water_layer_offsets[1] * -1.5 + math.cos(self.water_state * 0.05) * 10.0
+    r, g, b = self.water_base_colors[1]
     draw_tiled_water(
         self,
-        Color(150, 170, 150, 200),  # Greenish layer with transparency
-        self.water_state * -2,  # Move left
-        self.water_state * -2   # Move down
+        Color(r, g, b, self.water_layer_opacities[1]),
+        offset_x,
+        offset_y
     )
 
-    # Third layer: moving in circle pattern
+    # Layer 2: Medium-speed circular motion with wave variation
+    angle = self.water_state * 0.08
+    offset_x = math.cos(angle) * 25.0 + math.sin(self.water_state * 0.06) * 8.0
+    offset_y = math.sin(angle) * 25.0 + math.cos(self.water_state * 0.06) * 8.0
+    r, g, b = self.water_base_colors[2]
     draw_tiled_water(
         self,
-        Color(150, 150, 170, 120),  # Blueish layer with high transparency
-        math.cos(self.water_state * 0.1) * 20.0,  # Circular X offset
-        math.sin(self.water_state * 0.1) * 20.0   # Circular Y offset
+        Color(r, g, b, self.water_layer_opacities[2]),
+        offset_x,
+        offset_y
+    )
+
+    # Layer 3: Fast oscillating waves (surface ripples)
+    offset_x = math.sin(self.water_state * 0.12) * 15.0 + math.cos(self.water_state * 0.08) * 10.0
+    offset_y = math.cos(self.water_state * 0.15) * 15.0 + math.sin(self.water_state * 0.1) * 10.0
+    r, g, b = self.water_base_colors[3]
+    draw_tiled_water(
+        self,
+        Color(r, g, b, self.water_layer_opacities[3]),
+        offset_x,
+        offset_y
     )
 
 
