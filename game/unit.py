@@ -15,7 +15,7 @@ class Unit:
 
     def __init__(
         self, image: Image, image_scale: float, health: int, attack: int, defense: int,
-        speed: int, rotation_speed: int, friction: float = 0.95, rotation_friction: float = 0.9
+        speed: int, rotation_speed: int, friction: float = 0.95, rotation_friction: float = 0.9, collision_radius: int = 20
     ):
         """Initialize a unit with the given stats and properties.
         
@@ -64,6 +64,9 @@ class Unit:
         self.target_position_x = 0  # Target position for weapons (X coordinate)
         self.target_position_y = 0  # Target position for weapons (Y coordinate)
 
+        # Collisions
+        self.collision_radius = collision_radius  # Radius for collision detection
+
         # Autonomous control
         self.autonomous = False  # True if unit is controlled by autonomous movement
         self.autonomous_target_x = 0  # Target position for autonomous movement (X)
@@ -96,7 +99,8 @@ class Battleship(Unit):
             speed=200,  # Fast movement speed
             rotation_speed=100,  # Rotation speed
             friction=0.97,  # Low friction (maintains momentum well)
-            rotation_friction=0.9  # Rotation friction
+            rotation_friction=0.9,  # Rotation friction
+            collision_radius=30  # Larger collision radius
         )
         # Set initial position and team
         self.team_index = team_index

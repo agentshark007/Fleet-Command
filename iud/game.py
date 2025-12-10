@@ -12,7 +12,7 @@ from game.unit import *
 from game.team import *
 from panda2d import Key, Color, Anchor
 from core.utility import distance, pseudo_random_offset
-from core.projectile import *
+from game.projectile import *
 
 def initialize(self):
     """Initialize all gameplay systems and game state.
@@ -87,14 +87,16 @@ def initialize_game_logic(self):
     self.teams = random_teams(team_count)
     
     # Create initial battleships for each team with random positions and rotations
-    self.units = [
-        Battleship(
+    self.units = []
+    for i in range(20):
+        unit = Battleship(
             team_index=random.randint(0, len(self.teams) - 1),
             position_x=random.uniform(-1000, 1000),
             position_y=random.uniform(-1000, 1000),
             direction=random.uniform(0, 360)
-        ) for _ in range(20)  # Spawn 20 units total
-    ]
+        )
+        unit.unit_id = i
+        self.units.append(unit)
 
     self.projectiles = []  # No projectiles at start of game
 
@@ -133,6 +135,8 @@ def update(self):
     handle_unit_selection(self)  # Handle unit selection clicks
     handle_unit_control(self)  # Process unit movement and physics
     handle_unit_shooting(self)  # Process unit shooting
+    update_projectiles(self)  # Update all projectiles
+    detect_collisions(self)  # Check for collisions
     update_water(self)  # Advance water animation
 
 
@@ -325,13 +329,50 @@ def handle_unit_shooting(self):
         if index in self.selected_units_index:
             if self.keydown(Key.SPACE):
                 mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+                dx = mouse_world_x - unit.position_x
+                dy = mouse_world_y - unit.position_y
+                length = math.hypot(dx, dy)
+                if length == 0:
+                    direction = (0, 0)
+                else:
+                    direction = (dx / length, dy / length)
                 self.projectiles.append(Missile(
                     x=unit.position_x,
                     y=unit.position_y,
-                    target_x=mouse_world_x,
-                    target_y=mouse_world_y,
-                    shooter_index=self.units.index(unit)
+                    direction=direction,
+                    shooter_id=unit.unit_id
                 ))
+
+def update_projectiles(self):
+    """Update all projectiles in the game."""
+    for projectile in self.projectiles:
+        projectile.update(self.deltatime)
+
+def detect_collisions(self):
+    """Detect collisions between units and projectiles."""
+    units_to_remove = set()
+    projectiles_to_remove = set()
+    for unit_index, unit in enumerate(self.units):
+        for projectile_index, projectile in enumerate(self.projectiles):
+            # Prevent projectile from hitting its shooter
+            if hasattr(projectile, 'shooter_id') and unit.unit_id == projectile.shooter_id:
+                continue
+            dist = distance(projectile.x, projectile.y, unit.position_x, unit.position_y)
+            if dist < unit.collision_radius:
+                # Mark for removal
+                units_to_remove.add(unit_index)
+                projectiles_to_remove.add(projectile_index)
+                # Once a projectile hits, break to avoid double removal
+                break
+    # Remove units and projectiles after iteration
+    self.units = [u for i, u in enumerate(self.units) if i not in units_to_remove]
+    self.projectiles = [p for i, p in enumerate(self.projectiles) if i not in projectiles_to_remove]
+    # Remove destroyed units from selected_units_index
+    self.selected_units_index = [i for i in self.selected_units_index if i not in units_to_remove]
+    # Remove units and projectiles after iteration
+    self.units = [u for i, u in enumerate(self.units) if i not in units_to_remove]
+    self.projectiles = [p for i, p in enumerate(self.projectiles) if i not in projectiles_to_remove]
+
 
 
 def handle_camera_movement(self):
