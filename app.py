@@ -93,16 +93,12 @@ class GameWindow(PandaWindow):
         self.camera_move_friction = 0.9
 
         # Image scales
-        self.selection_marker_scale = 0.03
+        self.selection_arrow_scale = 0.05
         self.selection_distance = 100
         self.autonomous_target_image_scale = 0.05
 
         # Autonomous control
         self.target_stop_distance = 100
-        self.autonomous_forward_backward_angle_threshold = 90
-
-        # Selection marker offset
-        self.selection_marker_offset = 20
 
 
     def _initialize_state_variables(self):
@@ -154,7 +150,7 @@ class GameWindow(PandaWindow):
         # Images
         self.water_image = Image("assets/images/water.jpg")
         self.water_image_scale = 0.3
-        self.selection_marker_image = Image("assets/images/selection-marker.png")
+        self.selection_arrow_image = Image("assets/images/selection-arrow.png")
         self.autonomous_target_image = Image("assets/images/target.png")
 
 
@@ -249,37 +245,26 @@ class GameWindow(PandaWindow):
                     unit.autonomous = False
 
                 if unit.autonomous:
-                    # Accelerate and turn towards target
-
-                    # Calculate important values
                     target_x, target_y = unit.autonomous_target_x, unit.autonomous_target_y
                     dx = target_x - unit.position_x
                     dy = target_y - unit.position_y
                     distance_to_target = math.hypot(dx, dy)
-
-                    # Stop if target reached
                     if distance_to_target < self.target_stop_distance:
                         # Stop if close to target and deactivate autonomous mode
                         unit.autonomous = False
                         continue
-
-                    # Calculate angle to target
                     angle_to_target = math.degrees(math.atan2(dx, dy))
-
-                    # Calculate angle difference in range -180 to 180
                     angle_diff = (angle_to_target - unit.direction + 360) % 360
                     if angle_diff > 180:
                         angle_diff -= 360
-
-                    # Determine acceleration and rotation direction
-                    if abs(angle_diff) < self.autonomous_forward_backward_angle_threshold:
-                        # If angle difference is less than 90 degrees, move forward
-                        direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
+                    # Smooth turning: scale rotation by angle difference
+                    max_turn = unit.rotation_speed
+                    direction = max(-max_turn, min(max_turn, angle_diff))
+                    # Slow down when not facing target
+                    if abs(angle_diff) < 10:
                         acceleration = unit.speed
                     else:
-                        # If angle difference is more than 90 degrees, move backward
-                        direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
-                        acceleration = -unit.speed
+                        acceleration = unit.speed * max(0.2, 1 - abs(angle_diff) / 180)
 
                     # Cap acceleration and rotation to make sure no bugs occor
                     acceleration = min(acceleration, unit.speed)
@@ -487,19 +472,19 @@ class GameWindow(PandaWindow):
                     rotation=unit.direction
                 )
 
-        # Draw unit team marker
+        # Draw unit team arrows
         for index, unit in enumerate(self.units):
-            # Calculate the screen position of the marker
+            # Calculate the screen position of the arrow
             screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
             
-            # Draw the marker
+            # Draw the arrow
             self.draw_image(
-                self.selection_marker_image,
+                self.selection_arrow_image,
                 screen_x,
-                screen_y + self.selection_marker_offset * self.gui_scale * self.camera.scale,
+                screen_y + 100 * self.gui_scale * self.camera.scale,
                 anchor=Anchor.BOTTOM,
-                xscale=self.selection_marker_scale * self.gui_scale * self.camera.scale,
-                yscale=self.selection_marker_scale  * self.gui_scale * self.camera.scale,
+                xscale=self.selection_arrow_scale * self.gui_scale * self.camera.scale,
+                yscale=self.selection_arrow_scale  * self.gui_scale * self.camera.scale,
                 filter=self.teams[unit.team_index].color.color,
                 rotation=0
             )
