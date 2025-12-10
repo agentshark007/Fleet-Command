@@ -30,6 +30,9 @@ class Unit:
         self.velocity_y = 0  # Velocity in the Y direction
         self.velocity_rotation = 0  # Rotational velocity
 
+        self.acceleration = 0  # Acceleration for movement
+        self.rotation_acceleration = 0  # Acceleration for rotation
+
         self.friction = friction  # Friction factor for movement
         self.rotation_friction = rotation_friction  # Friction factor for rotation
 

@@ -155,6 +155,7 @@ class GameWindow(PandaWindow):
     def update(self):
         self._handle_plus_minus_input()
         self._handle_unit_selection()
+        self._handle_unit_control()
         self._handle_camera_movement()
         self._update_water()
 
@@ -212,6 +213,105 @@ class GameWindow(PandaWindow):
                 self.selected_unit_index = closest_unit_index_selectable
             else:
                 self.selected_unit_index = -1
+
+
+    def _handle_unit_control(self):
+        # Helper functions
+        def manual_override():
+            return any([
+                self.keydown(Key.W),
+                self.keydown(Key.S),
+                self.keydown(Key.A),
+                self.keydown(Key.D)
+            ])
+
+        # Get unit control input
+        for index, unit in enumerate(self.units):
+            if index == self.selected_unit_index:
+                # Detect autonomous mode activation
+                if self.mousedownsecondary:
+                    # Set autonomous target to mouse world position
+                    mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+                    unit.autonomous = True
+                    unit.autonomous_target_x = mouse_world_x
+                    unit.autonomous_target_y = mouse_world_y
+
+                # Detect autonomous mode deactivation
+                if manual_override():
+                    # Disable autonomous control on manual input
+                    unit.autonomous = False
+
+                if unit.autonomous:
+                    target_x, target_y = unit.autonomous_target_x, unit.autonomous_target_y
+                    dx = target_x - unit.position_x
+                    dy = target_y - unit.position_y
+                    distance_to_target = math.hypot(dx, dy)
+                    if distance_to_target < 10:
+                        # Stop if close to target
+                        return 0, 0
+                    angle_to_target = math.degrees(math.atan2(dx, dy))
+                    angle_diff = (angle_to_target - unit.direction + 360) % 360
+                    if angle_diff > 180:
+                        angle_diff -= 360
+                    # Smooth turning: scale rotation by angle difference
+                    max_turn = unit.rotation_speed
+                    direction = max(-max_turn, min(max_turn, angle_diff))
+                    # Slow down when not facing target
+                    if abs(angle_diff) < 10:
+                        acceleration = unit.speed
+                    else:
+                        acceleration = unit.speed * max(0.2, 1 - abs(angle_diff) / 180)
+
+                    # Cap acceleration and rotation to make sure no bugs occor
+                    acceleration = min(acceleration, unit.speed)
+                    direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
+
+                    unit.acceleration = acceleration
+                    unit.rotation_acceleration = direction
+                else:
+                    acceleration = 0
+                    direction = 0
+
+                    if self.keydown(Key.W):
+                        acceleration += unit.speed
+                    if self.keydown(Key.S):
+                        acceleration -= unit.speed
+                    if self.keydown(Key.A) and acceleration != 0:
+                        direction -= unit.rotation_speed
+                    if self.keydown(Key.D) and acceleration != 0:
+                        direction += unit.rotation_speed
+
+                    # Cap acceleration and rotation to make sure no bugs occor
+                    acceleration = min(acceleration, unit.speed)
+                    direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
+
+                    unit.acceleration = acceleration
+                    unit.rotation_acceleration = direction
+
+            elif self.teams[unit.team_index].type == TeamType.PLAYER:
+                pass # Do nothing for non-selected player units
+
+            elif self.teams[unit.team_index].type == TeamType.AI:
+                # Simple AI for units
+                pass
+        
+        # Run physics and movement for all units
+        for unit in self.units:
+            # Update velocities based on acceleration
+            angle_rad = math.radians(unit.direction)
+            unit.velocity_x += math.sin(angle_rad) * unit.acceleration * self.deltatime
+            unit.velocity_y += math.cos(angle_rad) * unit.acceleration * self.deltatime
+            unit.velocity_rotation += unit.rotation_acceleration * self.deltatime
+
+            # Apply friction
+            unit.velocity_x *= unit.friction
+            unit.velocity_y *= unit.friction
+            unit.velocity_rotation *= unit.rotation_friction
+            
+            # Update position and direction
+            unit.direction += unit.velocity_rotation * self.deltatime
+            unit.position_x += unit.velocity_x * self.deltatime
+            unit.position_y += unit.velocity_y * self.deltatime
 
 
     def _handle_camera_movement(self):
