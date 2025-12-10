@@ -1,7 +1,7 @@
 from panda2d import PandaWindow, Color, Font, Image, Sound, Key, Anchor, Resizable
 import math
-from teams import *
-from units import *
+from team import *
+from unit import *
 from utility import distance, mouse_in_area
 from enum import Enum
 import random
@@ -435,6 +435,10 @@ class GameWindow(PandaWindow):
             unit.direction += unit.velocity_rotation * self.deltatime
             unit.position_x += unit.velocity_x * self.deltatime
             unit.position_y += unit.velocity_y * self.deltatime
+
+            # Clear accelerations
+            unit.acceleration = 0
+            unit.rotation_acceleration = 0
 
 
     def _handle_camera_movement(self):
