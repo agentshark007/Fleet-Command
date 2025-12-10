@@ -42,3 +42,7 @@ def mouse_in_area(mousex, mousey, x1, x2, y1, y2):
     y1, y2 = sorted([y1, y2])
     
     return x1 <= mousex <= x2 and y1 <= mousey <= y2
+
+def pseudo_random_offset(x, y, seed=0):
+    """Generate a pseudo-random offset based on coordinates and a seed."""
+    return (math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453) % 1

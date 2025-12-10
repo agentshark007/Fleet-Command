@@ -6,12 +6,12 @@ the core game loop while a player is actively playing.
 """
 
 import math
-from core.enums import GameState, ExtendDirection
+from core.enums import ExtendDirection
 from core.camera import Camera
 from game.unit import *
 from game.team import *
 from panda2d import Key, Color, Anchor
-from core.utility import distance
+from core.utility import distance, pseudo_random_offset
 from core.projectile import *
 
 def initialize(self):
@@ -33,14 +33,6 @@ def initialize_settings(self):
     """
     # Water animation
     self.water_state_speed = 5  # Speed of water animation cycles
-    self.water_layer_speeds = [0.0, 2.0, 3.5, 5.0]  # Speed multiplier for each layer
-    self.water_layer_opacities = [255, 200, 150, 120]  # Alpha for each layer
-    self.water_base_colors = [
-        (170, 150, 150),  # Base brownish
-        (145, 165, 145),  # Greenish
-        (140, 155, 170),  # Blueish
-        (130, 150, 175)   # Deep blue
-    ]
 
     # Camera controls
     self.camera_zoom_speed = 0.5  # Rate of zoom change per frame
@@ -391,10 +383,6 @@ def update_water(self):
     Updates individual layer offsets based on their speed multipliers.
     """
     self.water_state += self.water_state_speed * self.deltatime
-    
-    # Update individual layer offsets for smooth animation
-    for i in range(len(self.water_layer_offsets)):
-        self.water_layer_offsets[i] += self.water_state_speed * self.water_layer_speeds[i] * self.deltatime
 
 
 
@@ -536,53 +524,70 @@ def draw_water(self):
     - Color variation for visual richness
     - Smooth alpha blending between layers
     """
-    # Layer 0: Base stationary layer (bedrock)
-    offset_x = 0.0
-    offset_y = 0.0
-    r, g, b = self.water_base_colors[0]
-    draw_tiled_water(
+    # Layer 0: Ocean base layer with slow circular motion (moves in a circular path)
+    rotation_speed_0 = 0.03
+    rotation_radius_0 = 7.0
+    offset_x_0 = math.sin(self.water_state * rotation_speed_0) * rotation_radius_0
+    offset_y_0 = math.cos(self.water_state * rotation_speed_0) * rotation_radius_0
+    # Dynamic color modulation for base layer (darker)
+    draw_water_layer(
         self,
-        Color(r, g, b, self.water_layer_opacities[0]),
-        offset_x,
-        offset_y
+        Color(30, 60, 170, 255),  # Dark blue with some transparency
+        Color(20, 20, 20, 0),  # Moderate color fluctuation strength
+        Color(0.2, 0.2, 0.2, 0),  # Moderate fluctuation speed
+        offset_x_0,
+        offset_y_0,
+        False  # No per-tile offset for this layer
     )
 
-    # Layer 1: Slow diagonal movement with subtle wave
-    offset_x = self.water_layer_offsets[1] * -1.5 + math.sin(self.water_state * 0.05) * 10.0
-    offset_y = self.water_layer_offsets[1] * -1.5 + math.cos(self.water_state * 0.05) * 10.0
-    r, g, b = self.water_base_colors[1]
-    draw_tiled_water(
+    # Layer 1: Turquoise wave layer (moves diagonally)
+    wave_speed_1 = 1.5
+    offset_x_1 = self.water_state * wave_speed_1
+    offset_y_1 = -self.water_state * wave_speed_1 * 0.8  # Negative for opposite direction
+    draw_water_layer(
         self,
-        Color(r, g, b, self.water_layer_opacities[1]),
-        offset_x,
-        offset_y
+        Color(70, 170, 230, 120),  # Light turquoise with some transparency
+        Color(15, 15, 15, 0),  # Moderate color fluctuation strength
+        Color(0.1, 0.1, 0.1, 0),  # Slow fluctuation speed
+        offset_x_1,
+        offset_y_1,
+        True  # Enable per-tile offset for this layer
     )
 
-    # Layer 2: Medium-speed circular motion with wave variation
-    angle = self.water_state * 0.08
-    offset_x = math.cos(angle) * 25.0 + math.sin(self.water_state * 0.06) * 8.0
-    offset_y = math.sin(angle) * 25.0 + math.cos(self.water_state * 0.06) * 8.0
-    r, g, b = self.water_base_colors[2]
-    draw_tiled_water(
-        self,
-        Color(r, g, b, self.water_layer_opacities[2]),
-        offset_x,
-        offset_y
+    # Layer 2: Light blue wave layer (moves opposite diagonally)
+    wave_speed_2 = 2.0
+    offset_x_2 = self.water_state * wave_speed_2
+    offset_y_2 = self.water_state * wave_speed_2
+    # draw_water_layer(
+    #     self,
+    #     Color(100, 120, 200, 140),  # Very light blue with more transparency
+    #     Color(10, 10, 10, 10),  # Low color fluctuation strength
+    #     Color(0.15, 0.15, 0.15, 10),  # Moderate fluctuation speed
+    #     offset_x_2,
+    #     offset_y_2,
+    #     True  # Enable per-tile offset for this layer
+    # )
+
+def draw_water_layer(self, color: Color, color_fluctuation_strength: Color, color_fluctuation__speed: Color, offset_x: float = 0.0, offset_y: float = 0.0, per_tile_offset: bool = False):
+    """Render a single water layer at a given offset.
+    
+    Args:
+        color: Base color to tint the water tiles with (includes alpha).
+        color_fluctuation: Color fluctuation to add dynamic variation.
+        offset_x: Horizontal offset for this layer's animation.
+        offset_y: Vertical offset for this layer's animation.
+    """
+    # Combine base color with fluctuation for dynamic effect
+    final_color = Color(
+        color.r + math.sin(color_fluctuation__speed.r) * color_fluctuation_strength.r,
+        color.g + math.cos(color_fluctuation__speed.g) * color_fluctuation_strength.g,
+        color.b + math.sin(color_fluctuation__speed.b) * color_fluctuation_strength.b,
+        color.a + math.cos(color_fluctuation__speed.a) * color_fluctuation_strength.a
     )
-
-    # Layer 3: Fast oscillating waves (surface ripples)
-    offset_x = math.sin(self.water_state * 0.12) * 15.0 + math.cos(self.water_state * 0.08) * 10.0
-    offset_y = math.cos(self.water_state * 0.15) * 15.0 + math.sin(self.water_state * 0.1) * 10.0
-    r, g, b = self.water_base_colors[3]
-    draw_tiled_water(
-        self,
-        Color(r, g, b, self.water_layer_opacities[3]),
-        offset_x,
-        offset_y
-    )
+    draw_tiled_water(self, final_color, offset_x, offset_y, per_tile_offset)
 
 
-def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0):
+def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0, per_tile_offset: bool = False):
     """Render a tiled water layer at a given offset.
     
     Uses world-space tiling to ensure smooth parallax scrolling without gaps
@@ -637,9 +642,12 @@ def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y:
             # Calculate world position of this tile
             wx = start_world_x + col * world_tile_w
             wy = start_world_y + row * world_tile_h
-            # Project to screen space (subtract offsets to undo parallax for rendering)
-            sx, sy = self.camera.project(wx - offset_x, wy - offset_y)
-            # Draw the tile
+            tile_offset_x = 0
+            tile_offset_y = 0
+            if per_tile_offset:
+                tile_offset_x = (pseudo_random_offset(wx, wy, seed=1) - 0.5) * 2  # Range: -1 to +1
+                tile_offset_y = (pseudo_random_offset(wx, wy, seed=2) - 0.5) * 2
+            sx, sy = self.camera.project(wx - offset_x - tile_offset_x, wy - offset_y - tile_offset_y)
             self.draw_image(
                 self.water_image,
                 sx,
