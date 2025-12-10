@@ -53,6 +53,7 @@ def initialize_settings(self):
     self.selection_marker_scale = 0.03  # Scale of unit team markers
     self.selection_distance = 100  # Pixels: range for selecting units
     self.autonomous_target_image_scale = 0.05  # Scale of autonomous target indicators
+    self.water_image_scale = 0.3  # Scale for water tiles
 
     # Autonomous movement
     self.target_stop_distance = 100  # Distance to stop at target
@@ -136,32 +137,11 @@ def update(self):
     Handles camera input, unit selection, unit control, and camera movement.
     Called once per frame during active gameplay.
     """
-    handle_camera_zoom_input(self)  # Process camera zoom keys
     handle_unit_selection(self)  # Handle unit selection clicks
     handle_unit_control(self)  # Process unit movement and physics
     handle_unit_shooting(self)  # Process unit shooting
     handle_camera_movement(self)  # Process camera movement
     update_water(self)  # Advance water animation
-
-
-def handle_camera_zoom_input(self):
-    """Handle camera zoom input from keyboard.
-    
-    Allows the user to zoom the camera in and out using Plus/Minus keys
-    (when Command is NOT held). Command+Plus/Minus is reserved for GUI scaling.
-    """
-    # Detect if either command key is held down
-    command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
-
-    # Get +/- input for camera zoom (only when command is NOT held)
-    if not command_down:
-        # Zoom in when plus key pressed
-        if self.keydown(Key.EQUALS) and not self.plus_last_frame:
-            self.camera.scale = min([self.max_camera_scale, self.camera.scale + self.camera_zoom_speed])
-
-        # Zoom out when minus key pressed
-        elif self.keydown(Key.MINUS) and not self.minus_last_frame:
-            self.camera.scale = max([self.min_camera_scale, self.camera.scale - self.camera_zoom_speed])
 
 
 def handle_unit_selection(self):
@@ -305,14 +285,9 @@ def handle_unit_control(self):
                         angle_diff -= 360
                     direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff)) 
                     
-                    # Decide movement direction based on angle
-                    if abs(angle_diff) < 90:
-                        # Move forward while turning
-                        acceleration = unit.speed
-                    else:
-                        # Move backward while turning
-                        acceleration = -unit.speed
-            
+                    # Move forward while aligning
+                    acceleration = unit.speed
+                
             # Clamp accelerations to valid ranges
             acceleration = min(acceleration, unit.speed)
             direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
@@ -372,15 +347,28 @@ def handle_camera_movement(self):
     
     Allows smooth camera panning using arrow keys with friction-based deceleration.
     """
+    # Detect command key
+    command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
+
+    # Get +/- input for camera zoom (only when command is NOT held)
+    if not command_down:
+        # Zoom in when plus key pressed
+        if self.keydown(Key.EQUALS) and not self.plus_last_frame:
+            self.camera.scale = min([self.max_camera_scale, self.camera.scale + self.camera_zoom_speed])
+
+        # Zoom out when minus key pressed
+        elif self.keydown(Key.MINUS) and not self.minus_last_frame:
+            self.camera.scale = max([self.min_camera_scale, self.camera.scale - self.camera_zoom_speed])
+
     # Accelerate camera based on arrow key input
     if self.keydown(Key.LEFT):
-        self.camera.velocity_x -= self.camera_move_speed * self.deltatime  # Move camera left
+        self.camera.velocity_x -= self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera left
     if self.keydown(Key.RIGHT):
-        self.camera.velocity_x += self.camera_move_speed * self.deltatime  # Move camera right
+        self.camera.velocity_x += self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera right
     if self.keydown(Key.UP):
-        self.camera.velocity_y += self.camera_move_speed * self.deltatime  # Move camera up
+        self.camera.velocity_y += self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera up
     if self.keydown(Key.DOWN):
-        self.camera.velocity_y -= self.camera_move_speed * self.deltatime  # Move camera down
+        self.camera.velocity_y -= self.camera_move_speed / self.camera.scale * self.deltatime  # Move camera down
 
     # Apply friction to camera velocity (smooth deceleration - frame-independent)
     friction_factor = pow(self.camera_move_friction, self.deltatime * 60)
@@ -390,6 +378,7 @@ def handle_camera_movement(self):
     # Update camera position based on velocity
     self.camera.x += self.camera.velocity_x
     self.camera.y += self.camera.velocity_y
+
 
 
 def update_water(self):
@@ -738,3 +727,15 @@ def draw_ui_panels(self):
 
     # Draw title text main (bright color on top of shadow)
     self.draw_text("Fleet Command", font, title_x, title_y, anchor, self.title_text_color)
+
+
+
+    # Draw FPS counter at center of screen for debugging
+    self.draw_text(
+        str(round(1 / self.deltatime)),
+        self.title_font.new_size(14 * self.gui_scale),
+        self.screen_center_x,
+        self.screen_center_y,
+        Anchor.CENTER,
+        Color(255, 255, 255)
+    )

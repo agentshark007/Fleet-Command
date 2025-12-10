@@ -42,7 +42,6 @@ def load_assets(self):
     
     # Load images for world and UI rendering
     self.water_image = Image("assets/images/water.jpg")  # Water texture for background
-    self.water_image_scale = 0.3  # Scale factor for water tiles
     self.selection_marker_image = Image("assets/images/selection-marker.png")  # Team color marker
     self.autonomous_target_image = Image("assets/images/target.png")  # Autonomous movement target
     self.projectile_images = [Image("assets/images/projectile_0.png"), Image("assets/images/projectile_1.png"), Image("assets/images/projectile_2.png")]  # Projectile images

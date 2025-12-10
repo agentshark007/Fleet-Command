@@ -93,7 +93,7 @@ class Battleship(Unit):
             health=600,  # High health
             attack=150,  # High attack power
             defense=100,  # Strong defense
-            speed=100,  # Moderate movement speed
+            speed=200,  # Fast movement speed
             rotation_speed=100,  # Rotation speed
             friction=0.97,  # Low friction (maintains momentum well)
             rotation_friction=0.9  # Rotation friction
