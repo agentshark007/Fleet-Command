@@ -143,7 +143,7 @@ class GameWindow(PandaWindow):
 
         # Autonomous control
         self.target_stop_distance = 100
-        self.autonomous_forward_backward_angle_threshold = 90
+        self.autonomous_forward_backward_angle_threshold = 45
 
         # Selection marker offset
         self.selection_marker_offset = 20
@@ -210,6 +210,7 @@ class GameWindow(PandaWindow):
         # Always handle GUI scale input
         self._handle_gui_scale_input()
 
+        # Game states
         match self.game_state:
             case GameState.MAINMENU:
                 self._update_mainmenu()
@@ -225,6 +226,10 @@ class GameWindow(PandaWindow):
                 self._update_paused()
             case GameState.SETTINGS:
                 self._update_settings()
+
+        # Set plus/minus down last frame variables
+        self.plus_last_frame = self.keydown(Key.EQUALS)
+        self.minus_last_frame = self.keydown(Key.MINUS)
 
     def _update_mainmenu(self):
         buttons = ["newgame", "settings", "quit"]
@@ -280,10 +285,6 @@ class GameWindow(PandaWindow):
 
         # Clamp gui scale
         self.gui_scale = max(self.gui_scale_min, min(self.gui_scale, self.gui_scale_max))
-
-        # Set plus/minus down last frame variables
-        self.plus_last_frame = self.keydown(Key.EQUALS)
-        self.minus_last_frame = self.keydown(Key.MINUS)
 
 
     def _handle_camera_zoom_input(self):
@@ -558,8 +559,8 @@ class GameWindow(PandaWindow):
         offset = 5 # Pixels to overlap tiles by to avoid gaps
 
         # World-space tiling; no gaps; zoom centered
-        world_tile_w = (self.water_image.get_width() - offset) * self.water_image_scale * self.gui_scale
-        world_tile_h = (self.water_image.get_height() - offset) * self.water_image_scale * self.gui_scale
+        world_tile_w = (self.water_image.get_width() - offset) * self.water_image_scale
+        world_tile_h = (self.water_image.get_height() - offset) * self.water_image_scale
 
         screen_w = self.screen_right - self.screen_left
         screen_h = self.screen_top - self.screen_bottom
@@ -582,7 +583,7 @@ class GameWindow(PandaWindow):
         cols = int(math.ceil(screen_w / tile_w_screen)) + 3
         rows = int(math.ceil(screen_h / tile_h_screen)) + 3
 
-        xscale = self.water_image_scale * self.gui_scale * self.camera.scale
+        xscale = self.water_image_scale * self.camera.scale
         yscale = xscale
 
         for col in range(cols):
@@ -625,6 +626,7 @@ class GameWindow(PandaWindow):
             # Calculate the screen position of the unit
             screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
             
+            
             # Draw the unit
             if index == self.selected_unit_index:
                 # Selected unit
@@ -633,8 +635,8 @@ class GameWindow(PandaWindow):
                     screen_x,
                     screen_y,
                     anchor=Anchor.CENTER,
-                    xscale=0.5 * self.gui_scale * self.camera.scale,
-                    yscale=0.5 * self.gui_scale * self.camera.scale,
+                    xscale=0.5 * self.camera.scale,
+                    yscale=0.5 * self.camera.scale,
                     filter=self.selected_unit_filter,
                     rotation=unit.direction
                 )
@@ -647,8 +649,8 @@ class GameWindow(PandaWindow):
                         target_screen_x,
                         target_screen_y,
                         anchor=Anchor.CENTER,
-                        xscale=self.autonomous_target_image_scale * self.gui_scale * self.camera.scale,
-                        yscale=self.autonomous_target_image_scale * self.gui_scale * self.camera.scale,
+                        xscale=self.autonomous_target_image_scale * self.camera.scale,
+                        yscale=self.autonomous_target_image_scale * self.camera.scale,
                         rotation=0
                     )
             elif index == closest_unit_index_selectable:
@@ -658,8 +660,8 @@ class GameWindow(PandaWindow):
                     screen_x,
                     screen_y,
                     anchor=Anchor.CENTER,
-                    xscale=0.5 * self.gui_scale * self.camera.scale,
-                    yscale=0.5 * self.gui_scale * self.camera.scale,
+                    xscale=0.5 * self.camera.scale,
+                    yscale=0.5 * self.camera.scale,
                     filter=self.hover_unit_filter,
                     rotation=unit.direction
                 )
@@ -670,8 +672,8 @@ class GameWindow(PandaWindow):
                     screen_x,
                     screen_y,
                     anchor=Anchor.CENTER,
-                    xscale=0.5 * self.gui_scale * self.camera.scale,
-                    yscale=0.5 * self.gui_scale * self.camera.scale,
+                    xscale=0.5 * self.camera.scale,
+                    yscale=0.5 * self.camera.scale,
                     filter=self.other_unit_filter,
                     rotation=unit.direction
                 )
@@ -681,14 +683,15 @@ class GameWindow(PandaWindow):
             # Calculate the screen position of the marker
             screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
             
+            
             # Draw the marker
             self.draw_image(
                 self.selection_marker_image,
                 screen_x,
-                screen_y + self.selection_marker_offset * self.gui_scale * self.camera.scale,
+                screen_y + self.selection_marker_offset * self.camera.scale,
                 anchor=Anchor.BOTTOM,
-                xscale=self.selection_marker_scale * self.gui_scale * self.camera.scale,
-                yscale=self.selection_marker_scale  * self.gui_scale * self.camera.scale,
+                xscale=self.selection_marker_scale * self.camera.scale,
+                yscale=self.selection_marker_scale  * self.camera.scale,
                 filter=self.teams[unit.team_index].color.color,
                 rotation=0
             )
