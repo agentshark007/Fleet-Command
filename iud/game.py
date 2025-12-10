@@ -145,82 +145,57 @@ def handle_unit_control(self):
 
     # Get unit control input
     for index, unit in enumerate(self.units):
+        # Only allow setting autonomous target for selected unit
         if index == self.selected_unit_index:
-            # Detect autonomous mode activation
             if self.mousedownsecondary:
-                # Set autonomous target to mouse world position
                 mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
                 unit.autonomous = True
                 unit.autonomous_target_x = mouse_world_x
                 unit.autonomous_target_y = mouse_world_y
-
-            # Detect autonomous mode deactivation
             if manual_override():
-                # Disable autonomous control on manual input
                 unit.autonomous = False
 
-            if unit.autonomous:
-                # Accelerate and turn towards target
-
-                # Calculate important values
-                target_x, target_y = unit.autonomous_target_x, unit.autonomous_target_y
-                dx = target_x - unit.position_x
-                dy = target_y - unit.position_y
-                distance_to_target = math.hypot(dx, dy)
-
-                # Stop if target reached
-                if distance_to_target < self.target_stop_distance:
-                    # Stop if close to target and deactivate autonomous mode
-                    unit.autonomous = False
-                    continue
-
-                # Calculate angle to target
-                angle_to_target = math.degrees(math.atan2(dx, dy))
-
-                # Calculate angle difference in range -180 to 180
-                angle_diff = (angle_to_target - unit.direction + 360) % 360
-                if angle_diff > 180:
-                    angle_diff -= 360
-
-                # Determine acceleration and rotation direction
-                if abs(angle_diff) < self.autonomous_forward_backward_angle_threshold:
-                    # If angle difference is less than 90 degrees, move forward
-                    direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
-                    acceleration = unit.speed
-                else:
-                    # If angle difference is more than 90 degrees, move backward
-                    direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
-                    acceleration = -unit.speed
-
-                # Cap acceleration and rotation to make sure no bugs occor
-                acceleration = min(acceleration, unit.speed)
-                direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
-
-                unit.acceleration = acceleration
-                unit.rotation_acceleration = direction
+        # Autonomous movement for any unit with autonomous=True
+        if unit.autonomous:
+            target_x, target_y = unit.autonomous_target_x, unit.autonomous_target_y
+            dx = target_x - unit.position_x
+            dy = target_y - unit.position_y
+            distance_to_target = math.hypot(dx, dy)
+            if distance_to_target < self.target_stop_distance:
+                unit.autonomous = False
+                continue
+            angle_to_target = math.degrees(math.atan2(dx, dy))
+            angle_diff = (angle_to_target - unit.direction + 360) % 360
+            if angle_diff > 180:
+                angle_diff -= 360
+            if abs(angle_diff) < self.autonomous_forward_backward_angle_threshold:
+                direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
+                acceleration = unit.speed
             else:
-                acceleration = 0
-                direction = 0
-
-                if self.keydown(Key.W):
-                    acceleration += unit.speed
-                if self.keydown(Key.S):
-                    acceleration -= unit.speed
-                if self.keydown(Key.A) and acceleration != 0:
-                    direction -= unit.rotation_speed
-                if self.keydown(Key.D) and acceleration != 0:
-                    direction += unit.rotation_speed
-
-                # Cap acceleration and rotation to make sure no bugs occor
-                acceleration = min(acceleration, unit.speed)
-                direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
-
-                unit.acceleration = acceleration
-                unit.rotation_acceleration = direction
-
+                direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
+                acceleration = -unit.speed
+            acceleration = min(acceleration, unit.speed)
+            direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
+            unit.acceleration = acceleration
+            unit.rotation_acceleration = direction
+        elif index == self.selected_unit_index:
+            # Manual control for selected unit if not autonomous
+            acceleration = 0
+            direction = 0
+            if self.keydown(Key.W):
+                acceleration += unit.speed
+            if self.keydown(Key.S):
+                acceleration -= unit.speed
+            if self.keydown(Key.A) and acceleration != 0:
+                direction -= unit.rotation_speed
+            if self.keydown(Key.D) and acceleration != 0:
+                direction += unit.rotation_speed
+            acceleration = min(acceleration, unit.speed)
+            direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
+            unit.acceleration = acceleration
+            unit.rotation_acceleration = direction
         elif self.teams[unit.team_index].type == TeamType.PLAYER:
             pass # Do nothing for non-selected player units
-
         elif self.teams[unit.team_index].type == TeamType.AI:
             # Simple AI for units
             pass
@@ -276,6 +251,7 @@ def update_water(self):
 def draw(self):
     draw_water(self)
     draw_units(self)
+    draw_ui_panels(self)
 
 
 def draw_units(self):
@@ -450,7 +426,7 @@ def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y:
             )
 
 
-def _draw_ui_panels(self):
+def draw_ui_panels(self):
     # Left side panel
     self.fill_rounded_rect(
         self.screen_left,
