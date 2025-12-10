@@ -182,6 +182,8 @@ class GameWindow(PandaWindow):
         self.middle_panel_color = Color(0, 0, 70, 150)
         self.panel_outline_color = Color(0, 0, 100, 50)
         self.title_text_color = Color(100, 100, 20)
+        self.title_text_shadow_color = Color(20, 20, 50, 150)
+        self.title_text_shadow_offset = 1
 
         # GUI shapes
         self.panel_outline_thickness = 2
@@ -777,3 +779,21 @@ class GameWindow(PandaWindow):
             outline_thickness=self.panel_outline_thickness * self.gui_scale,
             outline_color=self.panel_outline_color
         )
+
+        # Fleet Command title
+        shadow_offset = self.title_text_shadow_offset * self.gui_scale
+        title_x = self.screen_center_x
+        title_y = self.extend(self.screen_top, 15, ExtendDirection.DOWN)
+        font = self.title_font.new_size(20 * self.gui_scale)
+        anchor = Anchor.CENTER
+        shadow_color = self.title_text_shadow_color
+        # Above
+        self.draw_text("Fleet Command", font, title_x, title_y - shadow_offset, anchor, shadow_color)
+        # Below
+        self.draw_text("Fleet Command", font, title_x, title_y + shadow_offset, anchor, shadow_color)
+        # Left
+        self.draw_text("Fleet Command", font, title_x - shadow_offset, title_y, anchor, shadow_color)
+        # Right
+        self.draw_text("Fleet Command", font, title_x + shadow_offset, title_y, anchor, shadow_color)
+        # Title text (main)
+        self.draw_text("Fleet Command", font, title_x, title_y, anchor, self.title_text_color)
