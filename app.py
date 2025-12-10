@@ -23,38 +23,26 @@ class GameState(Enum):
     SETTINGS = "settings"
 
 
-class Camera():
-    def __init__(self, x, y, scale):
-        self.x = x
-        self.y = y
-        self.scale = scale
-        self.velocity_x = 0
-        self.velocity_y = 0
+class Camera:
+    """Simple camera for projecting between world and screen space."""
 
-    def project(self, x, y):
-        """
-        Converts x/y worldspace position into screenspace position.
-        
-        :param self: Class self
-        :param x: Worldspace X position
-        :param y: Worldspace Y position
-        """
+    def __init__(self, x: float, y: float, scale: float):
+        self.x: float = x
+        self.y: float = y
+        self.scale: float = scale
+        self.velocity_x: float = 0.0
+        self.velocity_y: float = 0.0
+
+    def project(self, x: float, y: float) -> tuple[float, float]:
+        """Project world-space coordinates `(x, y)` to screen-space."""
         x = (x - self.x) * self.scale
         y = (y - self.y) * self.scale
-
         return x, y
-    
-    def deduce(self, x, y):
-        """
-        Converts x/y screenspace position into worldspace position.
-        
-        :param self: Class self
-        :param x: Screenspace X position
-        :param y: Screenspace Y position
-        """
+
+    def deduce(self, x: float, y: float) -> tuple[float, float]:
+        """Convert screen-space coordinates `(x, y)` to world-space."""
         x = x / self.scale + self.x
         y = y / self.scale + self.y
-
         return x, y
 
 
@@ -78,7 +66,7 @@ class GameWindow(PandaWindow):
     def initialize(self):
         self._initialize_menus()
         
-        self._initialize_settings()
+        self._initialize_gameplay_settings()
         self._initialize_state_variables()
         self._initialize_game_logic()
         self._initialize_layout()
@@ -119,7 +107,7 @@ class GameWindow(PandaWindow):
         pass
     
 
-    def _initialize_settings(self):
+    def _initialize_gameplay_settings(self):
         # GUI scale
         self.gui_scale_factor = 20.0
         self.gui_scale_offset = 1.0
@@ -150,6 +138,7 @@ class GameWindow(PandaWindow):
 
 
     def _initialize_state_variables(self):
+        """Initialize mutable runtime state tracked across frames."""
         # Game state
         self.game_state = GameState.MAINMENU
 
@@ -169,6 +158,7 @@ class GameWindow(PandaWindow):
 
 
     def _initialize_game_logic(self):
+        """Create teams and initial units for a new session."""
         self.unit_types = [Battleship]
 
         team_count = 4
@@ -177,6 +167,7 @@ class GameWindow(PandaWindow):
 
 
     def _initialize_layout(self):
+        """Define UI colors, shapes and filters used during rendering."""
         # GUI colors
         self.side_panel_color = Color(0, 0, 144, 150)
         self.middle_panel_color = Color(0, 0, 70, 150)
@@ -196,6 +187,7 @@ class GameWindow(PandaWindow):
 
 
     def _load_assets(self):
+        """Load fonts and images used by the game."""
         # Fonts
         self.title_font = Font("assets/fonts/BlackOpsOne-Regular.ttf", size=32)
         self.context_font = Font("assets/fonts/WDXLLubrifontSC-Regular.ttf", size=16)
@@ -209,6 +201,7 @@ class GameWindow(PandaWindow):
 
 
     def update(self):
+        """Main per-frame update: input, game logic and state transitions."""
         # Always handle GUI scale input
         self._handle_gui_scale_input()
 
@@ -234,6 +227,7 @@ class GameWindow(PandaWindow):
         self.minus_last_frame = self.keydown(Key.MINUS)
 
     def _update_mainmenu(self):
+        # Centralized menu identifiers for readability
         buttons = ["newgame", "settings", "quit"]
         for i, button_text in enumerate(buttons):
             # Calculate button position
@@ -259,18 +253,22 @@ class GameWindow(PandaWindow):
 
 
     def _update_newgame(self):
+        """Update logic for the new game setup screen."""
         pass
 
 
     def _update_paused(self):
+        """Update logic when the game is paused."""
         pass
 
 
     def _update_settings(self):
+        """Update logic for settings/preferences view."""
         pass
 
 
     def _handle_gui_scale_input(self):
+        """Handle Command + +/- input to adjust GUI scale within bounds."""
         # Calculate gui scale growth
         growth = self.gui_scale_offset + self.gui_scale_factor * self.deltatime
 
@@ -290,6 +288,7 @@ class GameWindow(PandaWindow):
 
 
     def _handle_camera_zoom_input(self):
+        """Handle +/- input (without Command) to zoom camera."""
         # Detect if either command key held down
         command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
 
@@ -303,6 +302,7 @@ class GameWindow(PandaWindow):
 
 
     def _handle_unit_selection(self):
+        """Select a unit under the cursor when clicking, restricted to player team."""
         # Calculate mouse world position
         mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
         
@@ -329,6 +329,7 @@ class GameWindow(PandaWindow):
 
 
     def _handle_unit_control(self):
+        """Apply manual WASD control or autonomous targeting for the selected unit."""
         # Helper functions
         def manual_override():
             return any([
@@ -444,6 +445,7 @@ class GameWindow(PandaWindow):
 
 
     def _handle_camera_movement(self):
+        """Arrow keys accelerate camera; friction applied; updates position."""
         # Accelerate
         if self.keydown(Key.LEFT):
             self.camera.velocity_x -= self.camera_move_speed * self.deltatime
@@ -464,11 +466,13 @@ class GameWindow(PandaWindow):
 
 
     def _update_water(self):
+        """Advance water animation state for parallax layers."""
         self.water_state += self.water_state_speed * self.deltatime
 
 
 
     def draw(self):
+        """Main per-frame draw: renders current state to the screen."""
         self.clear(Color(0, 0, 0))
 
         match self.game_state:
@@ -487,6 +491,7 @@ class GameWindow(PandaWindow):
 
 
     def _draw_mainmenu(self):
+        """Render the main menu: background, buttons, and labels."""
         # Dark blue background
         self.fill_rect(
             self.screen_left,
@@ -496,6 +501,7 @@ class GameWindow(PandaWindow):
             color=self.mainmenu_background_color
         )
 
+        # Centralized menu labels
         buttons = ["New Game", "Settings", "Quit"]
         for i, button_text in enumerate(buttons):
             # Calculate button position
@@ -521,6 +527,7 @@ class GameWindow(PandaWindow):
 
 
     def _draw_mainmenu_button(self, x, y):
+        """Render a single rounded main menu button at `(x, y)`."""
         left = x
         bottom = y
         right = self.extend(left, self.mainmenu_button_width, ExtendDirection.RIGHT)
@@ -550,18 +557,22 @@ class GameWindow(PandaWindow):
 
 
     def _draw_newgame(self):
+        """Render new game setup view."""
         pass
 
 
     def _draw_paused(self):
+        """Render paused overlay or view."""
         pass
 
 
     def _draw_settings(self):
+        """Render settings/preferences view."""
         pass
 
 
     def _draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0):
+        """Draw water image as seamless tiles with optional offsets for parallax."""
         offset = 5 # Pixels to overlap tiles by to avoid gaps
 
         # World-space tiling; no gaps; zoom centered
@@ -610,6 +621,7 @@ class GameWindow(PandaWindow):
                 )
 
     def _draw_units(self):
+        """Render units with hover/selection filters and team markers."""
         # Calculate mouse world position
         mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
 
@@ -704,6 +716,7 @@ class GameWindow(PandaWindow):
 
 
     def _draw_water(self):
+        """Render parallax water layers with varied movement and alpha."""
         # Simulate water movement by offsetting the tiling based on water state and also moving other layers in different ways
         
         # Base layer, not moving
@@ -787,13 +800,18 @@ class GameWindow(PandaWindow):
         font = self.title_font.new_size(20 * self.gui_scale)
         anchor = Anchor.CENTER
         shadow_color = self.title_text_shadow_color
+        
         # Above
         self.draw_text("Fleet Command", font, title_x, title_y - shadow_offset, anchor, shadow_color)
+
         # Below
         self.draw_text("Fleet Command", font, title_x, title_y + shadow_offset, anchor, shadow_color)
+
         # Left
         self.draw_text("Fleet Command", font, title_x - shadow_offset, title_y, anchor, shadow_color)
+
         # Right
         self.draw_text("Fleet Command", font, title_x + shadow_offset, title_y, anchor, shadow_color)
+
         # Title text (main)
         self.draw_text("Fleet Command", font, title_x, title_y, anchor, self.title_text_color)
