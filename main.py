@@ -1,5 +1,4 @@
-from app import GameWindow
+from app import main
 
 if __name__ == "__main__":
-    window = GameWindow()
-    window.start()
+    main()

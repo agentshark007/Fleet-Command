@@ -815,3 +815,7 @@ class GameWindow(PandaWindow):
 
         # Title text (main)
         self.draw_text("Fleet Command", font, title_x, title_y, anchor, self.title_text_color)
+
+def main():
+    window = GameWindow()
+    window.start()
