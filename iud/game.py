@@ -70,7 +70,7 @@ def initialize_state_variables(self):
     self.camera = Camera(0.0, 0.0, 1.0)  # Create camera at origin with default zoom
 
     # Selection
-    self.selected_unit_index = -1  # Index of selected unit (-1 = none)
+    self.selected_units_index = []  # List of selected unit indices
 
 
 def initialize_game_logic(self):
@@ -183,9 +183,12 @@ def handle_unit_selection(self):
     if self.mousedownprimary:
         # Only allow selecting units from the player team
         if closest_unit_index_selectable != -1 and self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
-            self.selected_unit_index = closest_unit_index_selectable
+            if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
+                self.selected_units_index.append(closest_unit_index_selectable)
+            else:
+                self.selected_units_index = [closest_unit_index_selectable]
         else:
-            self.selected_unit_index = -1
+            self.selected_units_index = []
 
 
 def handle_unit_control(self):
@@ -207,7 +210,7 @@ def handle_unit_control(self):
     # Process input and control for all units
     for index, unit in enumerate(self.units):
         # Handle input for selected unit only
-        if index == self.selected_unit_index:
+        if index in self.selected_units_index:
             # Right-click sets autonomous target
             if self.mousedownsecondary:
                 mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
@@ -253,7 +256,7 @@ def handle_unit_control(self):
             unit.acceleration = acceleration
             unit.rotation_acceleration = direction
             
-        elif index == self.selected_unit_index:
+        elif index in self.selected_units_index:
             # Manual control for selected unit (only if not autonomous)
             acceleration = 0
             direction = 0
@@ -384,7 +387,7 @@ def draw_units(self):
         screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
         
         # Draw unit image with color based on state
-        if index == self.selected_unit_index:
+        if index in self.selected_units_index:
             # Selected unit: bright white highlight
             self.draw_image(
                 unit.image,
