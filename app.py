@@ -76,12 +76,17 @@ class GameWindow(PandaWindow):
 
 
     def initialize(self):
+        self._initialize_menus()
+        
         self._initialize_settings()
         self._initialize_state_variables()
         self._initialize_game_logic()
         self._initialize_layout()
-        self._load_assets()
+        
 
+    def _initialize_menus(self):
+        pass
+    
 
     def _initialize_settings(self):
         # GUI scale
@@ -173,9 +178,9 @@ class GameWindow(PandaWindow):
     def update(self):
         match self.game_state:
             case GameState.MAINMENU:
-                pass
+                self._update_mainmenu()
             case GameState.NEWGAME:
-                pass
+                self._update_newgame()
             case GameState.GAME:
                 self._handle_plus_minus_input()
                 self._handle_unit_selection()
@@ -183,9 +188,24 @@ class GameWindow(PandaWindow):
                 self._handle_camera_movement()
                 self._update_water()
             case GameState.PAUSED:
-                pass
+                self._update_paused()
             case GameState.SETTINGS:
-                pass
+                self._update_settings()
+
+    def _update_mainmenu(self):
+        pass
+
+
+    def _update_newgame(self):
+        pass
+
+
+    def _update_paused(self):
+        pass
+
+
+    def _update_settings(self):
+        pass
 
 
     def _handle_plus_minus_input(self):
@@ -384,17 +404,33 @@ class GameWindow(PandaWindow):
 
         match self.game_state:
             case GameState.MAINMENU:
-                pass
+                self._draw_mainmenu()
             case GameState.NEWGAME:
-                pass
+                self._draw_newgame()
             case GameState.GAME:
                 self._draw_water()
                 self._draw_units()
                 self._draw_ui_panels()
             case GameState.PAUSED:
-                pass
+                self._draw_paused()
             case GameState.SETTINGS:
-                pass
+                self._draw_settings()
+
+
+    def _draw_mainmenu(self):
+        pass
+
+
+    def _draw_newgame(self):
+        pass
+
+
+    def _draw_paused(self):
+        pass
+
+
+    def _draw_settings(self):
+        pass
 
 
     def _draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0):
