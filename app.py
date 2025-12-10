@@ -97,6 +97,9 @@ class GameWindow(PandaWindow):
         self.selection_distance = 100
         self.autonomous_target_image_scale = 0.05
 
+        # Autonomous control
+        self.target_stop_distance = 100
+
 
     def _initialize_state_variables(self):
         # GUI scale key state tracking
@@ -246,9 +249,10 @@ class GameWindow(PandaWindow):
                     dx = target_x - unit.position_x
                     dy = target_y - unit.position_y
                     distance_to_target = math.hypot(dx, dy)
-                    if distance_to_target < 10:
-                        # Stop if close to target
-                        return 0, 0
+                    if distance_to_target < self.target_stop_distance:
+                        # Stop if close to target and deactivate autonomous mode
+                        unit.autonomous = False
+                        continue
                     angle_to_target = math.degrees(math.atan2(dx, dy))
                     angle_diff = (angle_to_target - unit.direction + 360) % 360
                     if angle_diff > 180:
