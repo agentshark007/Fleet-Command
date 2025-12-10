@@ -206,6 +206,15 @@ def handle_unit_control(self):
             self.keydown(Key.A),  # Left turn
             self.keydown(Key.D)   # Right turn
         ])
+    
+    # Calculate average direction of selected units
+    avg_direction = 0.0
+    total_selected = len(self.selected_units_index)
+    for index, unit in enumerate(self.units):
+        if index in self.selected_units_index:
+            avg_direction += unit.direction
+    if total_selected > 0:
+        avg_direction /= total_selected
 
     # Process input and control for all units
     for index, unit in enumerate(self.units):
@@ -271,6 +280,23 @@ def handle_unit_control(self):
                 direction -= unit.rotation_speed  # Turn left
             if self.keydown(Key.D) and acceleration != 0:
                 direction += unit.rotation_speed  # Turn right
+
+            if self.keydown(Key.TAB):
+                # Ship alignment method is similar to autonomous movement
+
+                # Align to average direction of selected units
+                angle_diff = (avg_direction - unit.direction + 360) % 360
+                if angle_diff > 180:
+                    angle_diff -= 360
+                direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff)) 
+                
+                # Decide movement direction based on angle
+                if abs(angle_diff) < 90:
+                    # Move forward while turning
+                    acceleration = unit.speed
+                else:
+                    # Move backward while turning
+                    acceleration = -unit.speed
             
             # Clamp accelerations to valid ranges
             acceleration = min(acceleration, unit.speed)
