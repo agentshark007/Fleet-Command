@@ -695,14 +695,25 @@ def draw_ui_panels(self):
     # Draw title text main (bright color on top of shadow)
     self.draw_text("Fleet Command", font, title_x, title_y, anchor, self.title_text_color)
 
+    # Draw team info above left side panel
+    team_info_x = self.extend(self.screen_right, 5, ExtendDirection.LEFT)
+    team_info_y = self.extend(self.screen_bottom, 100 + 20, ExtendDirection.UP)
+    for i, team in enumerate(self.teams):
+        self.draw_text(
+            f"Team {team.color.name}: {team.type.name} - {len([u for u in self.units if u.team_index == i])}",
+            self.context_font.new_size(12 * self.gui_scale),
+            team_info_x,
+            team_info_y + i * (15 * self.gui_scale),
+            Anchor.BOTTOMRIGHT,
+            team.color.color
+        )
 
-
-    # Draw FPS counter at center of screen for debugging
+    # Draw FPS counter at the top left corner of the screen
     self.draw_text(
         str(round(1 / self.deltatime)),
-        self.title_font.new_size(14 * self.gui_scale),
-        self.screen_center_x,
-        self.screen_center_y,
-        Anchor.CENTER,
-        Color(255, 255, 255)
+        self.title_font.new_size(10 * self.gui_scale),
+        self.extend(self.screen_left, 5, ExtendDirection.RIGHT),
+        self.extend(self.screen_top, 15, ExtendDirection.DOWN),
+        Anchor.TOPLEFT,
+        Color(100, 100, 100)
     )

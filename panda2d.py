@@ -346,25 +346,24 @@ class PandaWindow:
     def _get_anchor_pos(self, x, y, w, h, anchor):
         """Calculate position based on anchor for drawing."""
         px, py = self.panda2d_to_pygame(x, y)
-        # Anchor is now relative to the drawn object's bounding box
         if anchor == Anchor.CENTER:
             return px - w // 2, py - h // 2
         elif anchor == Anchor.TOP:
-            return px - w // 2, py - h // 2
+            return px - w // 2, py - h
         elif anchor == Anchor.BOTTOM:
-            return px - w // 2, py - h // 2
+            return px - w // 2, py
         elif anchor == Anchor.LEFT:
-            return px - w // 2, py - h // 2
+            return px, py - h // 2
         elif anchor == Anchor.RIGHT:
-            return px - w // 2, py - h // 2
+            return px - w, py - h // 2
         elif anchor == Anchor.TOPLEFT:
-            return px - w // 2, py - h // 2
+            return px, py - h
         elif anchor == Anchor.TOPRIGHT:
-            return px - w // 2, py - h // 2
+            return px - w, py - h
         elif anchor == Anchor.BOTTOMLEFT:
-            return px - w // 2, py - h // 2
+            return px, py
         elif anchor == Anchor.BOTTOMRIGHT:
-            return px - w // 2, py - h // 2
+            return px - w, py
         else:
             return px - w // 2, py - h // 2
 
