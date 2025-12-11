@@ -14,24 +14,20 @@ class Unit:
         image: Image,
         image_scale: float,
         health: int,
-        attack: int,
-        defense: int,
         speed: int,
         rotation_speed: int,
         friction: float = 0.95,
         rotation_friction: float = 0.9,
         collision_radius: int = 20
     ) -> None:
-        pass
         # Appearance
         self.image = image  # Image used to render this unit
         self.image_scale = 1.0  # Scale applied to the image (independent of camera zoom)
         self.team_index = -1  # Index of the team this unit belongs to
 
         # Unit statistics
-        self.health = health  # Current health/hit points
-        self.attack = attack  # Attack damage value
-        self.defense = defense  # Defensive rating
+        self.max_health = health  # Maximum health/hit points
+        self.health = health      # Current health/hit points
 
         # Position and direction
         self.position_x = 0  # X position on the game map
@@ -73,8 +69,6 @@ class Battleship(Unit):
             Image("assets/images/battleship.png"),
             image_scale=0.1,
             health=600,  # High health
-            attack=150,  # High attack power
-            defense=100,  # Strong defense
             speed=200,  # Fast movement speed
             rotation_speed=100,  # Rotation speed
             friction=0.97,  # Low friction (maintains momentum well)

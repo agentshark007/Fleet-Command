@@ -53,7 +53,7 @@ def initialize_state_variables(self):
     self.camera = Camera(0.0, 0.0, 1.0)  # Create camera at origin with default zoom
 
     # Selection
-    self.selected_units_index = []  # List of selected unit indices
+    self.selected_units_ids = []  # List of selected unit IDs
 
 
 def initialize_game_logic(self):
@@ -65,7 +65,7 @@ def initialize_game_logic(self):
     self.teams = random_teams(team_count)
     
     # Create initial battleships for each team with random positions and rotations
-    self.units = []
+    self.units = {}
     for i in range(20):
         unit = Battleship(
             team_index=random.randint(0, len(self.teams) - 1),
@@ -74,9 +74,10 @@ def initialize_game_logic(self):
             direction=random.uniform(0, 360)
         )
         unit.unit_id = i
-        self.units.append(unit)
+        self.units[i] = unit
 
-    self.projectiles = []  # No projectiles at start of game
+    self.projectiles = {}  # No projectiles at start of game
+    self.next_projectile_id = 0
 
 
 def initialize_layout(self):
@@ -119,30 +120,30 @@ def handle_unit_selection(self):
     closest_distance = float('inf')
     closest_distance_selectable = float('inf')
     
-    for index, unit in enumerate(self.units):
+    for unit_id, unit in self.units.items():
         dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
         # Track closest unit overall
         if dist < closest_distance:
             closest_distance = dist
-            closest_unit_index = index
+            closest_unit_index = unit_id
         # Track closest unit within selection range
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
-            closest_unit_index_selectable = index
+            closest_unit_index_selectable = unit_id
 
     # Handle selection input (left mouse button)
     if self.mousedownprimary and not self.mouseprimary_last_frame:
         # Only allow selecting units from the player team
         if closest_unit_index_selectable != -1 and self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
             if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
-                if self.selected_units_index.count(closest_unit_index_selectable) == 0:
-                    self.selected_units_index.append(closest_unit_index_selectable)
+                if closest_unit_index_selectable not in self.selected_units_ids:
+                    self.selected_units_ids.append(closest_unit_index_selectable)
                 else:
-                    self.selected_units_index.remove(closest_unit_index_selectable)
+                    self.selected_units_ids.remove(closest_unit_index_selectable)
             else:
-                self.selected_units_index = [closest_unit_index_selectable]
+                self.selected_units_ids = [closest_unit_index_selectable]
         else:
-            self.selected_units_index = []
+            self.selected_units_ids = []
 
 
 def handle_unit_control(self):
@@ -157,17 +158,17 @@ def handle_unit_control(self):
     
     # Calculate average direction of selected units
     avg_direction = 0.0
-    total_selected = len(self.selected_units_index)
-    for index, unit in enumerate(self.units):
-        if index in self.selected_units_index:
+    total_selected = len(self.selected_units_ids)
+    for unit_id, unit in self.units.items():
+        if unit_id in self.selected_units_ids:
             avg_direction += unit.direction
     if total_selected > 0:
         avg_direction /= total_selected
 
     # Process input and control for all units
-    for index, unit in enumerate(self.units):
+    for unit_id, unit in self.units.items():
         # Handle input for selected unit only
-        if index in self.selected_units_index:
+        if unit_id in self.selected_units_ids:
             # Right-click sets autonomous target
             if self.mousedownsecondary:
                 mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
@@ -213,7 +214,7 @@ def handle_unit_control(self):
             unit.acceleration = acceleration
             unit.rotation_acceleration = direction
             
-        elif index in self.selected_units_index:
+        elif unit_id in self.selected_units_ids:
             # Manual control for selected unit (only if not autonomous)
             acceleration = 0
             direction = 0
@@ -229,7 +230,7 @@ def handle_unit_control(self):
             if self.keydown(Key.D) and acceleration != 0:
                 direction += unit.rotation_speed  # Turn right
 
-            if len(self.selected_units_index) > 1:
+            if len(self.selected_units_ids) > 1:
                 if self.keydown(Key.TAB):
                     # Ship alignment method is similar to autonomous movement
 
@@ -256,87 +257,75 @@ def handle_unit_control(self):
             pass
     
     # Run physics and movement for all units
-    for unit in self.units:
-        # Calculate velocity changes from acceleration
+
+
+    for unit in self.units.values():
         angle_rad = math.radians(unit.direction)
         unit.velocity_x += math.sin(angle_rad) * unit.acceleration * self.deltatime
         unit.velocity_y += math.cos(angle_rad) * unit.acceleration * self.deltatime
         unit.velocity_rotation += unit.rotation_acceleration * self.deltatime
 
-        # Apply friction to velocities (exponential decay - frame-independent)
-        # friction^(deltatime / frame_time) where frame_time=1/60 for 60 FPS
         friction_factor = pow(unit.friction, self.deltatime * 60)
         unit.velocity_x *= friction_factor
         unit.velocity_y *= friction_factor
         rotation_friction_factor = pow(unit.rotation_friction, self.deltatime * 60)
         unit.velocity_rotation *= rotation_friction_factor
-        
-        # Update position and rotation based on velocities
+
         unit.direction += unit.velocity_rotation * self.deltatime
         unit.position_x += unit.velocity_x * self.deltatime
         unit.position_y += unit.velocity_y * self.deltatime
 
-        # Reset accelerations for next frame
         unit.acceleration = 0
         unit.rotation_acceleration = 0
 
 
 def handle_unit_shooting(self):
-    for index, unit in enumerate(self.units):
-        if index in self.selected_units_index:
-            if self.keydown(Key.SPACE) and not self.space_last_frame:
-                mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
-                dx = mouse_world_x - unit.position_x
-                dy = mouse_world_y - unit.position_y
-                length = math.hypot(dx, dy)
-                if length == 0:
-                    direction = (0, 0)
-                else:
-                    direction = (dx / length, dy / length)
-                self.projectiles.append(Missile(
-                    x=unit.position_x,
-                    y=unit.position_y,
-                    direction=direction,
-                    shooter_team_index=unit.team_index
-                ))
+    for unit_id in self.selected_units_ids:
+        unit = self.units[unit_id]
+        if self.keydown(Key.SPACE) and not self.space_last_frame:
+            mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+            dx = mouse_world_x - unit.position_x
+            dy = mouse_world_y - unit.position_y
+            length = math.hypot(dx, dy)
+            if length == 0:
+                direction = (0, 0)
+            else:
+                direction = (dx / length, dy / length)
+            projectile = Missile(
+                x=unit.position_x,
+                y=unit.position_y,
+                direction=direction,
+                shooter_team_index=unit.team_index
+            )
+            self.projectiles[self.next_projectile_id] = projectile
+            self.next_projectile_id += 1
 
 def update_projectiles(self):
-    for projectile in self.projectiles:
+    for projectile in self.projectiles.values():
         projectile.update(self.deltatime)
 
 def detect_collisions(self):
-    units_to_remove = []
-    projectiles_to_remove = []
 
-    for unit_index, unit in enumerate(self.units):
-        for projectile_index, projectile in enumerate(self.projectiles):
-
+    units_to_remove = set()
+    projectiles_to_remove = set()
+    for unit_id, unit in self.units.items():
+        for projectile_id, projectile in self.projectiles.items():
             # Prevent projectile from hitting the same team/unit that fired it
             if unit.team_index == projectile.shooter_team_index:
                 continue
-
             dist = distance(projectile.x, projectile.y, unit.position_x, unit.position_y)
             if dist < unit.collision_radius:
-                # Mark for removal
-                units_to_remove.append(unit_index)
-                projectiles_to_remove.append(projectile_index)
-                # Once a projectile hits, break to avoid double removal
+                unit.health -= projectile.damage
+                projectiles_to_remove.add(projectile_id)
+                if unit.health <= 0:
+                    units_to_remove.add(unit_id)
                 break
-
-    # Remove units and projectiles after iteration
-    old_units = self.units
-    removed_set = set(units_to_remove)
-    index_map = {}
-    new_units = []
-    for old_idx, unit in enumerate(old_units):
-        if old_idx not in removed_set:
-            index_map[old_idx] = len(new_units)
-            new_units.append(unit)
-    self.units = new_units
-    self.projectiles = [p for i, p in enumerate(self.projectiles) if i not in projectiles_to_remove]
-
-    # Update selected_units_index to new indices, preserving selection for surviving units
-    self.selected_units_index = [index_map[i] for i in self.selected_units_index if i in index_map]
+    for uid in units_to_remove:
+        del self.units[uid]
+    for pid in projectiles_to_remove:
+        del self.projectiles[pid]
+    # Remove dead units from selection
+    self.selected_units_ids = [uid for uid in self.selected_units_ids if uid in self.units]
 
 
 
@@ -400,24 +389,24 @@ def draw_units(self):
     closest_distance = float('inf')
     closest_distance_selectable = float('inf')
     
-    for index, unit in enumerate(self.units):
+    for unit_id, unit in self.units.items():
         dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
         # Track closest unit overall
         if dist < closest_distance:
             closest_distance = dist
-            closest_unit_index = index
+            closest_unit_index = unit_id
         # Track closest unit within selection range
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
-            closest_unit_index_selectable = index
+            closest_unit_index_selectable = unit_id
 
     # Render all units with appropriate colors
-    for index, unit in enumerate(self.units):
+    for unit_id, unit in self.units.items():
         # Project unit world position to screen coordinates
         screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
         
         # Draw unit image with color based on state
-        if index in self.selected_units_index:
+        if unit_id in self.selected_units_ids:
             # Selected unit: bright white highlight
             self.draw_image(
                 unit.image,
@@ -442,7 +431,7 @@ def draw_units(self):
                     yscale=self.autonomous_target_image_scale * self.camera.scale,
                     rotation=0
                 )
-        elif index == closest_unit_index_selectable:
+        elif unit_id == closest_unit_index_selectable:
             # Hovered unit: lighter highlight to indicate it's selectable
             self.draw_image(
                 unit.image,
@@ -454,6 +443,20 @@ def draw_units(self):
                 filter=self.hover_unit_filter,
                 rotation=unit.direction
             )
+
+            if self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
+                # Draw autonomous target indicator if moving autonomously
+                if unit.autonomous:
+                    target_screen_x, target_screen_y = self.camera.project(unit.autonomous_target_x, unit.autonomous_target_y)
+                    self.draw_image(
+                        self.autonomous_target_image,
+                        target_screen_x,
+                        target_screen_y,
+                        anchor=Anchor.CENTER,
+                        xscale=self.autonomous_target_image_scale * self.camera.scale,
+                        yscale=self.autonomous_target_image_scale * self.camera.scale,
+                        rotation=0
+                    )
         else:
             # Other units: neutral gray color
             self.draw_image(
@@ -468,7 +471,7 @@ def draw_units(self):
             )
 
     # Draw team color markers above each unit
-    for index, unit in enumerate(self.units):
+    for unit_id, unit in self.units.items():
         # Project unit position to screen coordinates
         screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
         
@@ -486,21 +489,22 @@ def draw_units(self):
 
 
 def draw_projectiles(self):
-    for projectile in self.projectiles:
+    for projectile in self.projectiles.values():
         # Project projectile world position to screen coordinates
         screen_x, screen_y = self.camera.project(projectile.x, projectile.y)
-        
         # Draw projectile image
-        self.draw_image(
-            self.projectile_images[random.randint(0, len(self.projectile_images) - 1)],
-            screen_x,
-            screen_y,
-            anchor=Anchor.CENTER,
-            xscale=1 * self.camera.scale,
-            yscale=1 * self.camera.scale,
-            filter=Color(255, 255, 255, 255),
-            rotation=math.degrees(projectile.visible_direction)
-        )
+        if self.projectile_images:
+            img = self.projectile_images[random.randint(0, len(self.projectile_images) - 1)]
+            self.draw_image(
+                img,
+                screen_x,
+                screen_y,
+                anchor=Anchor.CENTER,
+                xscale=1 * self.camera.scale,
+                yscale=1 * self.camera.scale,
+                filter=Color(255, 255, 255, 255),
+                rotation=math.degrees(projectile.visible_direction)
+            )
 
 
 def draw_water(self):
@@ -700,7 +704,7 @@ def draw_ui_panels(self):
     team_info_y = self.extend(self.screen_bottom, 100 + 20, ExtendDirection.UP)
     for i, team in enumerate(self.teams):
         self.draw_text(
-            f"Team {team.color.name}: {team.type.name} - {len([u for u in self.units if u.team_index == i])}",
+            f"{team.color.name}: {team.type.name} - {len([u for u in self.units.values() if u.team_index == i])}",
             self.context_font.new_size(12 * self.gui_scale),
             team_info_x,
             team_info_y + i * (15 * self.gui_scale),
@@ -708,12 +712,94 @@ def draw_ui_panels(self):
             team.color.color
         )
 
+    # Draw unit info in left side panel
+    if len(self.selected_units_ids) > 0:
+        info_x = self.extend(self.screen_left, 10, ExtendDirection.RIGHT)
+        info_y = self.extend(self.screen_bottom, 80, ExtendDirection.UP)
+        line_height = 15 * self.gui_scale
+
+        selected_count = len(self.selected_units_ids)
+        def safe_average(values):
+            return round(sum(values) / len(values)) if values else 0
+
+        avg_direction = safe_average([self.units[i].direction for i in self.selected_units_ids])
+        avg_health = safe_average([self.units[i].health for i in self.selected_units_ids])
+        avg_max_health = safe_average([self.units[i].max_health for i in self.selected_units_ids])
+        avg_attack = safe_average([self.units[i].attack for i in self.selected_units_ids])
+
+        if selected_count == 1:
+            lines = [
+                f"Unit Info: {selected_count}",
+                f"Direction: {avg_direction}°",
+                f"Health: {avg_health}",
+                f"Max Health: {avg_max_health}"
+            ]
+        else:
+            lines = [
+                f"Selected Units: {selected_count}",
+                f"Average Direction: {avg_direction}°",
+                f"Average Health: {avg_health}",
+                f"Average Max Health: {avg_max_health}"
+            ]
+
+        for i, line in enumerate(lines):
+            self.draw_text(
+                line,
+                self.context_font.new_size(12 * self.gui_scale),
+                info_x,
+                info_y - i * line_height,
+                Anchor.TOPLEFT,
+                Color(200, 200, 200)
+            )
+    else:
+        mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+        closest_unit_index = -1
+        closest_unit_index_selectable = -1
+        closest_distance = float('inf')
+        closest_distance_selectable = float('inf')
+        
+        for unit_id, unit in self.units.items():
+            dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
+            # Track closest unit overall
+            if dist < closest_distance:
+                closest_distance = dist
+                closest_unit_index = unit_id
+            # Track closest unit within selection range
+            if dist < closest_distance_selectable and dist < self.selection_distance:
+                closest_distance_selectable = dist
+                closest_unit_index_selectable = unit_id
+
+        if closest_unit_index_selectable != -1:
+            unit = self.units[closest_unit_index_selectable]
+            info_x = self.extend(self.screen_left, 10, ExtendDirection.RIGHT)
+            info_y = self.extend(self.screen_bottom, 80, ExtendDirection.UP)
+            line_height = 15 * self.gui_scale
+
+            lines = [
+                f"Unit Info:",
+                f"Team: {self.teams[unit.team_index].color.name}",
+                f"Direction: {round(unit.direction)}°",
+                f"Health: {round(unit.health)}",
+                f"Max Health: {round(unit.max_health)}"
+            ]
+
+            for i, line in enumerate(lines):
+                self.draw_text(
+                    line,
+                    self.context_font.new_size(12 * self.gui_scale),
+                    info_x,
+                    info_y - i * line_height,
+                    Anchor.TOPLEFT,
+                    Color(200, 200, 200)
+                )
+
     # Draw FPS counter at the top left corner of the screen
+    fps = 0 if self.deltatime == 0 else round(1 / self.deltatime)
     self.draw_text(
-        str(round(1 / self.deltatime)),
-        self.title_font.new_size(10 * self.gui_scale),
-        self.extend(self.screen_left, 5, ExtendDirection.RIGHT),
-        self.extend(self.screen_top, 15, ExtendDirection.DOWN),
+        str(fps),
+        self.title_font.new_size(20 * self.gui_scale),
+        self.extend(self.screen_left, 10, ExtendDirection.RIGHT),
+        self.extend(self.screen_top, 27, ExtendDirection.DOWN),
         Anchor.TOPLEFT,
         Color(100, 100, 100)
     )
