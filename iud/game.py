@@ -284,7 +284,7 @@ def handle_unit_control(self):
 def handle_unit_shooting(self):
     for index, unit in enumerate(self.units):
         if index in self.selected_units_index:
-            if self.keydown(Key.SPACE):
+            if self.keydown(Key.SPACE) and not self.space_last_frame:
                 mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
                 dx = mouse_world_x - unit.position_x
                 dy = mouse_world_y - unit.position_y
@@ -297,7 +297,7 @@ def handle_unit_shooting(self):
                     x=unit.position_x,
                     y=unit.position_y,
                     direction=direction,
-                    shooter_id=unit.unit_id
+                    shooter_team_index=unit.team_index
                 ))
 
 def update_projectiles(self):
@@ -305,28 +305,38 @@ def update_projectiles(self):
         projectile.update(self.deltatime)
 
 def detect_collisions(self):
-    units_to_remove = set()
-    projectiles_to_remove = set()
+    units_to_remove = []
+    projectiles_to_remove = []
+
     for unit_index, unit in enumerate(self.units):
         for projectile_index, projectile in enumerate(self.projectiles):
-            # Prevent projectile from hitting its shooter
-            if hasattr(projectile, 'shooter_id') and unit.unit_id == projectile.shooter_id:
+
+            # Prevent projectile from hitting the same team/unit that fired it
+            if unit.team_index == projectile.shooter_team_index:
                 continue
+
             dist = distance(projectile.x, projectile.y, unit.position_x, unit.position_y)
             if dist < unit.collision_radius:
                 # Mark for removal
-                units_to_remove.add(unit_index)
-                projectiles_to_remove.add(projectile_index)
+                units_to_remove.append(unit_index)
+                projectiles_to_remove.append(projectile_index)
                 # Once a projectile hits, break to avoid double removal
                 break
+
     # Remove units and projectiles after iteration
-    self.units = [u for i, u in enumerate(self.units) if i not in units_to_remove]
+    old_units = self.units
+    removed_set = set(units_to_remove)
+    index_map = {}
+    new_units = []
+    for old_idx, unit in enumerate(old_units):
+        if old_idx not in removed_set:
+            index_map[old_idx] = len(new_units)
+            new_units.append(unit)
+    self.units = new_units
     self.projectiles = [p for i, p in enumerate(self.projectiles) if i not in projectiles_to_remove]
-    # Remove destroyed units from selected_units_index
-    self.selected_units_index = [i for i in self.selected_units_index if i not in units_to_remove]
-    # Remove units and projectiles after iteration
-    self.units = [u for i, u in enumerate(self.units) if i not in units_to_remove]
-    self.projectiles = [p for i, p in enumerate(self.projectiles) if i not in projectiles_to_remove]
+
+    # Update selected_units_index to new indices, preserving selection for surviving units
+    self.selected_units_index = [index_map[i] for i in self.selected_units_index if i in index_map]
 
 
 

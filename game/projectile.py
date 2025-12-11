@@ -12,14 +12,14 @@ def calculate_direction(origin_x: float, origin_y: float, target_x: float, targe
 class Projectile:
     pass
     
-    def __init__(self, x: float, y: float, direction: tuple[float, float], speed: float, shooter_id: int) -> None:
+    def __init__(self, x: float, y: float, direction: tuple[float, float], speed: float, shooter_team_index: int) -> None:
         self.x = x
         self.y = y
         self.speed = speed
         self.direction = direction  # (dx, dy) normalized vector
         self.visible_direction = math.atan2(self.direction[1], self.direction[0])
         self.damage = 10
-        self.shooter_id = shooter_id # Use unique unit_id for shooter
+        self.shooter_team_index = shooter_team_index
     
     def update(self, deltatime: float) -> None:
         pass
@@ -31,6 +31,6 @@ class Projectile:
 class Missile(Projectile):
     pass
     
-    def __init__(self, x: float, y: float, direction: tuple[float, float], shooter_id: int) -> None:
-        super().__init__(x, y, direction, speed=100, shooter_id=shooter_id)
+    def __init__(self, x: float, y: float, direction: tuple[float, float], shooter_team_index: int) -> None:
+        super().__init__(x, y, direction, speed=100, shooter_team_index=shooter_team_index)
         self.damage = 20
