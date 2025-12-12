@@ -2,6 +2,7 @@
 
 from panda2d import Font, Image, Key, Color
 
+
 def initialize(self) -> None:
     # GUI scaling configuration
     self.gui_scale_factor = 1.3  # Scaling factor for GUI (zoom in/out)
@@ -19,33 +20,48 @@ def initialize(self) -> None:
     self.mousesecondary_last_frame = False  # Track secondary mouse button state
     self.space_last_frame = False  # Track space key state
 
+
 def late_initialize(self) -> None:
     pass
 
+
 def load_assets(self) -> None:
     # Load fonts for UI text rendering
-    self.title_font = Font("assets/fonts/BlackOpsOne-Regular.ttf", size=32)  # Large title font
-    self.context_font = Font("assets/fonts/WDXLLubrifontSC-Regular.ttf", size=16)  # Regular UI font
-    
-    # Load images for world and UI rendering
-    self.water_image = Image("assets/images/water.jpg")  # Water texture for background
-    self.selection_marker_image = Image("assets/images/selection-marker.png")  # Team color marker
-    self.autonomous_target_image = Image("assets/images/target.png")  # Autonomous movement target
-    self.projectile_images = [Image("assets/images/projectile_0.png"), Image("assets/images/projectile_1.png"), Image("assets/images/projectile_2.png")]  # Projectile images
+    self.title_font = Font(
+        "assets/fonts/BlackOpsOne-Regular.ttf", size=32)  # Large title font
+    self.context_font = Font(
+        "assets/fonts/WDXLLubrifontSC-Regular.ttf", size=16)  # Regular UI font
 
+    # Load images for world and UI rendering
+    # Water texture for background
+    self.water_image = Image("assets/images/water.jpg")
+    self.selection_marker_image = Image(
+        "assets/images/selection-marker.png")  # Team color marker
+    self.autonomous_target_image = Image(
+        "assets/images/target.png")  # Autonomous movement target
+    self.projectile_images = [Image("assets/images/projectile_0.png"), Image(
+        # Projectile images
+        "assets/images/projectile_1.png"), Image("assets/images/projectile_2.png")]
 
 
 def update(self) -> None:
     handle_gui_scaling(self)  # Handle GUI scale input
 
+
 def late_update(self) -> None:
     # Store key state from this frame for next frame's input checks
-    self.plus_last_frame = self.keydown(Key.EQUALS)  # Track if plus key was held
-    self.minus_last_frame = self.keydown(Key.MINUS)  # Track if minus key was held
-    self.mouseprimary_last_frame = self.mousedownprimary  # Track primary mouse button state
-    self.mousemiddle_last_frame = self.mousedownmiddle  # Track middle mouse button state
-    self.mousesecondary_last_frame = self.mousedownsecondary  # Track secondary mouse button state
+    self.plus_last_frame = self.keydown(
+        Key.EQUALS)  # Track if plus key was held
+    self.minus_last_frame = self.keydown(
+        Key.MINUS)  # Track if minus key was held
+    # Track primary mouse button state
+    self.mouseprimary_last_frame = self.mousedownprimary
+    # Track middle mouse button state
+    self.mousemiddle_last_frame = self.mousedownmiddle
+    # Track secondary mouse button state
+    self.mousesecondary_last_frame = self.mousedownsecondary
     self.space_last_frame = self.keydown(Key.SPACE)  # Track space key state
+
 
 def handle_gui_scaling(self) -> None:
 
@@ -62,12 +78,13 @@ def handle_gui_scaling(self) -> None:
             self.gui_scale /= self.gui_scale_factor
 
     # Clamp GUI scale to valid range
-    self.gui_scale = max(self.gui_scale_min, min(self.gui_scale, self.gui_scale_max))
-
+    self.gui_scale = max(self.gui_scale_min, min(
+        self.gui_scale, self.gui_scale_max))
 
 
 def draw(self) -> None:
     self.clear(Color(0, 0, 0))  # Clear screen to black
+
 
 def late_draw(self) -> None:
     pass

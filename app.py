@@ -24,9 +24,8 @@ class GameWindow(PandaWindow):
     def extend(self, pivot, value, direction: ExtendDirection):
         return pivot + (value * direction.value * self.gui_scale)
 
-
     def initialize(self):
-        self.menu_state = GameState.MAINMENU # Current game state tracking
+        self.menu_state = GameState.MAINMENU  # Current game state tracking
 
         core.initialize(self)  # Initialize core systems (assets, GUI scale)
 
@@ -37,7 +36,6 @@ class GameWindow(PandaWindow):
         settings.initialize(self)  # Initialize settings menu
 
         core.late_initialize(self)  # Finalize core systems if needed
-
 
     def update(self):
         core.update(self)  # Update core systems (GUI scaling)
@@ -55,8 +53,8 @@ class GameWindow(PandaWindow):
             case GameState.SETTINGS:
                 settings.update(self)
 
-        core.late_update(self)  # Finalize core systems (update key state for next frame)
-
+        # Finalize core systems (update key state for next frame)
+        core.late_update(self)
 
     def draw(self):
         core.draw(self)  # Draw core systems if needed

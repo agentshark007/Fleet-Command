@@ -5,6 +5,7 @@ from core.enums import ExtendDirection
 from core.utility import mouse_in_area
 from core.enums import GameState
 
+
 def initialize(self) -> None:
     # Button positioning
     self.mainmenu_button_extend_x = 50  # Pixels from left edge
@@ -17,14 +18,15 @@ def initialize(self) -> None:
     # Color scheme
     self.mainmenu_background_color = Color(0, 0, 50)  # Dark blue background
     self.mainmenu_button_color = Color(0, 0, 100)  # Normal button color
-    self.mainmenu_button_color_hover = Color(30, 30, 130)  # Hovered button color
+    self.mainmenu_button_color_hover = Color(
+        30, 30, 130)  # Hovered button color
     self.mainmenu_button_outline_thickness = 2  # Button border width
     self.mainmenu_button_outline_color = Color(0, 0, 0)  # Black border
 
     # Music
-    self.music = Sound("assets/sounds/cinematic-powerful-battle-music-414692.mp3")
+    self.music = Sound(
+        "assets/sounds/cinematic-powerful-battle-music-414692.mp3")
     self.music_started = False
-
 
 
 def update(self) -> None:
@@ -34,29 +36,29 @@ def update(self) -> None:
             self.music.play()
             self.music_started = True
 
-
     # Define button actions
     buttons = [
         ("newgame", newgame),
         ("settings", settings),
         ("quit", quit)
     ]
-    
+
     for index, (button_id, action) in enumerate(reversed(buttons)):
         left, bottom, right, top = get_button_bounds(self, index)
-        
+
         if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top):
             if self.mousedownprimary:
                 action(self)
                 break
 
+
 def newgame(self) -> None:
     self.menu_state = GameState.GAME
     self.music.stop()
 
+
 def settings(self) -> None:
     self.menu_state = GameState.SETTINGS
-
 
 
 def draw(self) -> None:
@@ -75,7 +77,7 @@ def draw(self) -> None:
         ("settings", "Settings"),
         ("quit", "Quit")
     ]
-    
+
     for index, (button_id, button_text) in enumerate(buttons):
         # Draw button and text
         draw_button(self, button_text, index, len(buttons))
@@ -103,7 +105,8 @@ def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
         ExtendDirection.UP
     )
 
-    spacing = (self.mainmenu_button_spacing + self.mainmenu_button_height) * self.gui_scale
+    spacing = (self.mainmenu_button_spacing +
+               self.mainmenu_button_height) * self.gui_scale
     vertical_offset = spacing * index
 
     left = button_left
@@ -116,7 +119,7 @@ def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
 
 def draw_button(self, text, index, max_index):
     """Draw a button with text.
-    
+
     Args:
         x: Button left edge position.
         y: Button bottom edge position.
@@ -124,7 +127,7 @@ def draw_button(self, text, index, max_index):
     """
     # Get button bounds
     left, bottom, right, top = get_button_bounds(self, max_index - index - 1)
-    
+
     # Determine button color based on hover state
     button_color = (
         self.mainmenu_button_color_hover

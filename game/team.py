@@ -7,6 +7,7 @@ class TeamType(Enum):
     PLAYER = "player"  # Team controlled by the player
     AI = "ai"          # Team controlled by AI
 
+
 class TeamColor:
     def __init__(self, name: str, color: Color) -> None:
         self.name = name  # Team display name
@@ -40,6 +41,7 @@ def random_teams(teams: int) -> list[Team]:
         else:
             result.append(Team(TeamType.AI, name, color))
     return result
+
 
 team_colors = [
     TeamColor("Red Fleet", Color(255, 0, 0)),

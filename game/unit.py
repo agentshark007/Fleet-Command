@@ -6,6 +6,7 @@ Units represent the combat entities in the game with health, attack, defense, an
 
 from panda2d import Image
 
+
 class Unit:
     pass
 
@@ -22,7 +23,8 @@ class Unit:
     ) -> None:
         # Appearance
         self.image = image  # Image used to render this unit
-        self.image_scale = 1.0  # Scale applied to the image (independent of camera zoom)
+        # Scale applied to the image (independent of camera zoom)
+        self.image_scale = 1.0
         self.team_index = -1  # Index of the team this unit belongs to
 
         # Unit statistics
@@ -38,28 +40,36 @@ class Unit:
         self.speed = speed  # Speed in units per second
         self.rotation_speed = rotation_speed  # Rotation speed in degrees per second
 
-        self.velocity_x = 0  # Current velocity in units per second (X direction)
-        self.velocity_y = 0  # Current velocity in units per second (Y direction)
+        # Current velocity in units per second (X direction)
+        self.velocity_x = 0
+        # Current velocity in units per second (Y direction)
+        self.velocity_y = 0
         self.velocity_rotation = 0  # Current rotational velocity in degrees per second
 
         self.acceleration = 0  # Current acceleration for this frame
         self.rotation_acceleration = 0  # Current rotational acceleration for this frame
 
-        self.friction = friction  # Friction factor applied each frame (slows movement)
+        # Friction factor applied each frame (slows movement)
+        self.friction = friction
         self.rotation_friction = rotation_friction  # Friction factor for rotation
 
         # Shooting/targeting
-        self.gun_direction = 0  # Direction the unit's guns are facing (degrees)
-        self.target_position_x = 0  # Target position for weapons (X coordinate)
-        self.target_position_y = 0  # Target position for weapons (Y coordinate)
+        # Direction the unit's guns are facing (degrees)
+        self.gun_direction = 0
+        # Target position for weapons (X coordinate)
+        self.target_position_x = 0
+        # Target position for weapons (Y coordinate)
+        self.target_position_y = 0
 
         # Collisions
         self.collision_radius = collision_radius  # Radius for collision detection
 
         # Autonomous control
         self.autonomous = False  # True if unit is controlled by autonomous movement
-        self.autonomous_target_x = 0  # Target position for autonomous movement (X)
-        self.autonomous_target_y = 0  # Target position for autonomous movement (Y)
+        # Target position for autonomous movement (X)
+        self.autonomous_target_x = 0
+        # Target position for autonomous movement (Y)
+        self.autonomous_target_y = 0
 
 
 class Battleship(Unit):

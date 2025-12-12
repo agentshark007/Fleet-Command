@@ -11,6 +11,7 @@ import math
 # Key Enum
 ###########################################################
 
+
 class Key(Enum):
     # Letters
     A = pygame.K_a
@@ -147,7 +148,8 @@ class Font:
             else:
                 self.font = pygame.font.SysFont(None, int(size))
         except Exception:
-            self.font = pygame.font.Font(pygame.font.get_default_font(), int(size))
+            self.font = pygame.font.Font(
+                pygame.font.get_default_font(), int(size))
 
     def set_size(self, size: int):
         self.size = size
@@ -191,7 +193,7 @@ class Color:
 
     def rgb_tuple(self):
         return (self.r, self.g, self.b)
-    
+
     def mix(self, other: 'Color', factor: float = 0.5) -> 'Color':
         """Mix this color with another color by a given factor (0.0 to 1.0)."""
         factor = max(0.0, min(1.0, factor))
@@ -207,6 +209,7 @@ class Color:
 ###########################################################
 class Image:
     """Image wrapper for Panda2D using pygame surfaces."""
+
     def __init__(self, path: str):
         try:
             loaded = pygame.image.load(path)
@@ -232,6 +235,7 @@ class Image:
 ###########################################################
 class Sound:
     """Sound wrapper for Panda2D using pygame mixer."""
+
     def __init__(self, path: str):
         try:
             if not pygame.mixer.get_init():
@@ -239,7 +243,7 @@ class Sound:
             self.sound = pygame.mixer.Sound(path)
         except Exception:
             self.sound = None
-    
+
     def play(self):
         """Play the sound effect."""
         if self.sound:
@@ -247,7 +251,7 @@ class Sound:
                 self.sound.play()
             except Exception:
                 pass
-    
+
     def stop(self):
         """Stop the sound effect."""
         if self.sound:
@@ -285,6 +289,7 @@ class Anchor(Enum):
 ###########################################################
 class PandaWindow:
     """Base window class for Panda2D games and apps."""
+
     def __init__(
         self,
         width=800,
@@ -320,8 +325,6 @@ class PandaWindow:
     def _get_anchor_offset(self):
         """Return window center as origin for Panda2D coordinates."""
         return (self.width // 2, self.height // 2)
-
-
 
     def _panda_to_pygame_x(self, x: float) -> int:
         ox, _ = self._get_anchor_offset()
@@ -504,10 +507,10 @@ class PandaWindow:
             pygame.draw.rect(self.screen, col, rect, outline_thickness)
 
     def fill_rounded_rect(self, x1, y1, x2, y2, color: Color, outline_thickness=0, outline_color: Color = None,
-                      topleft_roundness: float = 0.0, topright_roundness: float = 0.0,
-                      bottomleft_roundness: float = 0.0, bottomright_roundness: float = 0.0, steps: int = 10):
+                          topleft_roundness: float = 0.0, topright_roundness: float = 0.0,
+                          bottomleft_roundness: float = 0.0, bottomright_roundness: float = 0.0, steps: int = 10):
         """Draw a filled rounded rectangle with optional outline."""
-        
+
         left, right = min(x1, x2), max(x1, x2)
         bottom, top = min(y1, y2), max(y1, y2)
         w = right - left
@@ -528,7 +531,8 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi/2 + (math.pi/2) * (i/steps)
-                arc_points.append((cx + tl * math.cos(theta), cy + tl * math.sin(theta)))
+                arc_points.append((cx + tl * math.cos(theta),
+                                  cy + tl * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((left, top))
@@ -541,7 +545,8 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = 0 + (math.pi/2) * (i/steps)
-                arc_points.append((cx + tr * math.cos(theta), cy + tr * math.sin(theta)))
+                arc_points.append((cx + tr * math.cos(theta),
+                                  cy + tr * math.sin(theta)))
             points.extend(reversed(arc_points[1:]))
         else:
             points.append((right, top))
@@ -552,7 +557,8 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi/2 + math.pi + (math.pi/2) * (i/steps)
-                arc_points.append((cx + br * math.cos(theta), cy + br * math.sin(theta)))
+                arc_points.append((cx + br * math.cos(theta),
+                                  cy + br * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((right, bottom))
@@ -563,7 +569,8 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi + (math.pi/2) * (i/steps)
-                arc_points.append((cx + bl * math.cos(theta), cy + bl * math.sin(theta)))
+                arc_points.append((cx + bl * math.cos(theta),
+                                  cy + bl * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((left, bottom))
@@ -571,27 +578,29 @@ class PandaWindow:
         xlist = [p[0] for p in points]
         ylist = [p[1] for p in points]
 
-
         # Remove the last item as requested
         xlist = xlist[:-1]
         ylist = ylist[:-1]
 
-        self.fill_polygon(xlist, ylist, color, outline_thickness, outline_color)
-
+        self.fill_polygon(xlist, ylist, color,
+                          outline_thickness, outline_color)
 
     def draw_line(self, x1, y1, x2, y2, color: Color, thickness=1):
         """Draw a line between two points."""
         sx1, sy1 = self.panda2d_to_pygame(x1, y1)
         sx2, sy2 = self.panda2d_to_pygame(x2, y2)
         col = color.rgb_tuple() if color.a == 255 else color.to_tuple()
-        pygame.draw.line(self.screen, col, (sx1, sy1), (sx2, sy2), max(1, int(thickness)))
+        pygame.draw.line(self.screen, col, (sx1, sy1),
+                         (sx2, sy2), max(1, int(thickness)))
 
     def draw_text(self, text, font: Font, x, y, anchor=Anchor.CENTER, color: Color = None):
         """Draw text at a given position with anchor and color."""
-        col = color.rgb_tuple() if (color and color.a == 255) else (color.to_tuple() if color else (0, 0, 0))
+        col = color.rgb_tuple() if (color and color.a == 255) else (
+            color.to_tuple() if color else (0, 0, 0))
         surf = font.font.render(text, True, col)
         # Convert anchor position from Panda2D to Pygame coordinates
-        px, py = self._get_anchor_pos(x, y, surf.get_width(), surf.get_height(), anchor)
+        px, py = self._get_anchor_pos(
+            x, y, surf.get_width(), surf.get_height(), anchor)
         self.screen.blit(surf, (px, py))
 
     def draw_image(self, image: Image, x, y, anchor=Anchor.CENTER, xscale=1.0, yscale=1.0,
@@ -610,17 +619,20 @@ class PandaWindow:
             if filter.a < 255:
                 alpha_surf = pygame.Surface((w, h), pygame.SRCALPHA)
                 alpha_surf.fill((255, 255, 255, filter.a))
-                img.blit(alpha_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+                img.blit(alpha_surf, (0, 0),
+                         special_flags=pygame.BLEND_RGBA_MULT)
         # Apply rotation if needed
         if rotation != 0:
-            img = pygame.transform.rotate(img, -rotation)  # Pygame rotates counterclockwise, so negate for clockwise
+            # Pygame rotates counterclockwise, so negate for clockwise
+            img = pygame.transform.rotate(img, -rotation)
             w, h = img.get_width(), img.get_height()
         # Convert anchor position from Panda2D to Pygame coordinates
         px, py = self._get_anchor_pos(x, y, w, h, anchor)
         self.screen.blit(img, (px, py))
         if outline_thickness > 0 and outline_color:
             col = outline_color.rgb_tuple() if outline_color.a == 255 else outline_color.to_tuple()
-            pygame.draw.rect(self.screen, col, pygame.Rect(px, py, w, h), outline_thickness)
+            pygame.draw.rect(self.screen, col, pygame.Rect(
+                px, py, w, h), outline_thickness)
 
     def fill_polygon(self, xlist, ylist, color: Color, outline_thickness=0, outline_color: Color = None):
         """Draw a filled polygon with optional outline."""
