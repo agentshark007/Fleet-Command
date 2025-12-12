@@ -1,7 +1,9 @@
 import math
 
 
-def calculate_direction(origin_x: float, origin_y: float, target_x: float, target_y: float) -> float:
+def calculate_direction(
+    origin_x: float, origin_y: float, target_x: float, target_y: float
+) -> float:
     dx = target_x - origin_x
     dy = target_y - origin_y
     angle_rad = math.atan2(dy, dx)
@@ -9,7 +11,9 @@ def calculate_direction(origin_x: float, origin_y: float, target_x: float, targe
 
 
 class Projectile:
-    def __init__(self, x: float, y: float, direction: float, speed: float, shooter_id: int) -> None:
+    def __init__(
+        self, x: float, y: float, direction: float, speed: float, shooter_id: int
+    ) -> None:
         self.x = x
         self.y = y
         self.speed = speed

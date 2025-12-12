@@ -1,5 +1,3 @@
-
-
 from panda2d import Font, Image, Key, Color
 
 
@@ -28,20 +26,29 @@ def late_initialize(self) -> None:
 def load_assets(self) -> None:
     # Load fonts for UI text rendering
     self.title_font = Font(
-        "assets/fonts/BlackOpsOne-Regular.ttf", size=32)  # Large title font
+        "assets/fonts/BlackOpsOne-Regular.ttf", size=32
+    )  # Large title font
     self.context_font = Font(
-        "assets/fonts/WDXLLubrifontSC-Regular.ttf", size=16)  # Regular UI font
+        "assets/fonts/WDXLLubrifontSC-Regular.ttf", size=16
+    )  # Regular UI font
 
     # Load images for world and UI rendering
     # Water texture for background
     self.water_image = Image("assets/images/water.jpg")
     self.selection_marker_image = Image(
-        "assets/images/selection-marker.png")  # Team color marker
+        "assets/images/selection-marker.png"
+    )  # Team color marker
     self.autonomous_target_image = Image(
-        "assets/images/target.png")  # Autonomous movement target
-    self.projectile_images = [Image("assets/images/projectile_0.png"), Image(
-        # Projectile images
-        "assets/images/projectile_1.png"), Image("assets/images/projectile_2.png")]
+        "assets/images/target.png"
+    )  # Autonomous movement target
+    self.projectile_images = [
+        Image("assets/images/projectile_0.png"),
+        Image(
+            # Projectile images
+            "assets/images/projectile_1.png"
+        ),
+        Image("assets/images/projectile_2.png"),
+    ]
 
 
 def update(self) -> None:
@@ -50,10 +57,8 @@ def update(self) -> None:
 
 def late_update(self) -> None:
     # Store key state from this frame for next frame's input checks
-    self.plus_last_frame = self.keydown(
-        Key.EQUALS)  # Track if plus key was held
-    self.minus_last_frame = self.keydown(
-        Key.MINUS)  # Track if minus key was held
+    self.plus_last_frame = self.keydown(Key.EQUALS)  # Track if plus key was held
+    self.minus_last_frame = self.keydown(Key.MINUS)  # Track if minus key was held
     # Track primary mouse button state
     self.mouseprimary_last_frame = self.mousedownprimary
     # Track middle mouse button state
@@ -78,8 +83,7 @@ def handle_gui_scaling(self) -> None:
             self.gui_scale /= self.gui_scale_factor
 
     # Clamp GUI scale to valid range
-    self.gui_scale = max(self.gui_scale_min, min(
-        self.gui_scale, self.gui_scale_max))
+    self.gui_scale = max(self.gui_scale_min, min(self.gui_scale, self.gui_scale_max))
 
 
 def draw(self) -> None:

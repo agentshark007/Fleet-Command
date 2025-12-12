@@ -1,5 +1,3 @@
-
-
 from panda2d import *
 from core.enums import ExtendDirection
 from core.utility import mouse_in_area
@@ -18,14 +16,12 @@ def initialize(self) -> None:
     # Color scheme
     self.mainmenu_background_color = Color(0, 0, 50)  # Dark blue background
     self.mainmenu_button_color = Color(0, 0, 100)  # Normal button color
-    self.mainmenu_button_color_hover = Color(
-        30, 30, 130)  # Hovered button color
+    self.mainmenu_button_color_hover = Color(30, 30, 130)  # Hovered button color
     self.mainmenu_button_outline_thickness = 2  # Button border width
     self.mainmenu_button_outline_color = Color(0, 0, 0)  # Black border
 
     # Music
-    self.music = Sound(
-        "assets/sounds/cinematic-powerful-battle-music-414692.mp3")
+    self.music = Sound("assets/sounds/cinematic-powerful-battle-music-414692.mp3")
     self.music_started = False
 
 
@@ -37,11 +33,7 @@ def update(self) -> None:
             self.music_started = True
 
     # Define button actions
-    buttons = [
-        ("newgame", newgame),
-        ("settings", settings),
-        ("quit", quit)
-    ]
+    buttons = [("newgame", newgame), ("settings", settings), ("quit", quit)]
 
     for index, (button_id, action) in enumerate(reversed(buttons)):
         left, bottom, right, top = get_button_bounds(self, index)
@@ -68,15 +60,11 @@ def draw(self) -> None:
         self.screen_bottom,
         self.screen_right,
         self.screen_top,
-        color=self.mainmenu_background_color
+        color=self.mainmenu_background_color,
     )
 
     # Define menu buttons
-    buttons = [
-        ("newgame", "New Game"),
-        ("settings", "Settings"),
-        ("quit", "Quit")
-    ]
+    buttons = [("newgame", "New Game"), ("settings", "Settings"), ("quit", "Quit")]
 
     for index, (button_id, button_text) in enumerate(buttons):
         # Draw button and text
@@ -85,28 +73,21 @@ def draw(self) -> None:
 
 def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
     button_left = self.extend(
-        self.screen_left,
-        self.mainmenu_button_extend_x,
-        ExtendDirection.RIGHT
+        self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT
     )
     button_bottom = self.extend(
-        self.screen_bottom,
-        self.mainmenu_button_extend_y,
-        ExtendDirection.UP
+        self.screen_bottom, self.mainmenu_button_extend_y, ExtendDirection.UP
     )
     button_right = self.extend(
-        button_left,
-        self.mainmenu_button_width,
-        ExtendDirection.RIGHT
+        button_left, self.mainmenu_button_width, ExtendDirection.RIGHT
     )
     button_top = self.extend(
-        button_bottom,
-        self.mainmenu_button_height,
-        ExtendDirection.UP
+        button_bottom, self.mainmenu_button_height, ExtendDirection.UP
     )
 
-    spacing = (self.mainmenu_button_spacing +
-               self.mainmenu_button_height) * self.gui_scale
+    spacing = (
+        self.mainmenu_button_spacing + self.mainmenu_button_height
+    ) * self.gui_scale
     vertical_offset = spacing * index
 
     left = button_left
@@ -147,7 +128,7 @@ def draw_button(self, text, index, max_index):
         topleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
         topright_roundness=self.mainmenu_button_roundness * self.gui_scale,
         bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale
+        bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale,
     )
 
     # Draw button text
@@ -157,5 +138,5 @@ def draw_button(self, text, index, max_index):
         y=(bottom + top) / 2,
         font=self.context_font.new_size(int(20 * self.gui_scale)),
         color=Color(255, 255, 255),
-        anchor=Anchor.CENTER
+        anchor=Anchor.CENTER,
     )

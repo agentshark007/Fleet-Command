@@ -19,7 +19,7 @@ class Unit:
         rotation_speed: int,
         friction: float = 0.95,
         rotation_friction: float = 0.9,
-        collision_radius: int = 20
+        collision_radius: int = 20,
     ) -> None:
         # Appearance
         self.image = image  # Image used to render this unit
@@ -29,12 +29,12 @@ class Unit:
 
         # Unit statistics
         self.max_health = health  # Maximum health/hit points
-        self.health = health      # Current health/hit points
+        self.health = health  # Current health/hit points
 
         # Position and direction
         self.position_x = 0  # X position on the game map
         self.position_y = 0  # Y position on the game map
-        self.direction = 0   # Direction the unit is facing (degrees, 0=up)
+        self.direction = 0  # Direction the unit is facing (degrees, 0=up)
 
         # Movement properties
         self.speed = speed  # Speed in units per second
@@ -83,7 +83,7 @@ class Battleship(Unit):
             rotation_speed=100,  # Rotation speed
             friction=0.97,  # Low friction (maintains momentum well)
             rotation_friction=0.9,  # Rotation friction
-            collision_radius=30  # Larger collision radius
+            collision_radius=30,  # Larger collision radius
         )
         # Set initial position and team
         self.team_index = team_index

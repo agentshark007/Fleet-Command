@@ -5,7 +5,7 @@ import random
 
 class TeamType(Enum):
     PLAYER = "player"  # Team controlled by the player
-    AI = "ai"          # Team controlled by AI
+    AI = "ai"  # Team controlled by AI
 
 
 class TeamColor:

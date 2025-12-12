@@ -18,7 +18,7 @@ class GameWindow(PandaWindow):
             height=600,
             title="Fleet Command",
             resizable=Resizable.BOTH,
-            anchor=Anchor.CENTER
+            anchor=Anchor.CENTER,
         )
 
     def extend(self, pivot, value, direction: ExtendDirection):
