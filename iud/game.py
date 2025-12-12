@@ -1,5 +1,3 @@
-
-
 import math
 from core.enums import ExtendDirection
 from core.camera import Camera
@@ -63,15 +61,15 @@ def initialize_game_logic(self):
     # Generate random teams for this game session
     team_count = 4
     self.teams = random_teams(team_count)
-    
-    # Create initial battleships for each team with random positions and rotations
+
+    # Create initial battleships for each team with random positions and directions (degrees)
     self.units = {}
     for i in range(20):
         unit = Battleship(
             team_index=random.randint(0, len(self.teams) - 1),
             position_x=random.uniform(-1000, 1000),
             position_y=random.uniform(-1000, 1000),
-            direction=random.uniform(0, 360)
+            direction=random.uniform(0, 360)  # degrees
         )
         unit.unit_id = i
         self.units[i] = unit
@@ -284,18 +282,12 @@ def handle_unit_shooting(self):
         unit = self.units[unit_id]
         if self.keydown(Key.SPACE) and not self.space_last_frame:
             mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
-            dx = mouse_world_x - unit.position_x
-            dy = mouse_world_y - unit.position_y
-            length = math.hypot(dx, dy)
-            if length == 0:
-                direction = (0, 0)
-            else:
-                direction = (dx / length, dy / length)
+            direction = calculate_direction(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)  # degrees
             projectile = Missile(
                 x=unit.position_x,
                 y=unit.position_y,
-                direction=direction,
-                shooter_team_index=unit.team_index
+                direction=direction,  # degrees
+                shooter_id=unit.team_index
             )
             self.projectiles[self.next_projectile_id] = projectile
             self.next_projectile_id += 1
@@ -311,7 +303,7 @@ def detect_collisions(self):
     for unit_id, unit in self.units.items():
         for projectile_id, projectile in self.projectiles.items():
             # Prevent projectile from hitting the same team/unit that fired it
-            if unit.team_index == projectile.shooter_team_index:
+            if unit.team_index == projectile.shooter_id:
                 continue
             dist = distance(projectile.x, projectile.y, unit.position_x, unit.position_y)
             if dist < unit.collision_radius:
@@ -483,7 +475,7 @@ def draw_units(self):
             anchor=Anchor.BOTTOM,
             xscale=self.selection_marker_scale * self.camera.scale,
             yscale=self.selection_marker_scale * self.camera.scale,
-            filter=self.teams[unit.team_index].color.color,
+            filter=self.teams[unit.team_index].color,
             rotation=0
         )
 
@@ -503,7 +495,7 @@ def draw_projectiles(self):
                 xscale=1 * self.camera.scale,
                 yscale=1 * self.camera.scale,
                 filter=Color(255, 255, 255, 255),
-                rotation=math.degrees(projectile.visible_direction)
+                rotation=projectile.direction  # direction is now degrees
             )
 
 
@@ -704,12 +696,12 @@ def draw_ui_panels(self):
     team_info_y = self.extend(self.screen_bottom, 100 + 20, ExtendDirection.UP)
     for i, team in enumerate(self.teams):
         self.draw_text(
-            f"{team.color.name}: {team.type.name} - {len([u for u in self.units.values() if u.team_index == i])}",
+            f"{team.name}: {team.type.name} - {len([u for u in self.units.values() if u.team_index == i])}",
             self.context_font.new_size(12 * self.gui_scale),
             team_info_x,
             team_info_y + i * (15 * self.gui_scale),
             Anchor.BOTTOMRIGHT,
-            team.color.color
+            team.color
         )
 
     # Draw unit info in left side panel
@@ -725,7 +717,6 @@ def draw_ui_panels(self):
         avg_direction = safe_average([self.units[i].direction for i in self.selected_units_ids])
         avg_health = safe_average([self.units[i].health for i in self.selected_units_ids])
         avg_max_health = safe_average([self.units[i].max_health for i in self.selected_units_ids])
-        avg_attack = safe_average([self.units[i].attack for i in self.selected_units_ids])
 
         if selected_count == 1:
             lines = [
@@ -777,7 +768,7 @@ def draw_ui_panels(self):
 
             lines = [
                 f"Unit Info:",
-                f"Team: {self.teams[unit.team_index].color.name}",
+                f"Team: {self.teams[unit.team_index].name}",
                 f"Direction: {round(unit.direction)}°",
                 f"Health: {round(unit.health)}",
                 f"Max Health: {round(unit.max_health)}"

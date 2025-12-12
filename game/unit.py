@@ -35,12 +35,12 @@ class Unit:
         self.direction = 0   # Direction the unit is facing (degrees, 0=up)
 
         # Movement properties
-        self.speed = speed  # Maximum linear movement speed
-        self.rotation_speed = rotation_speed  # Maximum rotational speed (degrees/sec)
+        self.speed = speed  # Speed in units per second
+        self.rotation_speed = rotation_speed  # Rotation speed in degrees per second
 
-        self.velocity_x = 0  # Current velocity in X direction
-        self.velocity_y = 0  # Current velocity in Y direction
-        self.velocity_rotation = 0  # Current rotational velocity
+        self.velocity_x = 0  # Current velocity in units per second (X direction)
+        self.velocity_y = 0  # Current velocity in units per second (Y direction)
+        self.velocity_rotation = 0  # Current rotational velocity in degrees per second
 
         self.acceleration = 0  # Current acceleration for this frame
         self.rotation_acceleration = 0  # Current rotational acceleration for this frame
