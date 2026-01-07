@@ -1,7 +1,7 @@
-from panda2d import *
 from core.enums import ExtendDirection
-from core.utility import mouse_in_area
 from core.enums import GameState
+from core.utility import mouse_in_area
+from panda2d import *
 
 
 def initialize(self) -> None:
@@ -86,8 +86,8 @@ def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
     )
 
     spacing = (
-        self.mainmenu_button_spacing + self.mainmenu_button_height
-    ) * self.gui_scale
+                      self.mainmenu_button_spacing + self.mainmenu_button_height
+              ) * self.gui_scale
     vertical_offset = spacing * index
 
     left = button_left

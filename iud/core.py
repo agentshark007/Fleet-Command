@@ -69,7 +69,6 @@ def late_update(self) -> None:
 
 
 def handle_gui_scaling(self) -> None:
-
     # Detect if either command key (left or right) is held down
     command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
 

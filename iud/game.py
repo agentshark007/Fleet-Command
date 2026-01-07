@@ -1,13 +1,11 @@
-import math
-import random
-from core.enums import ExtendDirection
 from core.camera import Camera
-from game.unit import *
-from game.team import *
-from panda2d import Key, Color, Anchor
+from core.enums import ExtendDirection
 from core.utility import distance, pseudo_random_offset
-from game.projectile import *
 from game.explosion import Explosion
+from game.projectile import *
+from game.team import *
+from game.unit import *
+from panda2d import Key, Color, Anchor
 
 
 def initialize(self):
@@ -145,9 +143,9 @@ def handle_unit_selection(self):
     if self.mousedownprimary and not self.mouseprimary_last_frame:
         # Only allow selecting units from the player team
         if (
-            closest_unit_index_selectable != -1
-            and self.teams[self.units[closest_unit_index_selectable].team_index].type
-            == TeamType.PLAYER
+                closest_unit_index_selectable != -1
+                and self.teams[self.units[closest_unit_index_selectable].team_index].type
+                == TeamType.PLAYER
         ):
             if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
                 if closest_unit_index_selectable not in self.selected_units_ids:
@@ -511,8 +509,8 @@ def draw_units(self):
             )
 
             if (
-                self.teams[self.units[closest_unit_index_selectable].team_index].type
-                == TeamType.PLAYER
+                    self.teams[self.units[closest_unit_index_selectable].team_index].type
+                    == TeamType.PLAYER
             ):
                 # Draw autonomous target indicator if moving autonomously
                 if unit.autonomous:
@@ -619,7 +617,7 @@ def draw_water(self):
     wave_speed_1 = 1.5
     offset_x_1 = self.water_state * wave_speed_1
     offset_y_1 = (
-        -self.water_state * wave_speed_1 * 0.8
+            -self.water_state * wave_speed_1 * 0.8
     )  # Negative for opposite direction
     draw_water_layer(
         self,
@@ -647,13 +645,13 @@ def draw_water(self):
 
 
 def draw_water_layer(
-    self,
-    color: Color,
-    color_fluctuation_strength: Color,
-    color_fluctuation__speed: Color,
-    offset_x: float = 0.0,
-    offset_y: float = 0.0,
-    per_tile_offset: bool = False,
+        self,
+        color: Color,
+        color_fluctuation_strength: Color,
+        color_fluctuation__speed: Color,
+        offset_x: float = 0.0,
+        offset_y: float = 0.0,
+        per_tile_offset: bool = False,
 ):
     # Combine base color with fluctuation for dynamic effect
     final_color = Color(
@@ -666,11 +664,11 @@ def draw_water_layer(
 
 
 def draw_tiled_water(
-    self,
-    filter_color: Color,
-    offset_x: float = 0.0,
-    offset_y: float = 0.0,
-    per_tile_offset: bool = False,
+        self,
+        filter_color: Color,
+        offset_x: float = 0.0,
+        offset_y: float = 0.0,
+        per_tile_offset: bool = False,
 ):
     # Small overlap to prevent gaps between tiles
     offset = 5
@@ -719,8 +717,8 @@ def draw_tiled_water(
             tile_offset_y = 0
             if per_tile_offset:
                 tile_offset_x = (
-                    pseudo_random_offset(wx, wy, seed=1) - 0.5
-                ) * 2  # Range: -1 to +1
+                                        pseudo_random_offset(wx, wy, seed=1) - 0.5
+                                ) * 2  # Range: -1 to +1
                 tile_offset_y = (pseudo_random_offset(wx, wy, seed=2) - 0.5) * 2
             sx, sy = self.camera.project(
                 wx - offset_x - tile_offset_x, wy - offset_y - tile_offset_y
