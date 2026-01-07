@@ -2,9 +2,11 @@
 # Panda2D Framework - Core Classes
 # =============================
 
-import pygame
-from enum import Enum
 import math
+from enum import Enum
+
+import pygame
+
 
 ###########################################################
 # Key Enum
@@ -290,14 +292,7 @@ class Anchor(Enum):
 class PandaWindow:
     """Base window class for Panda2D games and apps."""
 
-    def __init__(
-        self,
-        width=800,
-        height=600,
-        title="Panda2D Window",
-        resizable=Resizable.NONE,
-        anchor=Anchor.CENTER,
-    ):
+    def __init__(self, width=800, height=600, title="Panda2D Window", resizable=Resizable.NONE, anchor=Anchor.CENTER, ):
         pygame.init()
         try:
             pygame.mixer.init()
@@ -419,9 +414,7 @@ class PandaWindow:
         elif self.resizable == Resizable.HEIGHT:
             w = self.width
         elif self.resizable == Resizable.ASPECT:
-            ratio = (
-                self._base_width / self._base_height if self._base_height != 0 else 1
-            )
+            ratio = (self._base_width / self._base_height if self._base_height != 0 else 1)
             if w / h > ratio:
                 w = int(h * ratio)
             else:
@@ -488,16 +481,7 @@ class PandaWindow:
             temp.fill(color.to_tuple())
             self.screen.blit(temp, (0, 0))
 
-    def fill_rect(
-        self,
-        x1,
-        y1,
-        x2,
-        y2,
-        color: Color,
-        outline_thickness=0,
-        outline_color: Color = None,
-    ):
+    def fill_rect(self, x1, y1, x2, y2, color: Color, outline_thickness=0, outline_color: Color = None, ):
         """Draw a filled rectangle with optional outline."""
         outline_thickness = int(outline_thickness)
         left, right = min(x1, x2), max(x1, x2)
@@ -514,28 +498,12 @@ class PandaWindow:
             temp.fill(color.to_tuple())
             self.screen.blit(temp, (px, py))
         if outline_thickness > 0 and outline_color:
-            col = (
-                outline_color.rgb_tuple()
-                if outline_color.a == 255
-                else outline_color.to_tuple()
-            )
+            col = (outline_color.rgb_tuple() if outline_color.a == 255 else outline_color.to_tuple())
             pygame.draw.rect(self.screen, col, rect, outline_thickness)
 
-    def fill_rounded_rect(
-        self,
-        x1,
-        y1,
-        x2,
-        y2,
-        color: Color,
-        outline_thickness=0,
-        outline_color: Color = None,
-        topleft_roundness: float = 0.0,
-        topright_roundness: float = 0.0,
-        bottomleft_roundness: float = 0.0,
-        bottomright_roundness: float = 0.0,
-        steps: int = 10,
-    ):
+    def fill_rounded_rect(self, x1, y1, x2, y2, color: Color, outline_thickness=0, outline_color: Color = None,
+            topleft_roundness: float = 0.0, topright_roundness: float = 0.0, bottomleft_roundness: float = 0.0,
+            bottomright_roundness: float = 0.0, steps: int = 10, ):
         """Draw a filled rounded rectangle with optional outline."""
 
         left, right = min(x1, x2), max(x1, x2)
@@ -558,9 +526,7 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi / 2 + (math.pi / 2) * (i / steps)
-                arc_points.append(
-                    (cx + tl * math.cos(theta), cy + tl * math.sin(theta))
-                )
+                arc_points.append((cx + tl * math.cos(theta), cy + tl * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((left, top))
@@ -573,9 +539,7 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = 0 + (math.pi / 2) * (i / steps)
-                arc_points.append(
-                    (cx + tr * math.cos(theta), cy + tr * math.sin(theta))
-                )
+                arc_points.append((cx + tr * math.cos(theta), cy + tr * math.sin(theta)))
             points.extend(reversed(arc_points[1:]))
         else:
             points.append((right, top))
@@ -586,9 +550,7 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi / 2 + math.pi + (math.pi / 2) * (i / steps)
-                arc_points.append(
-                    (cx + br * math.cos(theta), cy + br * math.sin(theta))
-                )
+                arc_points.append((cx + br * math.cos(theta), cy + br * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((right, bottom))
@@ -599,9 +561,7 @@ class PandaWindow:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi + (math.pi / 2) * (i / steps)
-                arc_points.append(
-                    (cx + bl * math.cos(theta), cy + bl * math.sin(theta))
-                )
+                arc_points.append((cx + bl * math.cos(theta), cy + bl * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((left, bottom))
@@ -620,46 +580,25 @@ class PandaWindow:
         sx1, sy1 = self.panda2d_to_pygame(x1, y1)
         sx2, sy2 = self.panda2d_to_pygame(x2, y2)
         col = color.rgb_tuple() if color.a == 255 else color.to_tuple()
-        pygame.draw.line(
-            self.screen, col, (sx1, sy1), (sx2, sy2), max(1, int(thickness))
-        )
+        pygame.draw.line(self.screen, col, (sx1, sy1), (sx2, sy2), max(1, int(thickness)))
 
-    def draw_text(
-        self, text, font: Font, x, y, anchor=Anchor.CENTER, color: Color = None
-    ):
+    def draw_text(self, text, font: Font, x, y, anchor=Anchor.CENTER, color: Color = None):
         """Draw text at a given position with anchor and color."""
-        col = (
-            color.rgb_tuple()
-            if (color and color.a == 255)
-            else (color.to_tuple() if color else (0, 0, 0))
-        )
+        col = (color.rgb_tuple() if (color and color.a == 255) else (color.to_tuple() if color else (0, 0, 0)))
         surf = font.font.render(text, True, col)
         # Convert anchor position from Panda2D to Pygame coordinates
         px, py = self._get_anchor_pos(x, y, surf.get_width(), surf.get_height(), anchor)
         self.screen.blit(surf, (px, py))
 
-    def draw_image(
-        self,
-        image: Image,
-        x,
-        y,
-        anchor=Anchor.CENTER,
-        xscale=1.0,
-        yscale=1.0,
-        outline_thickness=0,
-        outline_color: Color = None,
-        filter: Color = Color(255, 255, 255, 255),
-        rotation: int = 0,
-    ):
+    def draw_image(self, image: Image, x, y, anchor=Anchor.CENTER, xscale=1.0, yscale=1.0, outline_thickness=0,
+            outline_color: Color = None, filter: Color = Color(255, 255, 255, 255), rotation: int = 0, ):
         """Draw an image at a given position with scaling, color filter, and optional outline."""
         outline_thickness = int(outline_thickness)
         w = max(1, int(image.surface.get_width() * xscale))
         h = max(1, int(image.surface.get_height() * yscale))
         img = pygame.transform.scale(image.surface, (w, h))
         # Apply color filter with transparency
-        if filter is not None and (
-            filter.r != 255 or filter.g != 255 or filter.b != 255 or filter.a != 255
-        ):
+        if filter is not None and (filter.r != 255 or filter.g != 255 or filter.b != 255 or filter.a != 255):
             filter_surf = pygame.Surface((w, h), pygame.SRCALPHA)
             filter_surf.fill(filter.to_tuple())
             img = img.copy()
@@ -677,23 +616,10 @@ class PandaWindow:
         px, py = self._get_anchor_pos(x, y, w, h, anchor)
         self.screen.blit(img, (px, py))
         if outline_thickness > 0 and outline_color:
-            col = (
-                outline_color.rgb_tuple()
-                if outline_color.a == 255
-                else outline_color.to_tuple()
-            )
-            pygame.draw.rect(
-                self.screen, col, pygame.Rect(px, py, w, h), outline_thickness
-            )
+            col = (outline_color.rgb_tuple() if outline_color.a == 255 else outline_color.to_tuple())
+            pygame.draw.rect(self.screen, col, pygame.Rect(px, py, w, h), outline_thickness)
 
-    def fill_polygon(
-        self,
-        xlist,
-        ylist,
-        color: Color,
-        outline_thickness=0,
-        outline_color: Color = None,
-    ):
+    def fill_polygon(self, xlist, ylist, color: Color, outline_thickness=0, outline_color: Color = None, ):
         """Draw a filled polygon with optional outline."""
         if not xlist or not ylist or len(xlist) != len(ylist):
             return
@@ -714,9 +640,5 @@ class PandaWindow:
             pygame.draw.polygon(temp, color.to_tuple(), shifted_points, 0)
             self.screen.blit(temp, (min_x, min_y))
         if outline_thickness > 0 and outline_color:
-            col = (
-                outline_color.rgb_tuple()
-                if outline_color.a == 255
-                else outline_color.to_tuple()
-            )
+            col = (outline_color.rgb_tuple() if outline_color.a == 255 else outline_color.to_tuple())
             pygame.draw.polygon(self.screen, col, points, outline_thickness)

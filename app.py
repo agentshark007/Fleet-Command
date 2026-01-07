@@ -1,6 +1,3 @@
-from panda2d import PandaWindow, Anchor, Resizable
-from game.team import *
-from game.unit import *
 from core.enums import ExtendDirection, GameState
 from iud import core
 from iud import game
@@ -8,18 +5,13 @@ from iud import mainmenu
 from iud import newgame
 from iud import paused
 from iud import settings
+from panda2d import PandaWindow, Anchor, Resizable
 
 
 class GameWindow(PandaWindow):
 
     def __init__(self) -> None:
-        super().__init__(
-            width=800,
-            height=600,
-            title="Fleet Command",
-            resizable=Resizable.BOTH,
-            anchor=Anchor.CENTER,
-        )
+        super().__init__(width=800, height=600, title="Fleet Command", resizable=Resizable.BOTH, anchor=Anchor.CENTER, )
 
     def extend(self, pivot, value, direction: ExtendDirection):
         return pivot + (value * direction.value * self.gui_scale)

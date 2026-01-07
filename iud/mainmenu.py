@@ -55,13 +55,8 @@ def settings(self) -> None:
 
 def draw(self) -> None:
     # Draw background
-    self.fill_rect(
-        self.screen_left,
-        self.screen_bottom,
-        self.screen_right,
-        self.screen_top,
-        color=self.mainmenu_background_color,
-    )
+    self.fill_rect(self.screen_left, self.screen_bottom, self.screen_right, self.screen_top,
+        color=self.mainmenu_background_color, )
 
     # Define menu buttons
     buttons = [("newgame", "New Game"), ("settings", "Settings"), ("quit", "Quit")]
@@ -72,22 +67,12 @@ def draw(self) -> None:
 
 
 def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
-    button_left = self.extend(
-        self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT
-    )
-    button_bottom = self.extend(
-        self.screen_bottom, self.mainmenu_button_extend_y, ExtendDirection.UP
-    )
-    button_right = self.extend(
-        button_left, self.mainmenu_button_width, ExtendDirection.RIGHT
-    )
-    button_top = self.extend(
-        button_bottom, self.mainmenu_button_height, ExtendDirection.UP
-    )
+    button_left = self.extend(self.screen_left, self.mainmenu_button_extend_x, ExtendDirection.RIGHT)
+    button_bottom = self.extend(self.screen_bottom, self.mainmenu_button_extend_y, ExtendDirection.UP)
+    button_right = self.extend(button_left, self.mainmenu_button_width, ExtendDirection.RIGHT)
+    button_top = self.extend(button_bottom, self.mainmenu_button_height, ExtendDirection.UP)
 
-    spacing = (
-                      self.mainmenu_button_spacing + self.mainmenu_button_height
-              ) * self.gui_scale
+    spacing = (self.mainmenu_button_spacing + self.mainmenu_button_height) * self.gui_scale
     vertical_offset = spacing * index
 
     left = button_left
@@ -110,33 +95,18 @@ def draw_button(self, text, index, max_index):
     left, bottom, right, top = get_button_bounds(self, max_index - index - 1)
 
     # Determine button color based on hover state
-    button_color = (
-        self.mainmenu_button_color_hover
-        if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top)
-        else self.mainmenu_button_color
-    )
+    button_color = (self.mainmenu_button_color_hover if mouse_in_area(self.mousex, self.mousey, left, right, bottom,
+                                                                      top) else self.mainmenu_button_color)
 
     # Draw button background
-    self.fill_rounded_rect(
-        left,
-        bottom,
-        right,
-        top,
-        color=button_color,
+    self.fill_rounded_rect(left, bottom, right, top, color=button_color,
         outline_thickness=self.mainmenu_button_outline_thickness * self.gui_scale,
         outline_color=self.mainmenu_button_outline_color,
         topleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
         topright_roundness=self.mainmenu_button_roundness * self.gui_scale,
         bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale,
-    )
+        bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale, )
 
     # Draw button text
-    self.draw_text(
-        text,
-        x=(left + right) / 2,
-        y=(bottom + top) / 2,
-        font=self.context_font.new_size(int(20 * self.gui_scale)),
-        color=Color(255, 255, 255),
-        anchor=Anchor.CENTER,
-    )
+    self.draw_text(text, x=(left + right) / 2, y=(bottom + top) / 2,
+        font=self.context_font.new_size(int(20 * self.gui_scale)), color=Color(255, 255, 255), anchor=Anchor.CENTER, )

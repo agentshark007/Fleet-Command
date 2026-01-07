@@ -11,10 +11,7 @@ class Explosion:
         self.image_prefix = "assets/images/explosion_"
         self.image_suffix = ".png"
         self.scale = 1.0
-        self.images = [
-            Image(f"{self.image_prefix}{i}{self.image_suffix}")
-            for i in range(self.frames)
-        ]
+        self.images = [Image(f"{self.image_prefix}{i}{self.image_suffix}") for i in range(self.frames)]
 
     def image(self):
         # The images list already contains Image instances — return the current one

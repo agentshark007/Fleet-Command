@@ -10,17 +10,8 @@ from panda2d import Image
 class Unit:
     pass
 
-    def __init__(
-        self,
-        image: Image,
-        image_scale: float,
-        health: int,
-        speed: int,
-        rotation_speed: int,
-        friction: float = 0.95,
-        rotation_friction: float = 0.9,
-        collision_radius: int = 20,
-    ) -> None:
+    def __init__(self, image: Image, image_scale: float, health: int, speed: int, rotation_speed: int,
+            friction: float = 0.95, rotation_friction: float = 0.9, collision_radius: int = 20, ) -> None:
         # Appearance
         self.image = image  # Image used to render this unit
         # Scale applied to the image (independent of camera zoom)
@@ -75,10 +66,7 @@ class Unit:
 class Battleship(Unit):
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
         # Initialize with battleship-specific stats
-        super().__init__(
-            Image("assets/images/battleship.png"),
-            image_scale=0.1,
-            health=600,  # High health
+        super().__init__(Image("assets/images/battleship.png"), image_scale=0.1, health=600,  # High health
             speed=200,  # Fast movement speed
             rotation_speed=100,  # Rotation speed
             friction=0.97,  # Low friction (maintains momentum well)
