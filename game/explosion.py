@@ -1,4 +1,4 @@
-from panda2d import Image
+from pgiud import Image
 
 
 class Explosion:

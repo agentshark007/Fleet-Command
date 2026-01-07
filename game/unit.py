@@ -1,10 +1,4 @@
-"""Game units and unit types for Fleet Command.
-
-This module defines the Unit base class and specific unit types (e.g., Battleship).
-Units represent the combat entities in the game with health, attack, defense, and movement.
-"""
-
-from panda2d import Image
+from pgiud import Image
 
 
 class Unit:

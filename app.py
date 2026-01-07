@@ -5,13 +5,13 @@ from iud import mainmenu
 from iud import newgame
 from iud import paused
 from iud import settings
-from panda2d import PandaWindow, Anchor, Resizable
+from pgiud import *
 
 
-class GameWindow(PandaWindow):
+class GameWindow(Window):
 
     def __init__(self) -> None:
-        super().__init__(width=800, height=600, title="Fleet Command", resizable=Resizable.BOTH, anchor=Anchor.CENTER, )
+        super().__init__(width=800, height=600, title="Fleet Command", resizable=Resizable.BOTH, origin=Origin.CENTER, )
 
     def extend(self, pivot, value, direction: ExtendDirection):
         return pivot + (value * direction.value * self.gui_scale)

@@ -502,8 +502,9 @@ class PandaWindow:
             pygame.draw.rect(self.screen, col, rect, outline_thickness)
 
     def fill_rounded_rect(self, x1, y1, x2, y2, color: Color, outline_thickness=0, outline_color: Color = None,
-            topleft_roundness: float = 0.0, topright_roundness: float = 0.0, bottomleft_roundness: float = 0.0,
-            bottomright_roundness: float = 0.0, steps: int = 10, ):
+                          topleft_roundness: float = 0.0, topright_roundness: float = 0.0,
+                          bottomleft_roundness: float = 0.0,
+                          bottomright_roundness: float = 0.0, steps: int = 10, ):
         """Draw a filled rounded rectangle with optional outline."""
 
         left, right = min(x1, x2), max(x1, x2)
@@ -591,7 +592,7 @@ class PandaWindow:
         self.screen.blit(surf, (px, py))
 
     def draw_image(self, image: Image, x, y, anchor=Anchor.CENTER, xscale=1.0, yscale=1.0, outline_thickness=0,
-            outline_color: Color = None, filter: Color = Color(255, 255, 255, 255), rotation: int = 0, ):
+                   outline_color: Color = None, filter: Color = Color(255, 255, 255, 255), rotation: int = 0, ):
         """Draw an image at a given position with scaling, color filter, and optional outline."""
         outline_thickness = int(outline_thickness)
         w = max(1, int(image.surface.get_width() * xscale))

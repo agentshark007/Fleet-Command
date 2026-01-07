@@ -1,7 +1,7 @@
 from core.enums import ExtendDirection
 from core.enums import GameState
 from core.utility import mouse_in_area
-from panda2d import *
+from pgiud import *
 
 
 def initialize(self) -> None:
@@ -56,7 +56,7 @@ def settings(self) -> None:
 def draw(self) -> None:
     # Draw background
     self.fill_rect(self.screen_left, self.screen_bottom, self.screen_right, self.screen_top,
-        color=self.mainmenu_background_color, )
+                   color=self.mainmenu_background_color, )
 
     # Define menu buttons
     buttons = [("newgame", "New Game"), ("settings", "Settings"), ("quit", "Quit")]
@@ -100,13 +100,14 @@ def draw_button(self, text, index, max_index):
 
     # Draw button background
     self.fill_rounded_rect(left, bottom, right, top, color=button_color,
-        outline_thickness=self.mainmenu_button_outline_thickness * self.gui_scale,
-        outline_color=self.mainmenu_button_outline_color,
-        topleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        topright_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale, )
+                           outline_thickness=self.mainmenu_button_outline_thickness * self.gui_scale,
+                           outline_color=self.mainmenu_button_outline_color,
+                           topleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
+                           topright_roundness=self.mainmenu_button_roundness * self.gui_scale,
+                           bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
+                           bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale, )
 
     # Draw button text
     self.draw_text(text, x=(left + right) / 2, y=(bottom + top) / 2,
-        font=self.context_font.new_size(int(20 * self.gui_scale)), color=Color(255, 255, 255), anchor=Anchor.CENTER, )
+                   font=self.context_font.new_size(int(20 * self.gui_scale)), color=Color(255, 255, 255),
+                   origin=Origin.CENTER)

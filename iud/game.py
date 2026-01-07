@@ -5,7 +5,7 @@ from game.explosion import Explosion
 from game.projectile import *
 from game.team import *
 from game.unit import *
-from panda2d import Key, Color, Anchor
+from pgiud import *
 
 
 def initialize(self):
@@ -431,19 +431,19 @@ def draw_units(self):
         # Draw unit image with color based on state
         if unit_id in self.selected_units_ids:
             # Selected unit: bright white highlight
-            self.draw_image(unit.image, screen_x, screen_y, anchor=Anchor.CENTER, xscale=0.5 * self.camera.scale,
+            self.draw_image(unit.image, screen_x, screen_y, anchor=Origin.CENTER, xscale=0.5 * self.camera.scale,
                 yscale=0.5 * self.camera.scale, filter=self.selected_unit_filter, rotation=unit.direction, )
 
             # Draw autonomous target indicator if moving autonomously
             if unit.autonomous:
                 target_screen_x, target_screen_y = self.camera.project(unit.autonomous_target_x,
                     unit.autonomous_target_y)
-                self.draw_image(self.autonomous_target_image, target_screen_x, target_screen_y, anchor=Anchor.CENTER,
+                self.draw_image(self.autonomous_target_image, target_screen_x, target_screen_y, anchor=Origin.CENTER,
                     xscale=self.autonomous_target_image_scale * self.camera.scale,
                     yscale=self.autonomous_target_image_scale * self.camera.scale, rotation=0, )
         elif unit_id == closest_unit_index_selectable:
             # Hovered unit: lighter highlight to indicate it's selectable
-            self.draw_image(unit.image, screen_x, screen_y, anchor=Anchor.CENTER, xscale=0.5 * self.camera.scale,
+            self.draw_image(unit.image, screen_x, screen_y, anchor=Origin.CENTER, xscale=0.5 * self.camera.scale,
                 yscale=0.5 * self.camera.scale, filter=self.hover_unit_filter, rotation=unit.direction, )
 
             if (self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER):
@@ -452,11 +452,11 @@ def draw_units(self):
                     target_screen_x, target_screen_y = self.camera.project(unit.autonomous_target_x,
                         unit.autonomous_target_y)
                     self.draw_image(self.autonomous_target_image, target_screen_x, target_screen_y,
-                        anchor=Anchor.CENTER, xscale=self.autonomous_target_image_scale * self.camera.scale,
+                        anchor=Origin.CENTER, xscale=self.autonomous_target_image_scale * self.camera.scale,
                         yscale=self.autonomous_target_image_scale * self.camera.scale, rotation=0, )
         else:
             # Other units: neutral gray color
-            self.draw_image(unit.image, screen_x, screen_y, anchor=Anchor.CENTER, xscale=0.5 * self.camera.scale,
+            self.draw_image(unit.image, screen_x, screen_y, anchor=Origin.CENTER, xscale=0.5 * self.camera.scale,
                 yscale=0.5 * self.camera.scale, filter=self.other_unit_filter, rotation=unit.direction, )
 
     # Draw team color markers above each unit
@@ -466,7 +466,7 @@ def draw_units(self):
 
         # Draw colored marker above unit showing team color
         self.draw_image(self.selection_marker_image, screen_x,
-            screen_y + self.selection_marker_offset * self.camera.scale, anchor=Anchor.BOTTOM,
+            screen_y + self.selection_marker_offset * self.camera.scale, anchor=Origin.BOTTOM,
             xscale=self.selection_marker_scale * self.camera.scale,
             yscale=self.selection_marker_scale * self.camera.scale, filter=self.teams[unit.team_index].color,
             rotation=0, )
@@ -479,7 +479,7 @@ def draw_projectiles(self):
         # Draw projectile image
         if self.projectile_images:
             img = self.projectile_images[random.randint(0, len(self.projectile_images) - 1)]
-            self.draw_image(img, screen_x, screen_y, anchor=Anchor.CENTER, xscale=1 * self.camera.scale,
+            self.draw_image(img, screen_x, screen_y, anchor=Origin.CENTER, xscale=1 * self.camera.scale,
                 yscale=1 * self.camera.scale, filter=Color(255, 255, 255, 255), rotation=90 - projectile.direction,
                 # direction is now degrees
             )
@@ -491,7 +491,7 @@ def draw_explosions(self):
         screen_x, screen_y = self.camera.project(explosion.x, explosion.y)
         # Draw current frame of explosion animation
         img = explosion.image()
-        self.draw_image(img, screen_x, screen_y, anchor=Anchor.CENTER, xscale=explosion.scale * self.camera.scale,
+        self.draw_image(img, screen_x, screen_y, anchor=Origin.CENTER, xscale=explosion.scale * self.camera.scale,
             yscale=explosion.scale * self.camera.scale, filter=Color(255, 255, 255, 255), rotation=0, )
 
 
@@ -585,7 +585,7 @@ def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y:
                 tile_offset_x = (pseudo_random_offset(wx, wy, seed=1) - 0.5) * 2  # Range: -1 to +1
                 tile_offset_y = (pseudo_random_offset(wx, wy, seed=2) - 0.5) * 2
             sx, sy = self.camera.project(wx - offset_x - tile_offset_x, wy - offset_y - tile_offset_y)
-            self.draw_image(self.water_image, sx, sy, anchor=Anchor.BOTTOMLEFT, xscale=xscale, yscale=yscale,
+            self.draw_image(self.water_image, sx, sy, anchor=Origin.BOTTOMLEFT, xscale=xscale, yscale=yscale,
                 filter=filter_color, rotation=0, )
 
 
@@ -621,7 +621,7 @@ def draw_ui_panels(self):
     title_x = self.screen_center_x
     title_y = self.extend(self.screen_top, 15, ExtendDirection.DOWN)
     font = self.title_font.new_size(20 * self.gui_scale)
-    anchor = Anchor.CENTER
+    anchor = Origin.CENTER
     shadow_color = self.title_text_shadow_color
 
     # Draw shadow in four directions for depth effect
@@ -643,7 +643,7 @@ def draw_ui_panels(self):
     for i, team in enumerate(self.teams):
         self.draw_text(f"{team.name}: {team.type.name} - {len([u for u in self.units.values() if u.team_index == i])}",
             self.context_font.new_size(12 * self.gui_scale), team_info_x, team_info_y + i * (15 * self.gui_scale),
-            Anchor.BOTTOMRIGHT, team.color, )
+            Origin.BOTTOMRIGHT, team.color, )
 
     # Draw unit info in left side panel
     if len(self.selected_units_ids) > 0:
@@ -669,7 +669,7 @@ def draw_ui_panels(self):
 
         for i, line in enumerate(lines):
             self.draw_text(line, self.context_font.new_size(12 * self.gui_scale), info_x, info_y - i * line_height,
-                Anchor.TOPLEFT, Color(200, 200, 200), )
+                Origin.TOPLEFT, Color(200, 200, 200), )
     else:
         mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
         closest_unit_index = -1
@@ -699,10 +699,10 @@ def draw_ui_panels(self):
 
             for i, line in enumerate(lines):
                 self.draw_text(line, self.context_font.new_size(12 * self.gui_scale), info_x, info_y - i * line_height,
-                    Anchor.TOPLEFT, Color(200, 200, 200), )
+                    Origin.TOPLEFT, Color(200, 200, 200), )
 
     # Draw FPS counter at the top left corner of the screen
     fps = 0 if self.deltatime == 0 else round(1 / self.deltatime)
     self.draw_text(str(fps), self.title_font.new_size(20 * self.gui_scale),
         self.extend(self.screen_left, 10, ExtendDirection.RIGHT),
-        self.extend(self.screen_top, 27, ExtendDirection.DOWN), Anchor.TOPLEFT, Color(100, 100, 100), )
+        self.extend(self.screen_top, 27, ExtendDirection.DOWN), Origin.TOPLEFT, Color(100, 100, 100), )

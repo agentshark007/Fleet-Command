@@ -1,7 +1,7 @@
 import random
 from enum import Enum
 
-from panda2d import Color
+from pgiud import Color
 
 
 class TeamType(Enum):

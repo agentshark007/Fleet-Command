@@ -1,4 +1,4 @@
-from panda2d import Font, Image, Key, Color
+from pgiud import *
 
 
 def initialize(self) -> None:
