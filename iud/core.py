@@ -33,7 +33,7 @@ def load_assets(self) -> None:
     self.water_image = Image("assets/images/water.jpg")
     self.selection_marker_image = Image("assets/images/selection-marker.png")  # Team color marker
     self.autonomous_target_image = Image("assets/images/target.png")  # Autonomous movement target
-    self.projectile_images = [Image("assets/images/projectile_0.png"), Image(# Projectile images
+    self.projectile_images = [Image("assets/images/projectile_0.png"), Image(  # Projectile images
         "assets/images/projectile_1.png"), Image("assets/images/projectile_2.png"), ]
 
 

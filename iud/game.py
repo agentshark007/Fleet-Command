@@ -127,11 +127,11 @@ def handle_unit_selection(self):
 
     for unit_id, unit in self.units.items():
         dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
-        # Track closest unit overall
+        # Track the closest unit overall
         if dist < closest_distance:
             closest_distance = dist
             closest_unit_index = unit_id
-        # Track closest unit within selection range
+        # Track the closest unit within selection range
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
             closest_unit_index_selectable = unit_id
@@ -139,8 +139,7 @@ def handle_unit_selection(self):
     # Handle selection input (left mouse button)
     if self.mousedownprimary and not self.mouseprimary_last_frame:
         # Only allow selecting units from the player team
-        if (closest_unit_index_selectable != -1 and self.teams[
-            self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER):
+        if closest_unit_index_selectable != -1 and self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
             if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
                 if closest_unit_index_selectable not in self.selected_units_ids:
                     self.selected_units_ids.append(closest_unit_index_selectable)
@@ -324,7 +323,7 @@ def detect_collisions(self):
                 continue
             dist = distance(unit_a.position_x, unit_a.position_y, unit_b.position_x, unit_b.position_y, )
             min_dist = unit_a.collision_radius + unit_b.collision_radius
-            if dist < min_dist and dist > 0:
+            if min_dist > dist > 0:
                 units_to_remove.add(unit_id_a)
                 units_to_remove.add(unit_id_b)
                 create_explosion(self, (unit_a.position_x + unit_b.position_x) / 2,
@@ -406,7 +405,7 @@ def draw_units(self):
     # Calculate mouse position in world coordinates for hover detection
     mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
 
-    # Find closest unit to mouse for hover effect
+    # Find the closest unit to mouse for hover effect
     closest_unit_index = -1
     closest_unit_index_selectable = -1
     closest_distance = float("inf")
@@ -414,11 +413,11 @@ def draw_units(self):
 
     for unit_id, unit in self.units.items():
         dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
-        # Track closest unit overall
+        # Track the closest unit overall
         if dist < closest_distance:
             closest_distance = dist
             closest_unit_index = unit_id
-        # Track closest unit within selection range
+        # Track the closest unit within selection range
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
             closest_unit_index_selectable = unit_id
@@ -446,7 +445,7 @@ def draw_units(self):
             self.draw_image(unit.image, screen_x, screen_y, origin=Origin.CENTER, scalex=0.5 * self.camera.scale,
                             scaley=0.5 * self.camera.scale, filter=self.hover_unit_filter, rotation=unit.direction, )
 
-            if (self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER):
+            if self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
                 # Draw autonomous target indicator if moving autonomously
                 if unit.autonomous:
                     target_screen_x, target_screen_y = self.camera.project(unit.autonomous_target_x,
@@ -486,7 +485,7 @@ def draw_projectiles(self):
 
 
 def draw_explosions(self):
-    for id, explosion in self.explosions.items():
+    for explosion_id, explosion in self.explosions.items():
         # Project explosion world position to screen coordinates
         screen_x, screen_y = self.camera.project(explosion.x, explosion.y)
         # Draw current frame of explosion animation
@@ -683,11 +682,11 @@ def draw_ui_panels(self):
 
         for unit_id, unit in self.units.items():
             dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
-            # Track closest unit overall
+            # Track the closest unit overall
             if dist < closest_distance:
                 closest_distance = dist
                 closest_unit_index = unit_id
-            # Track closest unit within selection range
+            # Track the closest unit within selection range
             if dist < closest_distance_selectable and dist < self.selection_distance:
                 closest_distance_selectable = dist
                 closest_unit_index_selectable = unit_id

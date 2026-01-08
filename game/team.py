@@ -45,6 +45,6 @@ def random_teams(teams: int) -> list[Team]:
 
 
 team_colors = [TeamColor("Red Fleet", Color(255, 0, 0)), TeamColor("Blue Alliance", Color(0, 0, 255)),
-    TeamColor("Green Squadron", Color(0, 255, 0)), TeamColor("Yellow Legion", Color(255, 255, 0)),
-    TeamColor("Purple Vanguard", Color(128, 0, 128)), TeamColor("Orange Crew", Color(255, 165, 0)),
-    TeamColor("Cyan Force", Color(0, 255, 255)), ]
+               TeamColor("Green Squadron", Color(0, 255, 0)), TeamColor("Yellow Legion", Color(255, 255, 0)),
+               TeamColor("Purple Vanguard", Color(128, 0, 128)), TeamColor("Orange Crew", Color(255, 165, 0)),
+               TeamColor("Cyan Force", Color(0, 255, 255)), ]

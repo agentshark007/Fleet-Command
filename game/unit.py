@@ -5,7 +5,7 @@ class Unit:
     pass
 
     def __init__(self, image: Image, image_scale: float, health: int, speed: int, rotation_speed: int,
-            friction: float = 0.95, rotation_friction: float = 0.9, collision_radius: int = 20, ) -> None:
+                 friction: float = 0.95, rotation_friction: float = 0.9, collision_radius: int = 20, ) -> None:
         # Appearance
         self.image = image  # Image used to render this unit
         # Scale applied to the image (independent of camera zoom)
@@ -61,12 +61,12 @@ class Battleship(Unit):
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
         # Initialize with battleship-specific stats
         super().__init__(Image("assets/images/battleship.png"), image_scale=0.1, health=600,  # High health
-            speed=200,  # Fast movement speed
-            rotation_speed=100,  # Rotation speed
-            friction=0.97,  # Low friction (maintains momentum well)
-            rotation_friction=0.9,  # Rotation friction
-            collision_radius=30,  # Larger collision radius
-        )
+                         speed=200,  # Fast movement speed
+                         rotation_speed=100,  # Rotation speed
+                         friction=0.97,  # Low friction (maintains momentum well)
+                         rotation_friction=0.9,  # Rotation friction
+                         collision_radius=30,  # Larger collision radius
+                         )
         # Set initial position and team
         self.team_index = team_index
         self.position_x = position_x

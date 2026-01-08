@@ -84,13 +84,6 @@ def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
 
 
 def draw_button(self, text, index, max_index):
-    """Draw a button with text.
-
-    Args:
-        x: Button left edge position.
-        y: Button bottom edge position.
-        text: Button label text.
-    """
     # Get button bounds
     left, bottom, right, top = get_button_bounds(self, max_index - index - 1)
 
