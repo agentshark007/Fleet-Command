@@ -139,7 +139,8 @@ def handle_unit_selection(self):
     # Handle selection input (left mouse button)
     if self.mousedownprimary and not self.mouseprimary_last_frame:
         # Only allow selecting units from the player team
-        if closest_unit_index_selectable != -1 and self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
+        if closest_unit_index_selectable != -1 and self.teams[
+            self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
             if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
                 if closest_unit_index_selectable not in self.selected_units_ids:
                     self.selected_units_ids.append(closest_unit_index_selectable)
@@ -494,7 +495,7 @@ def draw_explosions(self):
                         scaley=explosion.scale * self.camera.scale, filter=Color(255, 255, 255, 255), rotation=0, )
 
 
-def draw_water(self):  # TODO: Make the darn water not take so much of that darn fps!!!
+def draw_water(self):  # TODO: Make water layers have higher fps
     # Layer 0: Ocean base layer with slow circular motion (moves in a circular path)
     rotation_speed_0 = 0.03
     rotation_radius_0 = 7.0
@@ -517,19 +518,14 @@ def draw_water(self):  # TODO: Make the darn water not take so much of that darn
                      offset_x_1, offset_y_1, True,  # Enable per-tile offset for this layer
                      )
 
-    # Layer 2: Light blue wave layer (moves opposite diagonally)
-    wave_speed_2 = 2.0
-    offset_x_2 = self.water_state * wave_speed_2
-    offset_y_2 = self.water_state * wave_speed_2  # draw_water_layer(  #     self,  #     Color(100, 120, 200, 140),  # Very light blue with more transparency  #     Color(10, 10, 10, 10),  # Low color fluctuation strength  #     Color(0.15, 0.15, 0.15, 10),  # Moderate fluctuation speed  #     offset_x_2,  #     offset_y_2,  #     True  # Enable per-tile offset for this layer  # )
 
-
-def draw_water_layer(self, color: Color, color_fluctuation_strength: Color, color_fluctuation__speed: Color,
+def draw_water_layer(self, color: Color, color_fluctuation_strength: Color, color_fluctuation_speed: Color,
                      offset_x: float = 0.0, offset_y: float = 0.0, per_tile_offset: bool = False, ):
     # Combine base color with fluctuation for dynamic effect
-    final_color = Color(color.r + math.sin(color_fluctuation__speed.r) * color_fluctuation_strength.r,
-                        color.g + math.cos(color_fluctuation__speed.g) * color_fluctuation_strength.g,
-                        color.b + math.sin(color_fluctuation__speed.b) * color_fluctuation_strength.b,
-                        color.a + math.cos(color_fluctuation__speed.a) * color_fluctuation_strength.a, )
+    final_color = Color(color.r + math.sin(color_fluctuation_speed.r * self.water_state) * color_fluctuation_strength.r,
+                        color.g + math.cos(color_fluctuation_speed.g * self.water_state) * color_fluctuation_strength.g,
+                        color.b + math.sin(color_fluctuation_speed.b * self.water_state) * color_fluctuation_strength.b,
+                        color.a + math.cos(color_fluctuation_speed.a * self.water_state) * color_fluctuation_strength.a)
     draw_tiled_water(self, final_color, offset_x, offset_y, per_tile_offset)
 
 
