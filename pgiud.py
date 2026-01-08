@@ -1,5 +1,6 @@
-from enum import Enum
 import math
+from enum import Enum
+
 import pygame
 
 
@@ -496,6 +497,8 @@ class Window:
     def fill_rect(self, ax: int, ay: int, bx: int, by: int, color: "Color", outline_thickness: int = 0,
                   outline_color: "Color" = None, ):
         """Draw a filled rectangle from (ax, ay) to (bx, by) in IUD coordinates."""
+        outline_thickness = int(outline_thickness)
+
         ax, ay = self._iud_to_pg(ax, ay)
         bx, by = self._iud_to_pg(bx, by)
         width = bx - ax
@@ -651,12 +654,13 @@ class Window:
 
     def draw_image(self, image: "Image", x: int, y: int, origin: Origin = Origin.BOTTOMLEFT,
                    filter: "Color" = Color(255, 255, 255, 255), scalex: float = 1.0, scaley: float = 1.0,
-                   antialiasing: bool = True, ):
+                   rotation: int = 0, antialiasing: bool = True):
         """Draw an image at (x, y) in IUD coordinates.
 
         Optional:
           - filter: a `Color` to tint/multiply the image with (None = no tint)
           - scalex, scaley: scaling factors (scaley defaults to scalex)
+          - rotation: rotation angle in degrees (clockwise)
           - antialiasing: whether to use smooth scaling when available
         """
         # Get pygame position
@@ -687,6 +691,10 @@ class Window:
         except Exception:
             # Fallback to original surface on any error
             surf = image.surface
+
+        # Rotation
+        if rotation != 0:
+            surf = pygame.transform.rotate(surf, -rotation)  # Negative for clockwise rotation
 
         # Color filter / tint (multiply)
         if filter is not None:
