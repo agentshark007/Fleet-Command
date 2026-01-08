@@ -12,7 +12,12 @@ def calculate_direction(
 
 class Projectile:
     def __init__(
-        self, x: float, y: float, direction: float, speed: float, shooter_id: int
+        self,
+        x: float,
+        y: float,
+        direction: float,
+        speed: float,
+        shooter_id: int,
     ) -> None:
         self.x = x
         self.y = y

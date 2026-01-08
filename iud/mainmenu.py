@@ -1,5 +1,4 @@
-from core.enums import ExtendDirection
-from core.enums import GameState
+from core.enums import ExtendDirection, GameState
 from core.utility import mouse_in_area
 from pgiud import *
 
@@ -64,7 +63,11 @@ def draw(self) -> None:
     )
 
     # Define menu buttons
-    buttons = [("newgame", "New Game"), ("settings", "Settings"), ("quit", "Quit")]
+    buttons = [
+        ("newgame", "New Game"),
+        ("settings", "Settings"),
+        ("quit", "Quit"),
+    ]
 
     for index, (button_id, button_text) in enumerate(buttons):
         # Draw button and text

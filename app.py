@@ -1,15 +1,9 @@
 from core.enums import ExtendDirection, GameState
-from iud import core
-from iud import game
-from iud import mainmenu
-from iud import newgame
-from iud import paused
-from iud import settings
+from iud import core, game, mainmenu, newgame, paused, settings
 from pgiud import *
 
 
 class GameWindow(Window):
-
     def __init__(self) -> None:
         super().__init__(
             width=800,

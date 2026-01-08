@@ -198,7 +198,10 @@ def handle_unit_control(self):
         # Autonomous movement for units with autonomous=True
         if unit.autonomous:
             # Calculate direction and distance to target
-            target_x, target_y = unit.autonomous_target_x, unit.autonomous_target_y
+            target_x, target_y = (
+                unit.autonomous_target_x,
+                unit.autonomous_target_y,
+            )
             dx = target_x - unit.position_x
             dy = target_y - unit.position_y
             distance_to_target = math.hypot(dx, dy)
@@ -259,7 +262,8 @@ def handle_unit_control(self):
                     if angle_diff > 180:
                         angle_diff -= 360
                     direction = max(
-                        -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
+                        -unit.rotation_speed,
+                        min(unit.rotation_speed, angle_diff),
                     )
 
                     # Move forward while aligning
@@ -402,13 +406,19 @@ def handle_camera_movement(self):
         # Zoom in when plus key pressed
         if self.keydown(Key.EQUALS) and not self.plus_last_frame:
             self.camera.scale = min(
-                [self.max_camera_scale, self.camera.scale + self.camera_zoom_speed]
+                [
+                    self.max_camera_scale,
+                    self.camera.scale + self.camera_zoom_speed,
+                ]
             )
 
         # Zoom out when minus key pressed
         elif self.keydown(Key.MINUS) and not self.minus_last_frame:
             self.camera.scale = max(
-                [self.min_camera_scale, self.camera.scale - self.camera_zoom_speed]
+                [
+                    self.min_camera_scale,
+                    self.camera.scale - self.camera_zoom_speed,
+                ]
             )
 
     # Accelerate camera based on arrow key input
@@ -798,19 +808,39 @@ def draw_ui_panels(self):
     # Draw shadow in four directions for depth effect
     # Above
     self.draw_text(
-        "Fleet Command", title_x, title_y - shadow_offset, font, shadow_color, origin
+        "Fleet Command",
+        title_x,
+        title_y - shadow_offset,
+        font,
+        shadow_color,
+        origin,
     )
     # Below
     self.draw_text(
-        "Fleet Command", title_x, title_y + shadow_offset, font, shadow_color, origin
+        "Fleet Command",
+        title_x,
+        title_y + shadow_offset,
+        font,
+        shadow_color,
+        origin,
     )
     # Left
     self.draw_text(
-        "Fleet Command", title_x - shadow_offset, title_y, font, shadow_color, origin
+        "Fleet Command",
+        title_x - shadow_offset,
+        title_y,
+        font,
+        shadow_color,
+        origin,
     )
     # Right
     self.draw_text(
-        "Fleet Command", title_x + shadow_offset, title_y, font, shadow_color, origin
+        "Fleet Command",
+        title_x + shadow_offset,
+        title_y,
+        font,
+        shadow_color,
+        origin,
     )
 
     # Draw title text main (bright color on top of shadow)

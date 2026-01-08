@@ -1,5 +1,4 @@
 class Camera:
-
     def __init__(self, x: float, y: float, scale: float):
         self.x: float = x  # Camera world position (X)
         self.y: float = y  # Camera world position (Y)

@@ -639,7 +639,13 @@ class Window:
         self.fill_polygon(xlist, ylist, color, outline_thickness, outline_color)
 
     def draw_line(
-        self, ax: int, ay: int, bx: int, by: int, color: "Color", width: int = 1
+        self,
+        ax: int,
+        ay: int,
+        bx: int,
+        by: int,
+        color: "Color",
+        width: int = 1,
     ):
         """Draw a line from (ax, ay) to (bx, by) in IUD coordinates."""
         ax, ay = self._iud_to_pg(ax, ay)
@@ -702,7 +708,10 @@ class Window:
         # Draw the outline if specified
         if outline_thickness > 0 and outline_color is not None:
             pygame.draw.polygon(
-                self._screen, outline_color.rgb_tuple(), pg_points, outline_thickness
+                self._screen,
+                outline_color.rgb_tuple(),
+                pg_points,
+                outline_thickness,
             )
 
     def draw_image(
