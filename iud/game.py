@@ -672,8 +672,8 @@ def draw_ui_panels(self):
                      f"Average Health: {avg_health}", f"Average Max Health: {avg_max_health}", ]
 
         for i, line in enumerate(lines):
-            self.draw_text(line, self.context_font.new_size(12 * self.gui_scale), info_x, info_y - i * line_height,
-                           Origin.TOPLEFT, Color(200, 200, 200), )
+            self.draw_text(line, info_x, info_y - i * line_height, self.context_font.new_size(12 * self.gui_scale),
+                           Color(200, 200, 200), Origin.TOPLEFT)
     else:
         mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
         closest_unit_index = -1
@@ -705,8 +705,8 @@ def draw_ui_panels(self):
                 self.draw_text(line, info_x, info_y - i * line_height, self.context_font.new_size(12 * self.gui_scale),
                                Color(200, 200, 200), Origin.TOPLEFT)
 
-    # Draw FPS counter at the top left corner of the screen
+    # Draw FPS counter in the top left corner of the screen
     fps = 0 if self.deltatime == 0 else round(1 / self.deltatime)
-    self.draw_text(str(fps), self.extend(self.screen_left, 10, ExtendDirection.RIGHT),
-                   self.extend(self.screen_top, 27, ExtendDirection.DOWN),
-                   self.title_font.new_size(20 * self.gui_scale), Color(100, 100, 100), Origin.TOPLEFT, )
+    self.draw_text(str(fps), self.extend(self.screen_left, 7, ExtendDirection.RIGHT),
+                   self.extend(self.screen_top, 2, ExtendDirection.DOWN), self.title_font.new_size(20 * self.gui_scale),
+                   Color(100, 100, 100), Origin.TOPLEFT, )

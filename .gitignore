@@ -143,6 +143,3 @@ test/
 tests/
 __tests__/
 *.test
-
-# Other
-panda2d.py
