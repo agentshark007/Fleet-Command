@@ -1,38 +1,92 @@
 # Fleet Command
 
-**Note:** This game is currently unfinished and under development. Features, gameplay, and content may change.
+**Status:** In development — unfinished. Features, gameplay, and content may change.
 
-**Fleet Command** is a real-time strategy game built with Panda2D, where you command a fleet of ships and aircraft to control the seas. The game features multiple unit types (Fighter, Bomber, Destroyer, Cruiser, Battleship, Carrier, Submarine) and teams (Red Fleet, Blue Alliance, Green Squadron). You can scale the UI, move the camera, and interact with a dynamic water background.
+Fleet Command is a small real-time strategy (RTS) prototype written in Python. It uses a lightweight internal UI/game window wrapper (`pgiud.py`) built on top of pygame to render the game, handle input, and play sounds. The project demonstrates unit types, simple AI/team behavior, and a scene-based UI (main menu, new game, paused, settings).
 
-## Liscencing, attrubition, and legal stuff
+This repository contains the game's source code, assets (images/fonts/sounds), and a minimal custom UI wrapper so the project can be run locally for development.
+
+## Quick overview
+
+- Language: Python (tested on Python 3.12 based on compiled .pyc files in the repo)
+- Runtime: pygame (the repository includes `pgiud.py` which depends on pygame)
+- Entry point: `python main.py` (which calls `app.main()`)
+
+## Quick start (macOS / Linux)
+
+1. Create and activate a virtual environment (recommended):
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run the game:
+
+   ```bash
+   python main.py
+   ```
+
+**Notes:**
+
+- If pygame installation fails on macOS, ensure you have the required build tools and SDL libraries, or install via a binary wheel (pip will usually fetch a wheel for common platforms).
+- The game is still a work-in-progress; some UI features and assets may be placeholders.
+
+## Repository layout
+
+- `main.py` — small launcher that calls `app.main()`
+- `app.py` — game window class and main game loop (uses `pgiud.Window`)
+- `pgiud.py` — lightweight pygame-based UI and rendering helpers used by the project
+- `iud/` — UI screens and menus (main menu, new game, paused, settings)
+- `game/` — gameplay systems (units, teams, projectiles, explosions)
+- `core/` — core utilities, enums, and camera systems
+- `assets/` — images, fonts, and sounds used by the project
+
+## Licensing & Attributions
+
+This project is under development; no formal license file is included in this repository by default. If you plan to reuse code or assets, please check with the project owner for licensing terms.
 
 ### Project team
-**Remi Heath**: Artist
 
-**Andru Cupala**: Lead developer and game designer
+- Remi Heath — Artist
+- Andru Cupala — Lead developer and game designer
 
-> **Note** Assets created by **Remi Heath** may or may not be included in the game.
+### Fonts
 
-### Fonts Used
-
-- **WDXL Lubrifont SC** – Copyright 2025 The WDXL Lubrifont Project Authors  
-  [GitHub](https://github.com/NightFurySL2001/WD-XL-font)  
-- **Black Ops One** – Copyright 2018–2020 The ZCOOL QingKe HuangYou Project Authors  
-  [GitHub](https://github.com/googlefonts/zcool-qingke-huangyou)  
-
-Both fonts are licensed under the [SIL Open Font License, Version 1.1](https://openfontlicense.org).  
+- WDXL Lubrifont SC — included in `assets/fonts/` (SIL Open Font License 1.1)
+- Black Ops One — included in `assets/fonts/` (SIL Open Font License 1.1)
 
 ### Libraries & Tools
 
-- **Panda2D** – A Python game engine created by PayaLabs.  
-- **.gitignore** – Created by ChatGPT and modified by PayaLabs.
+- pygame — used as the underlying multimedia layer for `pgiud.py`
 
-### Attributions
+## Attributions
 
-> **⚠️ Warning:** Some of the following websites may contain adult or inappropriate content. Exercise caution and parental discretion when visiting these links. These resources were identified through DuckDuckGo searches focused solely on finding game assets.
+External textures and icons are credited in the original README. Exercise caution when visiting external links listed in the project; some sources were discovered using search tools and may contain unrelated content.
 
-Water texture by [Jonathan Kromrey](https://www.sketchuptextureclub.com/textures/nature-elements/water/streams/water-streams-texture-seamless-13301)
+## Contributing
 
-Ship texture from [Hotcore](https://hotcore.info/act/kareff-122024p.html)
+If you'd like to contribute:
 
-Ship autonomous target symbol from [InspiredPencil](https://ar.inspiredpencil.com/pictures-2023/aim-icon)
+- Fork the repository and open a pull request with a clear description of your change.
+- Keep changes focused and small (one feature/fix per PR).
+- If you're adding assets, include attribution and confirm license compatibility.
+
+## Development notes & debugging
+
+- The project contains a `format.py` helper to run project formatters (`autopep8`, `ruff`, `black`) if you have them installed.
+- The project historically referenced Panda2D but now uses the local `pgiud` wrapper with pygame.
+
+## Contact
+
+For questions about the project or contributions, reach out to the repository owner (the Git history lists commit authors).
+
+---
+
+*This README was refreshed to include clearer run instructions, dependency guidance, and a concise repository overview.*

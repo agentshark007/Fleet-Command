@@ -1,0 +1,15 @@
+# Fleet Command dependencies
+
+# Runtime dependencies
+pygame>=2.1
+
+# Development / optional tools (not required to run the game)
+# These are used by the project's formatting helper (`format.py`).
+autopep8
+ruff
+black
+
+# Notes:
+# - It's recommended to install these inside a virtual environment.
+# - Pin exact versions if you need reproducible environments.
+
