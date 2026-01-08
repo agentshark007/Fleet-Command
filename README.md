@@ -2,13 +2,13 @@
 
 **Status:** In development — unfinished. Features, gameplay, and content may change.
 
-Fleet Command is a small real-time strategy (RTS) prototype written in Python. It uses a lightweight internal UI/game window wrapper (`pgiud.py`) built on top of pygame to render the game, handle input, and play sounds. The project demonstrates unit types, simple AI/team behavior, and a scene-based UI (main menu, new game, paused, settings).
+Fleet Command is a small real-time strategy (RTS) prototype written in Python. It uses a lightweight internal UI/game window wrapper (`pgiud.py`) built on top of pygame to render the game, handle input, and play sounds.
 
 This repository contains the game's source code, assets (images/fonts/sounds), and a minimal custom UI wrapper so the project can be run locally for development.
 
 ## Quick overview
 
-- Language: Python (tested on Python 3.12 based on compiled .pyc files in the repo)
+- Language: Python (tested on Python 3.12)
 - Runtime: pygame (the repository includes `pgiud.py` which depends on pygame)
 - Entry point: `python main.py` (which calls `app.main()`)
 
@@ -88,5 +88,3 @@ If you'd like to contribute:
 For questions about the project or contributions, reach out to the repository owner (the Git history lists commit authors).
 
 ---
-
-*This README was refreshed to include clearer run instructions, dependency guidance, and a concise repository overview.*
