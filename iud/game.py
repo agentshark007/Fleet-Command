@@ -494,7 +494,7 @@ def draw_explosions(self):
                         scaley=explosion.scale * self.camera.scale, filter=Color(255, 255, 255, 255), rotation=0, )
 
 
-def draw_water(self):
+def draw_water(self):  # TODO: Make the darn water not take so much of that darn fps!!!
     # Layer 0: Ocean base layer with slow circular motion (moves in a circular path)
     rotation_speed_0 = 0.03
     rotation_radius_0 = 7.0
@@ -651,7 +651,7 @@ def draw_ui_panels(self):
     # Draw unit info in left side panel
     if len(self.selected_units_ids) > 0:
         info_x = self.extend(self.screen_left, 10, ExtendDirection.RIGHT)
-        info_y = self.extend(self.screen_bottom, 80, ExtendDirection.UP)
+        info_y = self.extend(self.screen_bottom, 95, ExtendDirection.UP)
         line_height = 15 * self.gui_scale
 
         selected_count = len(self.selected_units_ids)
@@ -694,7 +694,7 @@ def draw_ui_panels(self):
         if closest_unit_index_selectable != -1:
             unit = self.units[closest_unit_index_selectable]
             info_x = self.extend(self.screen_left, 10, ExtendDirection.RIGHT)
-            info_y = self.extend(self.screen_bottom, 80, ExtendDirection.UP)
+            info_y = self.extend(self.screen_bottom, 95, ExtendDirection.UP)
             line_height = 15 * self.gui_scale
 
             lines = [f"Unit Info:", f"Team: {self.teams[unit.team_index].name}", f"Direction: {round(unit.direction)}°",
