@@ -70,9 +70,12 @@ def initialize_game_logic(self):
     # Create initial battleships for each team with random positions and directions (degrees)
     self.units = {}
     for i in range(20):
-        unit = Battleship(team_index=random.randint(0, len(self.teams) - 1), position_x=random.uniform(-1000, 1000),
-                          position_y=random.uniform(-1000, 1000), direction=random.uniform(0, 360),  # degrees
-                          )
+        unit = Battleship(
+            team_index=random.randint(0, len(self.teams) - 1),
+            position_x=random.uniform(-1000, 1000),
+            position_y=random.uniform(-1000, 1000),
+            direction=random.uniform(0, 360),  # degrees
+        )
         unit.unit_id = i
         self.units[i] = unit
 
@@ -139,8 +142,11 @@ def handle_unit_selection(self):
     # Handle selection input (left mouse button)
     if self.mousedownprimary and not self.mouseprimary_last_frame:
         # Only allow selecting units from the player team
-        if closest_unit_index_selectable != -1 and self.teams[
-            self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
+        if (
+            closest_unit_index_selectable != -1
+            and self.teams[self.units[closest_unit_index_selectable].team_index].type
+            == TeamType.PLAYER
+        ):
             if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
                 if closest_unit_index_selectable not in self.selected_units_ids:
                     self.selected_units_ids.append(closest_unit_index_selectable)
@@ -155,11 +161,14 @@ def handle_unit_selection(self):
 def handle_unit_control(self):
     # Helper function to check if any manual control keys are held
     def manual_override():
-        return any([self.keydown(Key.W),  # Forward
-                    self.keydown(Key.S),  # Backward
-                    self.keydown(Key.A),  # Left turn
-                    self.keydown(Key.D),  # Right turn
-                    ])
+        return any(
+            [
+                self.keydown(Key.W),  # Forward
+                self.keydown(Key.S),  # Backward
+                self.keydown(Key.A),  # Left turn
+                self.keydown(Key.D),  # Right turn
+            ]
+        )
 
     # Calculate average direction of selected units
     avg_direction = 0.0
@@ -176,7 +185,9 @@ def handle_unit_control(self):
         if unit_id in self.selected_units_ids:
             # Right-click sets autonomous target
             if self.mousedownsecondary:
-                mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+                mouse_world_x, mouse_world_y = self.camera.deduce(
+                    self.mousex, self.mousey
+                )
                 unit.autonomous = True
                 unit.autonomous_target_x = mouse_world_x
                 unit.autonomous_target_y = mouse_world_y
@@ -206,11 +217,15 @@ def handle_unit_control(self):
             # Decide movement direction based on angle
             if abs(angle_diff) < self.autonomous_forward_backward_angle_threshold:
                 # Face target and move forward
-                direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
+                direction = max(
+                    -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
+                )
                 acceleration = unit.speed
             else:
                 # Move backward while turning (faster evasion)
-                direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
+                direction = max(
+                    -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
+                )
                 acceleration = -unit.speed
 
             # Clamp accelerations to valid ranges
@@ -243,7 +258,9 @@ def handle_unit_control(self):
                     angle_diff = (avg_direction - unit.direction + 360) % 360
                     if angle_diff > 180:
                         angle_diff -= 360
-                    direction = max(-unit.rotation_speed, min(unit.rotation_speed, angle_diff))
+                    direction = max(
+                        -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
+                    )
 
                     # Move forward while aligning
                     acceleration = unit.speed
@@ -288,9 +305,15 @@ def handle_unit_shooting(self):
         unit = self.units[unit_id]
         if self.keydown(Key.SPACE) and not self.space_last_frame:
             mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
-            direction = calculate_direction(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)  # degrees
-            projectile = Missile(x=unit.position_x, y=unit.position_y, direction=direction,  # degrees
-                                 shooter_id=unit.team_index, )
+            direction = calculate_direction(
+                unit.position_x, unit.position_y, mouse_world_x, mouse_world_y
+            )  # degrees
+            projectile = Missile(
+                x=unit.position_x,
+                y=unit.position_y,
+                direction=direction,  # degrees
+                shooter_id=unit.team_index,
+            )
             self.projectiles[self.next_projectile_id] = projectile
             self.next_projectile_id += 1
 
@@ -310,7 +333,9 @@ def detect_collisions(self):
             # Prevent projectile from hitting the same team/unit that fired it
             if unit.team_index == projectile.shooter_id:
                 continue
-            dist = distance(projectile.x, projectile.y, unit.position_x, unit.position_y)
+            dist = distance(
+                projectile.x, projectile.y, unit.position_x, unit.position_y
+            )
             if dist < unit.collision_radius:
                 unit.health -= projectile.damage
                 projectiles_to_remove.add(projectile_id)
@@ -322,20 +347,30 @@ def detect_collisions(self):
         for unit_id_b, unit_b in self.units.items():
             if unit_id_a >= unit_id_b:
                 continue
-            dist = distance(unit_a.position_x, unit_a.position_y, unit_b.position_x, unit_b.position_y, )
+            dist = distance(
+                unit_a.position_x,
+                unit_a.position_y,
+                unit_b.position_x,
+                unit_b.position_y,
+            )
             min_dist = unit_a.collision_radius + unit_b.collision_radius
             if min_dist > dist > 0:
                 units_to_remove.add(unit_id_a)
                 units_to_remove.add(unit_id_b)
-                create_explosion(self, (unit_a.position_x + unit_b.position_x) / 2,
-                                 (unit_a.position_y + unit_b.position_y) / 2, )
+                create_explosion(
+                    self,
+                    (unit_a.position_x + unit_b.position_x) / 2,
+                    (unit_a.position_y + unit_b.position_y) / 2,
+                )
     # Remove destroyed units and projectiles
     for uid in units_to_remove:
         del self.units[uid]
     for pid in projectiles_to_remove:
         del self.projectiles[pid]
     # Remove dead units from selection
-    self.selected_units_ids = [uid for uid in self.selected_units_ids if uid in self.units]
+    self.selected_units_ids = [
+        uid for uid in self.selected_units_ids if uid in self.units
+    ]
 
 
 def create_explosion(self, x, y):
@@ -361,11 +396,15 @@ def handle_camera_movement(self):
     if not command_down:
         # Zoom in when plus key pressed
         if self.keydown(Key.EQUALS) and not self.plus_last_frame:
-            self.camera.scale = min([self.max_camera_scale, self.camera.scale + self.camera_zoom_speed])
+            self.camera.scale = min(
+                [self.max_camera_scale, self.camera.scale + self.camera_zoom_speed]
+            )
 
         # Zoom out when minus key pressed
         elif self.keydown(Key.MINUS) and not self.minus_last_frame:
-            self.camera.scale = max([self.min_camera_scale, self.camera.scale - self.camera_zoom_speed])
+            self.camera.scale = max(
+                [self.min_camera_scale, self.camera.scale - self.camera_zoom_speed]
+            )
 
     # Accelerate camera based on arrow key input
     factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
@@ -431,33 +470,74 @@ def draw_units(self):
         # Draw unit image with color based on state
         if unit_id in self.selected_units_ids:
             # Selected unit: bright white highlight
-            self.draw_image(unit.image, screen_x, screen_y, origin=Origin.CENTER, scalex=0.5 * self.camera.scale,
-                            scaley=0.5 * self.camera.scale, filter=self.selected_unit_filter, rotation=unit.direction, )
+            self.draw_image(
+                unit.image,
+                screen_x,
+                screen_y,
+                origin=Origin.CENTER,
+                scalex=0.5 * self.camera.scale,
+                scaley=0.5 * self.camera.scale,
+                filter=self.selected_unit_filter,
+                rotation=unit.direction,
+            )
 
             # Draw autonomous target indicator if moving autonomously
             if unit.autonomous:
-                target_screen_x, target_screen_y = self.camera.project(unit.autonomous_target_x,
-                                                                       unit.autonomous_target_y)
-                self.draw_image(self.autonomous_target_image, target_screen_x, target_screen_y, origin=Origin.CENTER,
-                                scalex=self.autonomous_target_image_scale * self.camera.scale,
-                                scaley=self.autonomous_target_image_scale * self.camera.scale, rotation=0, )
+                target_screen_x, target_screen_y = self.camera.project(
+                    unit.autonomous_target_x, unit.autonomous_target_y
+                )
+                self.draw_image(
+                    self.autonomous_target_image,
+                    target_screen_x,
+                    target_screen_y,
+                    origin=Origin.CENTER,
+                    scalex=self.autonomous_target_image_scale * self.camera.scale,
+                    scaley=self.autonomous_target_image_scale * self.camera.scale,
+                    rotation=0,
+                )
         elif unit_id == closest_unit_index_selectable:
             # Hovered unit: lighter highlight to indicate it's selectable
-            self.draw_image(unit.image, screen_x, screen_y, origin=Origin.CENTER, scalex=0.5 * self.camera.scale,
-                            scaley=0.5 * self.camera.scale, filter=self.hover_unit_filter, rotation=unit.direction, )
+            self.draw_image(
+                unit.image,
+                screen_x,
+                screen_y,
+                origin=Origin.CENTER,
+                scalex=0.5 * self.camera.scale,
+                scaley=0.5 * self.camera.scale,
+                filter=self.hover_unit_filter,
+                rotation=unit.direction,
+            )
 
-            if self.teams[self.units[closest_unit_index_selectable].team_index].type == TeamType.PLAYER:
+            if (
+                self.teams[self.units[closest_unit_index_selectable].team_index].type
+                == TeamType.PLAYER
+            ):
                 # Draw autonomous target indicator if moving autonomously
                 if unit.autonomous:
-                    target_screen_x, target_screen_y = self.camera.project(unit.autonomous_target_x,
-                                                                           unit.autonomous_target_y)
-                    self.draw_image(self.autonomous_target_image, target_screen_x, target_screen_y,
-                                    origin=Origin.CENTER, scalex=self.autonomous_target_image_scale * self.camera.scale,
-                                    scaley=self.autonomous_target_image_scale * self.camera.scale, rotation=0, )
+                    target_screen_x, target_screen_y = self.camera.project(
+                        unit.autonomous_target_x, unit.autonomous_target_y
+                    )
+                    self.draw_image(
+                        self.autonomous_target_image,
+                        target_screen_x,
+                        target_screen_y,
+                        origin=Origin.CENTER,
+                        scalex=self.autonomous_target_image_scale * self.camera.scale,
+                        scaley=self.autonomous_target_image_scale * self.camera.scale,
+                        rotation=0,
+                    )
         else:
             # Other units: neutral gray color
-            self.draw_image(unit.image, screen_x, screen_y, origin=Origin.CENTER, scalex=0.5 * self.camera.scale,
-                            scaley=0.5 * self.camera.scale, filter=self.other_unit_filter, rotation=unit.direction, )
+            self.draw_image(
+                unit.image,
+                screen_x,
+                screen_y,
+                origin=Origin.CENTER,
+                scalex=0.5 * self.camera.scale,
+                scaley=0.5 * self.camera.scale,
+                filter=self.other_unit_filter,
+                rotation=unit.direction,
+            )
 
     # Draw team color markers above each unit
     for unit_id, unit in self.units.items():
@@ -465,11 +545,16 @@ def draw_units(self):
         screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
 
         # Draw colored marker above unit showing team color
-        self.draw_image(self.selection_marker_image, screen_x,
-                        screen_y + self.selection_marker_offset * self.camera.scale, origin=Origin.BOTTOM,
-                        scalex=self.selection_marker_scale * self.camera.scale,
-                        scaley=self.selection_marker_scale * self.camera.scale,
-                        filter=self.teams[unit.team_index].color, rotation=0, )
+        self.draw_image(
+            self.selection_marker_image,
+            screen_x,
+            screen_y + self.selection_marker_offset * self.camera.scale,
+            origin=Origin.BOTTOM,
+            scalex=self.selection_marker_scale * self.camera.scale,
+            scaley=self.selection_marker_scale * self.camera.scale,
+            filter=self.teams[unit.team_index].color,
+            rotation=0,
+        )
 
 
 def draw_projectiles(self):
@@ -478,11 +563,19 @@ def draw_projectiles(self):
         screen_x, screen_y = self.camera.project(projectile.x, projectile.y)
         # Draw projectile image
         if self.projectile_images:
-            img = self.projectile_images[random.randint(0, len(self.projectile_images) - 1)]
-            self.draw_image(img, screen_x, screen_y, origin=Origin.CENTER, scalex=1 * self.camera.scale,
-                            scaley=1 * self.camera.scale, filter=Color(255, 255, 255, 255),
-                            rotation=90 - projectile.direction,  # direction is now degrees
-                            )
+            img = self.projectile_images[
+                random.randint(0, len(self.projectile_images) - 1)
+            ]
+            self.draw_image(
+                img,
+                screen_x,
+                screen_y,
+                origin=Origin.CENTER,
+                scalex=1 * self.camera.scale,
+                scaley=1 * self.camera.scale,
+                filter=Color(255, 255, 255, 255),
+                rotation=90 - projectile.direction,  # direction is now degrees
+            )
 
 
 def draw_explosions(self):
@@ -491,8 +584,16 @@ def draw_explosions(self):
         screen_x, screen_y = self.camera.project(explosion.x, explosion.y)
         # Draw current frame of explosion animation
         img = explosion.image()
-        self.draw_image(img, screen_x, screen_y, origin=Origin.CENTER, scalex=explosion.scale * self.camera.scale,
-                        scaley=explosion.scale * self.camera.scale, filter=Color(255, 255, 255, 255), rotation=0, )
+        self.draw_image(
+            img,
+            screen_x,
+            screen_y,
+            origin=Origin.CENTER,
+            scalex=explosion.scale * self.camera.scale,
+            scaley=explosion.scale * self.camera.scale,
+            filter=Color(255, 255, 255, 255),
+            rotation=0,
+        )
 
 
 def draw_water(self):  # TODO: Make water layers have higher fps
@@ -502,35 +603,67 @@ def draw_water(self):  # TODO: Make water layers have higher fps
     offset_x_0 = math.sin(self.water_state * rotation_speed_0) * rotation_radius_0
     offset_y_0 = math.cos(self.water_state * rotation_speed_0) * rotation_radius_0
     # Dynamic color modulation for base layer (darker)
-    draw_water_layer(self, Color(30, 60, 170, 255),  # Dark blue with some transparency
-                     Color(20, 20, 20, 0),  # Moderate color fluctuation strength
-                     Color(0.2, 0.2, 0.2, 0),  # Moderate fluctuation speed
-                     offset_x_0, offset_y_0, False,  # No per-tile offset for this layer
-                     )
+    draw_water_layer(
+        self,
+        Color(30, 60, 170, 255),  # Dark blue with some transparency
+        Color(20, 20, 20, 0),  # Moderate color fluctuation strength
+        Color(0.2, 0.2, 0.2, 0),  # Moderate fluctuation speed
+        offset_x_0,
+        offset_y_0,
+        False,  # No per-tile offset for this layer
+    )
 
     # Layer 1: Turquoise wave layer (moves diagonally)
     wave_speed_1 = 1.5
     offset_x_1 = self.water_state * wave_speed_1
-    offset_y_1 = (-self.water_state * wave_speed_1 * 0.8)  # Negative for opposite direction
-    draw_water_layer(self, Color(70, 170, 230, 120),  # Light turquoise with some transparency
-                     Color(15, 15, 15, 0),  # Moderate color fluctuation strength
-                     Color(0.1, 0.1, 0.1, 0),  # Slow fluctuation speed
-                     offset_x_1, offset_y_1, True,  # Enable per-tile offset for this layer
-                     )
+    offset_y_1 = (
+        -self.water_state * wave_speed_1 * 0.8
+    )  # Negative for opposite direction
+    draw_water_layer(
+        self,
+        Color(70, 170, 230, 120),  # Light turquoise with some transparency
+        Color(15, 15, 15, 0),  # Moderate color fluctuation strength
+        Color(0.1, 0.1, 0.1, 0),  # Slow fluctuation speed
+        offset_x_1,
+        offset_y_1,
+        True,  # Enable per-tile offset for this layer
+    )
 
 
-def draw_water_layer(self, color: Color, color_fluctuation_strength: Color, color_fluctuation_speed: Color,
-                     offset_x: float = 0.0, offset_y: float = 0.0, per_tile_offset: bool = False, ):
+def draw_water_layer(
+    self,
+    color: Color,
+    color_fluctuation_strength: Color,
+    color_fluctuation_speed: Color,
+    offset_x: float = 0.0,
+    offset_y: float = 0.0,
+    per_tile_offset: bool = False,
+):
     # Combine base color with fluctuation for dynamic effect
-    final_color = Color(color.r + math.sin(color_fluctuation_speed.r * self.water_state) * color_fluctuation_strength.r,
-                        color.g + math.cos(color_fluctuation_speed.g * self.water_state) * color_fluctuation_strength.g,
-                        color.b + math.sin(color_fluctuation_speed.b * self.water_state) * color_fluctuation_strength.b,
-                        color.a + math.cos(color_fluctuation_speed.a * self.water_state) * color_fluctuation_strength.a)
+    final_color = Color(
+        color.r
+        + math.sin(color_fluctuation_speed.r * self.water_state)
+        * color_fluctuation_strength.r,
+        color.g
+        + math.cos(color_fluctuation_speed.g * self.water_state)
+        * color_fluctuation_strength.g,
+        color.b
+        + math.sin(color_fluctuation_speed.b * self.water_state)
+        * color_fluctuation_strength.b,
+        color.a
+        + math.cos(color_fluctuation_speed.a * self.water_state)
+        * color_fluctuation_strength.a,
+    )
     draw_tiled_water(self, final_color, offset_x, offset_y, per_tile_offset)
 
 
-def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y: float = 0.0,
-                     per_tile_offset: bool = False, ):
+def draw_tiled_water(
+    self,
+    filter_color: Color,
+    offset_x: float = 0.0,
+    offset_y: float = 0.0,
+    per_tile_offset: bool = False,
+):
     # Small overlap to prevent gaps between tiles
     offset = 5
 
@@ -577,43 +710,77 @@ def draw_tiled_water(self, filter_color: Color, offset_x: float = 0.0, offset_y:
             tile_offset_x = 0
             tile_offset_y = 0
             if per_tile_offset:
-                tile_offset_x = (pseudo_random_offset(wx, wy, seed=1) - 0.5) * 2  # Range: -1 to +1
+                tile_offset_x = (
+                    pseudo_random_offset(wx, wy, seed=1) - 0.5
+                ) * 2  # Range: -1 to +1
                 tile_offset_y = (pseudo_random_offset(wx, wy, seed=2) - 0.5) * 2
-            sx, sy = self.camera.project(wx - offset_x - tile_offset_x, wy - offset_y - tile_offset_y)
-            self.draw_image(self.water_image, sx, sy, origin=Origin.BOTTOMLEFT, scalex=scalex, scaley=scaley,
-                            filter=filter_color, rotation=0, )
+            sx, sy = self.camera.project(
+                wx - offset_x - tile_offset_x, wy - offset_y - tile_offset_y
+            )
+            self.draw_image(
+                self.water_image,
+                sx,
+                sy,
+                origin=Origin.BOTTOMLEFT,
+                scalex=scalex,
+                scaley=scaley,
+                filter=filter_color,
+                rotation=0,
+            )
 
 
 def draw_ui_panels(self):
     # Left side panel (with rounded corner)
-    self.fill_rounded_rect(self.screen_left, self.screen_bottom,
-                           self.extend(self.screen_left, 150, ExtendDirection.RIGHT),
-                           self.extend(self.screen_bottom, 100, ExtendDirection.UP), color=self.side_panel_color,
-                           outline_thickness=self.panel_outline_thickness * self.gui_scale,
-                           outline_color=self.panel_outline_color, topleft_roundness=0,
-                           topright_roundness=self.side_panel_roundness * self.gui_scale, bottomleft_roundness=0,
-                           bottomright_roundness=0, )
+    self.fill_rounded_rect(
+        self.screen_left,
+        self.screen_bottom,
+        self.extend(self.screen_left, 150, ExtendDirection.RIGHT),
+        self.extend(self.screen_bottom, 100, ExtendDirection.UP),
+        color=self.side_panel_color,
+        outline_thickness=self.panel_outline_thickness * self.gui_scale,
+        outline_color=self.panel_outline_color,
+        topleft_roundness=0,
+        topright_roundness=self.side_panel_roundness * self.gui_scale,
+        bottomleft_roundness=0,
+        bottomright_roundness=0,
+    )
 
     # Right side panel (with rounded corner)
-    self.fill_rounded_rect(self.extend(self.screen_right, 150, ExtendDirection.LEFT), self.screen_bottom,
-                           self.screen_right, self.extend(self.screen_bottom, 100, ExtendDirection.UP),
-                           color=self.side_panel_color, outline_thickness=self.panel_outline_thickness * self.gui_scale,
-                           outline_color=self.panel_outline_color,
-                           topleft_roundness=self.side_panel_roundness * self.gui_scale, topright_roundness=0,
-                           bottomleft_roundness=0, bottomright_roundness=0, )
+    self.fill_rounded_rect(
+        self.extend(self.screen_right, 150, ExtendDirection.LEFT),
+        self.screen_bottom,
+        self.screen_right,
+        self.extend(self.screen_bottom, 100, ExtendDirection.UP),
+        color=self.side_panel_color,
+        outline_thickness=self.panel_outline_thickness * self.gui_scale,
+        outline_color=self.panel_outline_color,
+        topleft_roundness=self.side_panel_roundness * self.gui_scale,
+        topright_roundness=0,
+        bottomleft_roundness=0,
+        bottomright_roundness=0,
+    )
 
     # Bottom command panel (between side panels)
-    self.fill_rect(self.extend(self.screen_left, 150, ExtendDirection.RIGHT), self.screen_bottom,
-                   self.extend(self.screen_right, 150, ExtendDirection.LEFT),
-                   self.extend(self.screen_bottom, 80, ExtendDirection.UP), color=self.middle_panel_color,
-                   outline_thickness=self.panel_outline_thickness * self.gui_scale,
-                   outline_color=self.panel_outline_color, )
+    self.fill_rect(
+        self.extend(self.screen_left, 150, ExtendDirection.RIGHT),
+        self.screen_bottom,
+        self.extend(self.screen_right, 150, ExtendDirection.LEFT),
+        self.extend(self.screen_bottom, 80, ExtendDirection.UP),
+        color=self.middle_panel_color,
+        outline_thickness=self.panel_outline_thickness * self.gui_scale,
+        outline_color=self.panel_outline_color,
+    )
 
     # Top menu panel
-    self.fill_rect(self.screen_left, self.screen_top, self.screen_right,
-                   self.extend(self.screen_top, 30, ExtendDirection.DOWN), color=self.middle_panel_color,
-                   outline_thickness=self.panel_outline_thickness * self.gui_scale,
-                   outline_color=self.panel_outline_color, )
+    self.fill_rect(
+        self.screen_left,
+        self.screen_top,
+        self.screen_right,
+        self.extend(self.screen_top, 30, ExtendDirection.DOWN),
+        color=self.middle_panel_color,
+        outline_thickness=self.panel_outline_thickness * self.gui_scale,
+        outline_color=self.panel_outline_color,
+    )
 
     # Draw "Fleet Command" title with shadow effect
     shadow_offset = self.title_text_shadow_offset * self.gui_scale
@@ -625,24 +792,39 @@ def draw_ui_panels(self):
 
     # Draw shadow in four directions for depth effect
     # Above
-    self.draw_text("Fleet Command", title_x, title_y - shadow_offset, font, shadow_color, origin)
+    self.draw_text(
+        "Fleet Command", title_x, title_y - shadow_offset, font, shadow_color, origin
+    )
     # Below
-    self.draw_text("Fleet Command", title_x, title_y + shadow_offset, font, shadow_color, origin)
+    self.draw_text(
+        "Fleet Command", title_x, title_y + shadow_offset, font, shadow_color, origin
+    )
     # Left
-    self.draw_text("Fleet Command", title_x - shadow_offset, title_y, font, shadow_color, origin)
+    self.draw_text(
+        "Fleet Command", title_x - shadow_offset, title_y, font, shadow_color, origin
+    )
     # Right
-    self.draw_text("Fleet Command", title_x + shadow_offset, title_y, font, shadow_color, origin)
+    self.draw_text(
+        "Fleet Command", title_x + shadow_offset, title_y, font, shadow_color, origin
+    )
 
     # Draw title text main (bright color on top of shadow)
-    self.draw_text("Fleet Command", title_x, title_y, font, self.title_text_color, origin)
+    self.draw_text(
+        "Fleet Command", title_x, title_y, font, self.title_text_color, origin
+    )
 
     # Draw team info above left side panel
     team_info_x = self.extend(self.screen_right, 5, ExtendDirection.LEFT)
     team_info_y = self.extend(self.screen_bottom, 100 + 20, ExtendDirection.UP)
     for i, team in enumerate(self.teams):
-        self.draw_text(f"{team.name}: {team.type.name} - {len([u for u in self.units.values() if u.team_index == i])}",
-                       team_info_x, team_info_y + i * (15 * self.gui_scale),
-                       self.context_font.new_size(12 * self.gui_scale), team.color, Origin.BOTTOMRIGHT)
+        self.draw_text(
+            f"{team.name}: {team.type.name} - {len([u for u in self.units.values() if u.team_index == i])}",
+            team_info_x,
+            team_info_y + i * (15 * self.gui_scale),
+            self.context_font.new_size(12 * self.gui_scale),
+            team.color,
+            Origin.BOTTOMRIGHT,
+        )
 
     # Draw unit info in left side panel
     if len(self.selected_units_ids) > 0:
@@ -655,20 +837,40 @@ def draw_ui_panels(self):
         def safe_average(values):
             return round(sum(values) / len(values)) if values else 0
 
-        avg_direction = safe_average([self.units[i].direction for i in self.selected_units_ids])
-        avg_health = safe_average([self.units[i].health for i in self.selected_units_ids])
-        avg_max_health = safe_average([self.units[i].max_health for i in self.selected_units_ids])
+        avg_direction = safe_average(
+            [self.units[i].direction for i in self.selected_units_ids]
+        )
+        avg_health = safe_average(
+            [self.units[i].health for i in self.selected_units_ids]
+        )
+        avg_max_health = safe_average(
+            [self.units[i].max_health for i in self.selected_units_ids]
+        )
 
         if selected_count == 1:
-            lines = [f"Unit Info: {selected_count}", f"Direction: {avg_direction}°", f"Health: {avg_health}",
-                     f"Max Health: {avg_max_health}", ]
+            lines = [
+                f"Unit Info: {selected_count}",
+                f"Direction: {avg_direction}°",
+                f"Health: {avg_health}",
+                f"Max Health: {avg_max_health}",
+            ]
         else:
-            lines = [f"Selected Units: {selected_count}", f"Average Direction: {avg_direction}°",
-                     f"Average Health: {avg_health}", f"Average Max Health: {avg_max_health}", ]
+            lines = [
+                f"Selected Units: {selected_count}",
+                f"Average Direction: {avg_direction}°",
+                f"Average Health: {avg_health}",
+                f"Average Max Health: {avg_max_health}",
+            ]
 
         for i, line in enumerate(lines):
-            self.draw_text(line, info_x, info_y - i * line_height, self.context_font.new_size(12 * self.gui_scale),
-                           Color(200, 200, 200), Origin.TOPLEFT)
+            self.draw_text(
+                line,
+                info_x,
+                info_y - i * line_height,
+                self.context_font.new_size(12 * self.gui_scale),
+                Color(200, 200, 200),
+                Origin.TOPLEFT,
+            )
     else:
         mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
         closest_unit_index = -1
@@ -677,7 +879,9 @@ def draw_ui_panels(self):
         closest_distance_selectable = float("inf")
 
         for unit_id, unit in self.units.items():
-            dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
+            dist = distance(
+                unit.position_x, unit.position_y, mouse_world_x, mouse_world_y
+            )
             # Track the closest unit overall
             if dist < closest_distance:
                 closest_distance = dist
@@ -693,15 +897,31 @@ def draw_ui_panels(self):
             info_y = self.extend(self.screen_bottom, 95, ExtendDirection.UP)
             line_height = 15 * self.gui_scale
 
-            lines = [f"Unit Info:", f"Team: {self.teams[unit.team_index].name}", f"Direction: {round(unit.direction)}°",
-                     f"Health: {round(unit.health)}", f"Max Health: {round(unit.max_health)}", ]
+            lines = [
+                f"Unit Info:",
+                f"Team: {self.teams[unit.team_index].name}",
+                f"Direction: {round(unit.direction)}°",
+                f"Health: {round(unit.health)}",
+                f"Max Health: {round(unit.max_health)}",
+            ]
 
             for i, line in enumerate(lines):
-                self.draw_text(line, info_x, info_y - i * line_height, self.context_font.new_size(12 * self.gui_scale),
-                               Color(200, 200, 200), Origin.TOPLEFT)
+                self.draw_text(
+                    line,
+                    info_x,
+                    info_y - i * line_height,
+                    self.context_font.new_size(12 * self.gui_scale),
+                    Color(200, 200, 200),
+                    Origin.TOPLEFT,
+                )
 
     # Draw FPS counter in the top left corner of the screen
     fps = 0 if self.deltatime == 0 else round(1 / self.deltatime)
-    self.draw_text(str(fps), self.extend(self.screen_left, 7, ExtendDirection.RIGHT),
-                   self.extend(self.screen_top, 2, ExtendDirection.DOWN), self.title_font.new_size(20 * self.gui_scale),
-                   Color(100, 100, 100), Origin.TOPLEFT, )
+    self.draw_text(
+        str(fps),
+        self.extend(self.screen_left, 7, ExtendDirection.RIGHT),
+        self.extend(self.screen_top, 2, ExtendDirection.DOWN),
+        self.title_font.new_size(20 * self.gui_scale),
+        Color(100, 100, 100),
+        Origin.TOPLEFT,
+    )

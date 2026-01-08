@@ -11,7 +11,13 @@ from pgiud import *
 class GameWindow(Window):
 
     def __init__(self) -> None:
-        super().__init__(width=800, height=600, title="Fleet Command", resizable=Resizable.BOTH, origin=Origin.CENTER, )
+        super().__init__(
+            width=800,
+            height=600,
+            title="Fleet Command",
+            resizable=Resizable.BOTH,
+            origin=Origin.CENTER,
+        )
 
     def extend(self, pivot, value, direction: ExtendDirection):
         return pivot + (value * direction.value * self.gui_scale)
