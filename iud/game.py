@@ -341,6 +341,11 @@ def detect_collisions(self):
                 projectiles_to_remove.add(projectile_id)
                 if unit.health <= 0:
                     units_to_remove.add(unit_id)
+                    create_explosion(
+                        self,
+                        unit.position_x,
+                        unit.position_y,
+                    )
                 break
     # Detect collisions between units and units
     for unit_id_a, unit_a in self.units.items():
