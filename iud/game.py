@@ -6,6 +6,7 @@ from game.projectile import *
 from game.team import *
 from game.unit import *
 from pgiud import *
+import sys
 
 
 def initialize(self):
@@ -449,11 +450,15 @@ def update_water(self):
 
 
 def draw(self):
-    draw_water(self)  # Draw water background
+    if not "--no-water" in sys.argv:
+        draw_water(self)  # Draw water background
     draw_units(self)  # Draw all units
     draw_explosions(self)  # Draw all explosions
     draw_projectiles(self)  # Draw all projectiles
-    draw_ui_panels(self)  # Draw UI panels and title
+    if not "--no-ui" in sys.argv:
+        draw_ui_panels(self)  # Draw UI panels and title
+    if "--fps" in sys.argv:
+        draw_fps(self)  # Draw FPS counter for debugging
 
 
 def draw_units(self):
@@ -950,6 +955,8 @@ def draw_ui_panels(self):
                     Origin.TOPLEFT,
                 )
 
+
+def draw_fps(self):
     # Draw FPS counter in the top left corner of the screen
     fps = 0 if self.deltatime == 0 else round(1 / self.deltatime)
     self.draw_text(
