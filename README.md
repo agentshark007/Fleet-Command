@@ -1,101 +1,119 @@
 # Fleet Command
 
-**Status:** In development — unfinished. Features, gameplay, and content may change.
+![Status](https://img.shields.io/badge/status-in%20development-orange)
 
-Fleet Command is a small real-time strategy (RTS) prototype written in Python. It uses a lightweight internal UI/game window wrapper (`pgiud.py`) built on top of pygame to render the game, handle input, and play sounds.
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 
-This repository contains the game's source code, assets (images, fonts, sounds), and a minimal custom UI wrapper so the project can be run locally for development.
-
-**Website:** [https://andrucupala.com/payalabs/fleetcommand.html](https://andrucupala.com/payalabs/fleetcommand.html)
+![License](https://img.shields.io/badge/license-Non--Commercial%20Open%20Source%20License-lightgrey)
 
 ---
 
-## Quick Overview
+## Table of Contents
 
-* **Language:** Python (tested on Python 3.12)
-* **Runtime:** pygame (the repository includes `pgiud.py` which depends on pygame)
-* **Entry Point:** `python main.py` (calls `app.main()`)
+- Quick Start
+- Architecture
+- Development workflow
+- Contributing
+- License
+- Contact
 
 ---
 
-## Quick Start (macOS / Linux)
+## Quick Start
 
-1. Create and activate a virtual environment (recommended):
+Get running quickly (recommended shell: zsh):
 
+1. Create & activate a virtual environment
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    ```
 
-2. Install dependencies:
-
+2. Upgrade packaging and install dependencies
    ```bash
+   python -m pip install --upgrade pip setuptools wheel
    pip install -r requirements.txt
    ```
 
-3. Run the game:
-
+3. Run the game (project root)
    ```bash
    python main.py
    ```
 
-**Notes:**
-
-* If pygame installation fails on macOS, ensure you have the required build tools and SDL libraries, or install via a binary wheel (pip will usually fetch a compatible version).
-* The game is still a work-in-progress; some UI features and assets may be placeholders.
-
----
-
-## Repository Layout
-
-* `main.py` — small launcher that calls `app.main()`
-* `app.py` — game window class and main game loop (uses `pgiud.Window`)
-* `pgiud.py` — lightweight pygame-based UI and rendering helpers used by the project
-* `iud/` — UI screens and menus (main menu, new game, paused, settings)
-* `game/` — gameplay systems (units, teams, projectiles, explosions)
-* `core/` — core utilities, enums, and camera systems
-* `assets/` — images, fonts, and sounds used by the project
+**Notes**
+- Python 2.10+ is required (3.12 recommended). Check with `python --version`.
+- Use a virtual environment so `pygame` and audio backends install into an isolated env.
 
 ---
 
-## Licensing
+## Architecture
 
-**Non-Commercial Open Source License v1.0**
-
-* Use, modify, and distribute for **non-commercial purposes only**.
-* Give credit to **PayaLabs** for any use or derivative works.
-* Do **not sell, license, or profit** from this software.
-* Provided **“as-is”** without any warranty.
-
----
-
-## Project Team
-
-* **Remi Heath** — Artist
-* **Andru Cupala** — Lead developer and game designer
+- The game uses a custom lightweight UI/game window wrapper (`pgiud.py`) built on top of `pygame` to render the game, handle input, and play sounds.
+- The game logic is handled in `app.py`, running different scripts in the `iud` folder depending on the game state.
+- Code layout:
+  - `main.py`: Entry point that runs `app.main()`.
+  - `app.py`: Main application logic and game loop.
+  - `pgiud.py`: Custom UI/game window wrapper built on top of `pygame`.
+  - `iud/`: Folder containing different game state scripts (e.g., main menu, game).
+  - `game/`: Folder containing game logic and classes.
+  - `core/`: Folder containing core utilities and helper functions.
+  - `assets/`: Folder containing game assets (images, sounds, etc.).
 
 ---
 
-## Fonts
+## Development workflow
 
-* **WDXL Lubrifont SC** — included in `assets/fonts/` (SIL Open Font License 1.1)
-* **Black Ops One** — included in `assets/fonts/` (SIL Open Font License 1.1)
+- Create development commits in the `development` branch.
+- When a feature is complete and there are no major bugs, merge `development` into `feature`.
+- When `feature` is stable and ready for release, merge `feature` into `release`.
 
----
-
-## Libraries & Tools
-
-* **pygame** — underlying multimedia layer for `pgiud.py`
+**Note**: Before creating a commit, run `format.py` to format the code using `autopep8`, `ruff`, and `black`.
 
 ---
 
-## Development Notes
+## Contributing
 
-* The project contains a `format.py` helper to run project formatters (`autopep8`, `ruff`, `black`) if installed.
-* The project historically referenced Panda2D but now uses the local `pgiud` wrapper with pygame.
+External contributors must use pull requests.
+
+### Workflow
+
+1. **Fork the repository** on GitHub.
+2. **Clone your fork** locally.
+3. Create a **feature branch** for your changes:
+
+   ```bash
+   git checkout -b your-feature-name
+   ```
+4. Make changes and commit them to your branch.
+5. Push your branch to your fork:
+
+   ```bash
+   git push origin your-feature-name
+   ```
+6. Open a **pull request** from your branch into the `development` branch of this repository.
+
+### Rules
+
+* Do **not** commit directly to `release`, `feature`, or `development`.
+* Run `format.py` before committing.
+* Keep pull requests focused on a single change or feature.
+* Clearly describe what your pull request changes and why.
 
 ---
 
-## Attributions
+## License
 
-External textures and icons are credited in the original README. Exercise caution when visiting external links listed in the project; some sources were discovered using search tools and may contain unrelated content.
+**PayaLabs** Non-Commercial Open Source License v1.0:
+- Use, modify, and distribute for non-commercial purposes only.
+- Give credit to PayaLabs for any use or derivatives.
+- Do not sell, license, or profit from this software.
+- Provided “as-is” without any warranty.
+
+---
+
+## Contact
+
+- Lead developer & game designer: Andru Cupala
+- Artist & sound designer: Remi Heath
+- Project website: [Here](https://andrucupala.com/payalabs/fleetcommand.html)
+- Email: andrucupala@icloud.com
