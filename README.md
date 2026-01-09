@@ -4,15 +4,21 @@
 
 Fleet Command is a small real-time strategy (RTS) prototype written in Python. It uses a lightweight internal UI/game window wrapper (`pgiud.py`) built on top of pygame to render the game, handle input, and play sounds.
 
-This repository contains the game's source code, assets (images/fonts/sounds), and a minimal custom UI wrapper so the project can be run locally for development.
+This repository contains the game's source code, assets (images, fonts, sounds), and a minimal custom UI wrapper so the project can be run locally for development.
 
-## Quick overview
+**Website:** [https://andrucupala.com/payalabs/fleetcommand.html](https://andrucupala.com/payalabs/fleetcommand.html)
 
-- Language: Python (tested on Python 3.12)
-- Runtime: pygame (the repository includes `pgiud.py` which depends on pygame)
-- Entry point: `python main.py` (which calls `app.main()`)
+---
 
-## Quick start (macOS / Linux)
+## Quick Overview
+
+* **Language:** Python (tested on Python 3.12)
+* **Runtime:** pygame (the repository includes `pgiud.py` which depends on pygame)
+* **Entry Point:** `python main.py` (calls `app.main()`)
+
+---
+
+## Quick Start (macOS / Linux)
 
 1. Create and activate a virtual environment (recommended):
 
@@ -35,56 +41,61 @@ This repository contains the game's source code, assets (images/fonts/sounds), a
 
 **Notes:**
 
-- If pygame installation fails on macOS, ensure you have the required build tools and SDL libraries, or install via a binary wheel (pip will usually fetch a wheel for common platforms).
-- The game is still a work-in-progress; some UI features and assets may be placeholders.
+* If pygame installation fails on macOS, ensure you have the required build tools and SDL libraries, or install via a binary wheel (pip will usually fetch a compatible version).
+* The game is still a work-in-progress; some UI features and assets may be placeholders.
 
-## Repository layout
+---
 
-- `main.py` — small launcher that calls `app.main()`
-- `app.py` — game window class and main game loop (uses `pgiud.Window`)
-- `pgiud.py` — lightweight pygame-based UI and rendering helpers used by the project
-- `iud/` — UI screens and menus (main menu, new game, paused, settings)
-- `game/` — gameplay systems (units, teams, projectiles, explosions)
-- `core/` — core utilities, enums, and camera systems
-- `assets/` — images, fonts, and sounds used by the project
+## Repository Layout
 
-## Licensing & Attributions
+* `main.py` — small launcher that calls `app.main()`
+* `app.py` — game window class and main game loop (uses `pgiud.Window`)
+* `pgiud.py` — lightweight pygame-based UI and rendering helpers used by the project
+* `iud/` — UI screens and menus (main menu, new game, paused, settings)
+* `game/` — gameplay systems (units, teams, projectiles, explosions)
+* `core/` — core utilities, enums, and camera systems
+* `assets/` — images, fonts, and sounds used by the project
 
-This project is under development; no formal license file is included in this repository by default. If you plan to reuse code or assets, please check with the project owner for licensing terms.
+---
 
-### Project team
+## Licensing
 
-- Remi Heath — Artist
-- Andru Cupala — Lead developer and game designer
+**Non-Commercial Open Source License v1.0**
 
-### Fonts
+* Use, modify, and distribute for **non-commercial purposes only**.
+* Give credit to **PayaLabs** for any use or derivative works.
+* Do **not sell, license, or profit** from this software.
+* Provided **“as-is”** without any warranty.
 
-- WDXL Lubrifont SC — included in `assets/fonts/` (SIL Open Font License 1.1)
-- Black Ops One — included in `assets/fonts/` (SIL Open Font License 1.1)
+---
 
-### Libraries & Tools
+## Project Team
 
-- pygame — used as the underlying multimedia layer for `pgiud.py`
+* **Remi Heath** — Artist
+* **Andru Cupala** — Lead developer and game designer
+
+---
+
+## Fonts
+
+* **WDXL Lubrifont SC** — included in `assets/fonts/` (SIL Open Font License 1.1)
+* **Black Ops One** — included in `assets/fonts/` (SIL Open Font License 1.1)
+
+---
+
+## Libraries & Tools
+
+* **pygame** — underlying multimedia layer for `pgiud.py`
+
+---
+
+## Development Notes
+
+* The project contains a `format.py` helper to run project formatters (`autopep8`, `ruff`, `black`) if installed.
+* The project historically referenced Panda2D but now uses the local `pgiud` wrapper with pygame.
+
+---
 
 ## Attributions
 
 External textures and icons are credited in the original README. Exercise caution when visiting external links listed in the project; some sources were discovered using search tools and may contain unrelated content.
-
-## Contributing
-
-If you'd like to contribute:
-
-- Fork the repository and open a pull request with a clear description of your change.
-- Keep changes focused and small (one feature/fix per PR).
-- If you're adding assets, include attribution and confirm license compatibility.
-
-## Development notes & debugging
-
-- The project contains a `format.py` helper to run project formatters (`autopep8`, `ruff`, `black`) if you have them installed.
-- The project historically referenced Panda2D but now uses the local `pgiud` wrapper with pygame.
-
-## Contact
-
-For questions about the project or contributions, reach out to the repository owner (the Git history lists commit authors).
-
----
