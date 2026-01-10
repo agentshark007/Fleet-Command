@@ -1,7 +1,9 @@
 from pgiud import *
+import log
 
 
 def initialize(self) -> None:
+    log.info("Core initializing...")
     # GUI scaling configuration
     self.gui_scale_factor = 1.3  # Scaling factor for GUI (zoom in/out)
     self.gui_scale_min = 0.3  # Minimum allowed GUI scale
@@ -17,13 +19,17 @@ def initialize(self) -> None:
     self.mousemiddle_last_frame = False  # Track middle mouse button state
     self.mousesecondary_last_frame = False  # Track secondary mouse button state
     self.space_last_frame = False  # Track space key state
+    log.info("Core initialization complete.")
 
 
 def late_initialize(self) -> None:
-    pass
+    log.info("Core late initializing...")
+
+    log.info("Core late initialization complete.")
 
 
 def load_assets(self) -> None:
+    log.info("Loading assets...")
     # Load fonts for UI text rendering
     self.title_font = Font(
         "assets/fonts/BlackOpsOne-Regular.ttf", size=32
@@ -46,6 +52,7 @@ def load_assets(self) -> None:
         Image("assets/images/projectile_1.png"),  # Projectile images
         Image("assets/images/projectile_2.png"),
     ]
+    log.info("Loading assets complete.")
 
 
 def update(self) -> None:
@@ -73,10 +80,14 @@ def handle_gui_scaling(self) -> None:
     if command_down:
         # Scale up on plus key (only trigger once per key press)
         if self.keydown(Key.EQUALS) and not self.plus_last_frame:
+            old_gui_scale = self.gui_scale
             self.gui_scale *= self.gui_scale_factor
+            log.info(f"GUI scale increased from {old_gui_scale} to {self.gui_scale}.")
         # Scale down on minus key (only trigger once per key press)
         elif self.keydown(Key.MINUS) and not self.minus_last_frame:
+            old_gui_scale = self.gui_scale
             self.gui_scale /= self.gui_scale_factor
+            log.info(f"GUI scale decreased from {old_gui_scale} to {self.gui_scale}.")
 
     # Clamp GUI scale to valid range
     self.gui_scale = max(self.gui_scale_min, min(self.gui_scale, self.gui_scale_max))

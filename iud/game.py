@@ -7,13 +7,25 @@ from game.team import *
 from game.unit import *
 from pgiud import *
 import sys
+import log
 
 
 def initialize(self):
+    check_flags(self)  # Check command-line flags
     initialize_settings(self)  # Load configuration values
     initialize_state_variables(self)  # Initialize variables
     initialize_game_logic(self)  # Create teams and units
     initialize_layout(self)  # Set up UI colors and appearance
+
+
+def check_flags(self):
+    # Check for command-line flags and log their status
+    if "--no-water" in sys.argv:
+        log.info("Flag detected: --no-water (water rendering disabled)")
+    if "--no-ui" in sys.argv:
+        log.info("Flag detected: --no-ui (UI rendering disabled)")
+    if "--fps" in sys.argv:
+        log.info("Flag detected: --fps (FPS counter enabled)")
 
 
 def initialize_settings(self):
@@ -86,6 +98,15 @@ def initialize_game_logic(self):
     self.explosions = {}  # No explosions at start of game
     self.next_explosion_id = 0
 
+    # Log game initialization summary
+    try:
+        unit_type_names = [t.__name__ for t in self.unit_types]
+    except Exception:
+        unit_type_names = [str(t) for t in self.unit_types]
+    log.info(
+        f"Game initialized: teams={len(self.teams)}, units={len(self.units)}, unit_types={unit_type_names}"
+    )
+
 
 def initialize_layout(self):
     # GUI panel colors
@@ -143,20 +164,31 @@ def handle_unit_selection(self):
     # Handle selection input (left mouse button)
     if self.mousedownprimary and not self.mouseprimary_last_frame:
         # Only allow selecting units from the player team
-        if (
-                closest_unit_index_selectable != -1
-                and self.teams[self.units[closest_unit_index_selectable].team_index].type
-                == TeamType.PLAYER
-        ):
-            if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
-                if closest_unit_index_selectable not in self.selected_units_ids:
-                    self.selected_units_ids.append(closest_unit_index_selectable)
+        if closest_unit_index_selectable != -1:
+            team = self.teams[self.units[closest_unit_index_selectable].team_index]
+            if team.type == TeamType.PLAYER:
+                if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
+                    if closest_unit_index_selectable not in self.selected_units_ids:
+                        self.selected_units_ids.append(closest_unit_index_selectable)
+                        log.info(
+                            f"Selection added: unit_id={closest_unit_index_selectable}, selected_units={self.selected_units_ids}"
+                        )
+                    else:
+                        self.selected_units_ids.remove(closest_unit_index_selectable)
+                        log.info(
+                            f"Selection removed: unit_id={closest_unit_index_selectable}, selected_units={self.selected_units_ids}"
+                        )
                 else:
-                    self.selected_units_ids.remove(closest_unit_index_selectable)
+                    self.selected_units_ids = [closest_unit_index_selectable]
+                    log.info(f"Selection set: selected_units={self.selected_units_ids}")
             else:
-                self.selected_units_ids = [closest_unit_index_selectable]
+                log.warn(
+                    f"Selection attempt on non-player unit: unit_id={closest_unit_index_selectable}"
+                )
+                self.selected_units_ids = []
         else:
             self.selected_units_ids = []
+            log.info("Selection cleared")
 
 
 def handle_unit_control(self):
@@ -192,8 +224,15 @@ def handle_unit_control(self):
                 unit.autonomous = True
                 unit.autonomous_target_x = mouse_world_x
                 unit.autonomous_target_y = mouse_world_y
+                log.info(
+                    f"Autonomous target set: unit_id={getattr(unit, 'unit_id', unit_id)}, target=({unit.autonomous_target_x:.1f},{unit.autonomous_target_y:.1f})"
+                )
             # Manual key input overrides autonomous movement
             if manual_override():
+                if getattr(unit, "autonomous", False):
+                    log.info(
+                        f"Manual override: unit_id={getattr(unit, 'unit_id', unit_id)}, autonomous_disabled=True"
+                    )
                 unit.autonomous = False
 
         # Autonomous movement for units with autonomous=True
@@ -319,7 +358,11 @@ def handle_unit_shooting(self):
                 direction=direction,  # degrees
                 shooter_id=unit.team_index,
             )
-            self.projectiles[self.next_projectile_id] = projectile
+            pid = self.next_projectile_id
+            self.projectiles[pid] = projectile
+            log.info(
+                f"Projectile created: id={pid}, type=Missile, shooter_team={unit.team_index}, pos=({unit.position_x:.1f},{unit.position_y:.1f}), dir={direction:.1f}"
+            )
             self.next_projectile_id += 1
 
 
@@ -344,8 +387,14 @@ def detect_collisions(self):
             if dist < unit.collision_radius:
                 unit.health -= projectile.damage
                 projectiles_to_remove.add(projectile_id)
+                log.info(
+                    f"Hit: projectile_id={projectile_id}, target_unit={unit_id}, damage={projectile.damage}, unit_health_after={unit.health}"
+                )
                 if unit.health <= 0:
                     units_to_remove.add(unit_id)
+                    log.info(
+                        f"Unit destroyed: unit_id={unit_id}, team={unit.team_index}, at=({unit.position_x:.1f},{unit.position_y:.1f})"
+                    )
                     create_explosion(
                         self,
                         unit.position_x,
@@ -367,6 +416,9 @@ def detect_collisions(self):
             if min_dist > dist > 0:
                 units_to_remove.add(unit_id_a)
                 units_to_remove.add(unit_id_b)
+                log.info(
+                    f"Unit collision: unit_a={unit_id_a}, unit_b={unit_id_b}, contact_pos=({(unit_a.position_x + unit_b.position_x) / 2:.1f},{(unit_a.position_y + unit_b.position_y) / 2:.1f})"
+                )
                 create_explosion(
                     self,
                     (unit_a.position_x + unit_b.position_x) / 2,
@@ -374,9 +426,17 @@ def detect_collisions(self):
                 )
     # Remove destroyed units and projectiles
     for uid in units_to_remove:
-        del self.units[uid]
+        if uid in self.units:
+            del self.units[uid]
+        else:
+            log.warn(f"Removal warning: attempted to delete missing unit id={uid}")
     for pid in projectiles_to_remove:
-        del self.projectiles[pid]
+        if pid in self.projectiles:
+            del self.projectiles[pid]
+        else:
+            log.warn(
+                f"Removal warning: attempted to delete missing projectile id={pid}"
+            )
     # Remove dead units from selection
     self.selected_units_ids = [
         uid for uid in self.selected_units_ids if uid in self.units
@@ -384,7 +444,9 @@ def detect_collisions(self):
 
 
 def create_explosion(self, x, y):
-    self.explosions[self.next_explosion_id] = Explosion(x, y)
+    eid = self.next_explosion_id
+    self.explosions[eid] = Explosion(x, y)
+    log.info(f"Explosion created: id={eid}, pos=({x:.1f},{y:.1f})")
     self.next_explosion_id += 1
 
 
@@ -395,6 +457,7 @@ def update_explosions(self):
         if explosion.current_frame >= explosion.frames:
             explosions_to_remove.add(explosion_id)
     for eid in explosions_to_remove:
+        log.info(f"Explosion finished: id={eid}")
         del self.explosions[eid]
 
 
@@ -406,21 +469,41 @@ def handle_camera_movement(self):
     if not command_down:
         # Zoom in when plus key pressed
         if self.keydown(Key.EQUALS) and not self.plus_last_frame:
+            old_scale = self.camera.scale
+            attempted = old_scale + self.camera_zoom_speed
             self.camera.scale = min(
                 [
                     self.max_camera_scale,
                     self.camera.scale + self.camera_zoom_speed,
                 ]
             )
+            if self.camera.scale != old_scale:
+                log.info(
+                    f"Camera zoom: old_scale={old_scale:.2f} -> new_scale={self.camera.scale:.2f}"
+                )
+                if self.camera.scale != attempted:
+                    log.warn(
+                        f"Camera zoom clamped: attempted={attempted:.2f}, clamped_to={self.camera.scale:.2f}"
+                    )
 
         # Zoom out when minus key pressed
         elif self.keydown(Key.MINUS) and not self.minus_last_frame:
+            old_scale = self.camera.scale
+            attempted = old_scale - self.camera_zoom_speed
             self.camera.scale = max(
                 [
                     self.min_camera_scale,
                     self.camera.scale - self.camera_zoom_speed,
                 ]
             )
+            if self.camera.scale != old_scale:
+                log.info(
+                    f"Camera zoom: old_scale={old_scale:.2f} -> new_scale={self.camera.scale:.2f}"
+                )
+                if self.camera.scale != attempted:
+                    log.warn(
+                        f"Camera zoom clamped: attempted={attempted:.2f}, clamped_to={self.camera.scale:.2f}"
+                    )
 
     # Accelerate camera based on arrow key input
     factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
@@ -529,8 +612,8 @@ def draw_units(self):
             )
 
             if (
-                    self.teams[self.units[closest_unit_index_selectable].team_index].type
-                    == TeamType.PLAYER
+                self.teams[self.units[closest_unit_index_selectable].team_index].type
+                == TeamType.PLAYER
             ):
                 # Draw autonomous target indicator if moving autonomously
                 if unit.autonomous:
@@ -637,7 +720,7 @@ def draw_water(self):  # TODO: Make water layers have higher fps
     wave_speed_1 = 1.5
     offset_x_1 = self.water_state * wave_speed_1
     offset_y_1 = (
-            -self.water_state * wave_speed_1 * 0.8
+        -self.water_state * wave_speed_1 * 0.8
     )  # Negative for opposite direction
     draw_water_layer(
         self,
@@ -651,13 +734,13 @@ def draw_water(self):  # TODO: Make water layers have higher fps
 
 
 def draw_water_layer(
-        self,
-        color: Color,
-        color_fluctuation_strength: Color,
-        color_fluctuation_speed: Color,
-        offset_x: float = 0.0,
-        offset_y: float = 0.0,
-        per_tile_offset: bool = False,
+    self,
+    color: Color,
+    color_fluctuation_strength: Color,
+    color_fluctuation_speed: Color,
+    offset_x: float = 0.0,
+    offset_y: float = 0.0,
+    per_tile_offset: bool = False,
 ):
     # Combine base color with fluctuation for dynamic effect
     final_color = Color(
@@ -678,11 +761,11 @@ def draw_water_layer(
 
 
 def draw_tiled_water(
-        self,
-        filter_color: Color,
-        offset_x: float = 0.0,
-        offset_y: float = 0.0,
-        per_tile_offset: bool = False,
+    self,
+    filter_color: Color,
+    offset_x: float = 0.0,
+    offset_y: float = 0.0,
+    per_tile_offset: bool = False,
 ):
     # Small overlap to prevent gaps between tiles
     offset = 5
@@ -731,8 +814,8 @@ def draw_tiled_water(
             tile_offset_y = 0
             if per_tile_offset:
                 tile_offset_x = (
-                                        pseudo_random_offset(wx, wy, seed=1) - 0.5
-                                ) * 2  # Range: -1 to +1
+                    pseudo_random_offset(wx, wy, seed=1) - 0.5
+                ) * 2  # Range: -1 to +1
                 tile_offset_y = (pseudo_random_offset(wx, wy, seed=2) - 0.5) * 2
             sx, sy = self.camera.project(
                 wx - offset_x - tile_offset_x, wy - offset_y - tile_offset_y
