@@ -23,7 +23,7 @@ def _timestamp():
 def _log(color, level, message):
     file = _caller_file()
     ts = _timestamp()
-    print(f"{color}{ts}/{file} - [{level}]: {RESET}{message}", file=sys.stdout)
+    print(f"{color}{ts} [{level:<5}] ({file}) {RESET}{message}", file=sys.stdout)
 
 
 def info(message):

@@ -5,7 +5,7 @@ import log
 
 
 def initialize(self) -> None:
-    log.info("Main menu initializing...")
+    log.info("Main menu initialization started")
     # Button positioning
     self.mainmenu_button_extend_x = 50  # Pixels from left edge
     self.mainmenu_button_extend_y = 50  # Pixels from bottom edge
@@ -24,7 +24,7 @@ def initialize(self) -> None:
     # Music
     self.music = Sound("assets/sounds/cinematic-powerful-battle-music-414692.mp3")
     self.music_started = False
-    log.info("Main menu initialized.")
+    log.info("Main menu initialized")
 
 
 def update(self) -> None:
@@ -43,7 +43,7 @@ def update(self) -> None:
         if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top):
             if self.mousedownprimary:
                 action(self)
-                log.info(f"Main menu button clicked: {button_id}")
+                log.info(f"Main menu button clicked: id={button_id}")
                 break
 
 

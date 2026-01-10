@@ -18,7 +18,7 @@ class GameWindow(Window):
         return pivot + (value * direction.value * self.gui_scale)
 
     def initialize(self):
-        log.info("Globally initializing...")
+        log.info("Global initialization started")
         self.menu_state = GameState.MAINMENU  # Current game state tracking
 
         core.initialize(self)  # Initialize core systems (assets, GUI scale)
@@ -30,7 +30,7 @@ class GameWindow(Window):
         settings.initialize(self)  # Initialize settings menu
 
         core.late_initialize(self)  # Finalize core systems if needed
-        log.info("Done globally initializing.")
+        log.info("Global initialization complete")
 
     def update(self):
         core.update(self)  # Update core systems (GUI scaling)
@@ -71,9 +71,9 @@ class GameWindow(Window):
 
 
 def main():
-    log.info("Creating game window...")
+    log.info("Creating game window")
     window = GameWindow()
-    log.info("Game window created.")
-    log.info("Starting game window...")
+    log.info("Game window created")
+    log.info("Starting game window")
     window.start()  # Start the main game loop
-    log.info("Game window closed.")
+    log.info("Game window closed")

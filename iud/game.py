@@ -20,12 +20,7 @@ def initialize(self):
 
 def check_flags(self):
     # Check for command-line flags and log their status
-    if "--no-water" in sys.argv:
-        log.info("Flag detected: --no-water (water rendering disabled)")
-    if "--no-ui" in sys.argv:
-        log.info("Flag detected: --no-ui (UI rendering disabled)")
-    if "--fps" in sys.argv:
-        log.info("Flag detected: --fps (FPS counter enabled)")
+    log.info(f"flags: {sys.argv}")
 
 
 def initialize_settings(self):
@@ -103,9 +98,7 @@ def initialize_game_logic(self):
         unit_type_names = [t.__name__ for t in self.unit_types]
     except Exception:
         unit_type_names = [str(t) for t in self.unit_types]
-    log.info(
-        f"Game initialized: teams={len(self.teams)}, units={len(self.units)}, unit_types={unit_type_names}"
-    )
+    log.info(f"game_initialized teams={len(self.teams)} units={len(self.units)} unit_types={unit_type_names}")
 
 
 def initialize_layout(self):
@@ -170,25 +163,19 @@ def handle_unit_selection(self):
                 if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
                     if closest_unit_index_selectable not in self.selected_units_ids:
                         self.selected_units_ids.append(closest_unit_index_selectable)
-                        log.info(
-                            f"Selection added: unit_id={closest_unit_index_selectable}, selected_units={self.selected_units_ids}"
-                        )
+                        log.info(f"selection_added unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}")
                     else:
                         self.selected_units_ids.remove(closest_unit_index_selectable)
-                        log.info(
-                            f"Selection removed: unit_id={closest_unit_index_selectable}, selected_units={self.selected_units_ids}"
-                        )
+                        log.info(f"selection_removed unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}")
                 else:
                     self.selected_units_ids = [closest_unit_index_selectable]
-                    log.info(f"Selection set: selected_units={self.selected_units_ids}")
+                    log.info(f"selection_set selected_units={self.selected_units_ids}")
             else:
-                log.warn(
-                    f"Selection attempt on non-player unit: unit_id={closest_unit_index_selectable}"
-                )
+                log.warn(f"selection_non_player unit_id={closest_unit_index_selectable}")
                 self.selected_units_ids = []
         else:
             self.selected_units_ids = []
-            log.info("Selection cleared")
+            log.info("selection_cleared")
 
 
 def handle_unit_control(self):
@@ -225,14 +212,12 @@ def handle_unit_control(self):
                 unit.autonomous_target_x = mouse_world_x
                 unit.autonomous_target_y = mouse_world_y
                 log.info(
-                    f"Autonomous target set: unit_id={getattr(unit, 'unit_id', unit_id)}, target=({unit.autonomous_target_x:.1f},{unit.autonomous_target_y:.1f})"
+                    f"autonomous_target_set unit_id={getattr(unit, 'unit_id', unit_id)} target=({unit.autonomous_target_x:.1f},{unit.autonomous_target_y:.1f})"
                 )
             # Manual key input overrides autonomous movement
             if manual_override():
                 if getattr(unit, "autonomous", False):
-                    log.info(
-                        f"Manual override: unit_id={getattr(unit, 'unit_id', unit_id)}, autonomous_disabled=True"
-                    )
+                    log.info(f"manual_override unit_id={getattr(unit, 'unit_id', unit_id)} autonomous_disabled=True")
                 unit.autonomous = False
 
         # Autonomous movement for units with autonomous=True
@@ -361,7 +346,7 @@ def handle_unit_shooting(self):
             pid = self.next_projectile_id
             self.projectiles[pid] = projectile
             log.info(
-                f"Projectile created: id={pid}, type=Missile, shooter_team={unit.team_index}, pos=({unit.position_x:.1f},{unit.position_y:.1f}), dir={direction:.1f}"
+                f"projectile_created id={pid} type=Missile shooter_team={unit.team_index} pos=({unit.position_x:.1f},{unit.position_y:.1f}) dir={direction:.1f}"
             )
             self.next_projectile_id += 1
 
@@ -388,12 +373,12 @@ def detect_collisions(self):
                 unit.health -= projectile.damage
                 projectiles_to_remove.add(projectile_id)
                 log.info(
-                    f"Hit: projectile_id={projectile_id}, target_unit={unit_id}, damage={projectile.damage}, unit_health_after={unit.health}"
+                    f"hit projectile_id={projectile_id} target_unit={unit_id} damage={projectile.damage} unit_health_after={unit.health}"
                 )
                 if unit.health <= 0:
                     units_to_remove.add(unit_id)
                     log.info(
-                        f"Unit destroyed: unit_id={unit_id}, team={unit.team_index}, at=({unit.position_x:.1f},{unit.position_y:.1f})"
+                        f"unit_destroyed unit_id={unit_id} team={unit.team_index} pos=({unit.position_x:.1f},{unit.position_y:.1f})"
                     )
                     create_explosion(
                         self,
@@ -417,7 +402,7 @@ def detect_collisions(self):
                 units_to_remove.add(unit_id_a)
                 units_to_remove.add(unit_id_b)
                 log.info(
-                    f"Unit collision: unit_a={unit_id_a}, unit_b={unit_id_b}, contact_pos=({(unit_a.position_x + unit_b.position_x) / 2:.1f},{(unit_a.position_y + unit_b.position_y) / 2:.1f})"
+                    f"unit_collision unit_a={unit_id_a} unit_b={unit_id_b} contact_pos=({(unit_a.position_x + unit_b.position_x) / 2:.1f},{(unit_a.position_y + unit_b.position_y) / 2:.1f})"
                 )
                 create_explosion(
                     self,
@@ -429,14 +414,12 @@ def detect_collisions(self):
         if uid in self.units:
             del self.units[uid]
         else:
-            log.warn(f"Removal warning: attempted to delete missing unit id={uid}")
+            log.warn(f"removal_warning missing_unit_id={uid}")
     for pid in projectiles_to_remove:
         if pid in self.projectiles:
             del self.projectiles[pid]
         else:
-            log.warn(
-                f"Removal warning: attempted to delete missing projectile id={pid}"
-            )
+            log.warn(f"removal_warning missing_projectile_id={pid}")
     # Remove dead units from selection
     self.selected_units_ids = [
         uid for uid in self.selected_units_ids if uid in self.units
@@ -446,7 +429,7 @@ def detect_collisions(self):
 def create_explosion(self, x, y):
     eid = self.next_explosion_id
     self.explosions[eid] = Explosion(x, y)
-    log.info(f"Explosion created: id={eid}, pos=({x:.1f},{y:.1f})")
+    log.info(f"explosion_created id={eid} pos=({x:.1f},{y:.1f})")
     self.next_explosion_id += 1
 
 
@@ -457,7 +440,7 @@ def update_explosions(self):
         if explosion.current_frame >= explosion.frames:
             explosions_to_remove.add(explosion_id)
     for eid in explosions_to_remove:
-        log.info(f"Explosion finished: id={eid}")
+        log.info(f"explosion_finished id={eid}")
         del self.explosions[eid]
 
 
@@ -478,12 +461,10 @@ def handle_camera_movement(self):
                 ]
             )
             if self.camera.scale != old_scale:
-                log.info(
-                    f"Camera zoom: old_scale={old_scale:.2f} -> new_scale={self.camera.scale:.2f}"
-                )
+                log.info(f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}")
                 if self.camera.scale != attempted:
                     log.warn(
-                        f"Camera zoom clamped: attempted={attempted:.2f}, clamped_to={self.camera.scale:.2f}"
+                        f"camera_zoom_clamped attempted={attempted:.2f} clamped_to={self.camera.scale:.2f}"
                     )
 
         # Zoom out when minus key pressed
@@ -497,12 +478,10 @@ def handle_camera_movement(self):
                 ]
             )
             if self.camera.scale != old_scale:
-                log.info(
-                    f"Camera zoom: old_scale={old_scale:.2f} -> new_scale={self.camera.scale:.2f}"
-                )
+                log.info(f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}")
                 if self.camera.scale != attempted:
                     log.warn(
-                        f"Camera zoom clamped: attempted={attempted:.2f}, clamped_to={self.camera.scale:.2f}"
+                        f"camera_zoom_clamped attempted={attempted:.2f} clamped_to={self.camera.scale:.2f}"
                     )
 
     # Accelerate camera based on arrow key input
