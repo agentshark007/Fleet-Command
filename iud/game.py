@@ -98,7 +98,9 @@ def initialize_game_logic(self):
         unit_type_names = [t.__name__ for t in self.unit_types]
     except Exception:
         unit_type_names = [str(t) for t in self.unit_types]
-    log.info(f"game_initialized teams={len(self.teams)} units={len(self.units)} unit_types={unit_type_names}")
+    log.info(
+        f"game_initialized teams={len(self.teams)} units={len(self.units)} unit_types={unit_type_names}"
+    )
 
 
 def initialize_layout(self):
@@ -163,15 +165,21 @@ def handle_unit_selection(self):
                 if self.keydown(Key.LSHIFT) or self.keydown(Key.RSHIFT):
                     if closest_unit_index_selectable not in self.selected_units_ids:
                         self.selected_units_ids.append(closest_unit_index_selectable)
-                        log.info(f"selection_added unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}")
+                        log.info(
+                            f"selection_added unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}"
+                        )
                     else:
                         self.selected_units_ids.remove(closest_unit_index_selectable)
-                        log.info(f"selection_removed unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}")
+                        log.info(
+                            f"selection_removed unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}"
+                        )
                 else:
                     self.selected_units_ids = [closest_unit_index_selectable]
                     log.info(f"selection_set selected_units={self.selected_units_ids}")
             else:
-                log.warn(f"selection_non_player unit_id={closest_unit_index_selectable}")
+                log.warn(
+                    f"selection_non_player unit_id={closest_unit_index_selectable}"
+                )
                 self.selected_units_ids = []
         else:
             self.selected_units_ids = []
@@ -217,7 +225,9 @@ def handle_unit_control(self):
             # Manual key input overrides autonomous movement
             if manual_override():
                 if getattr(unit, "autonomous", False):
-                    log.info(f"manual_override unit_id={getattr(unit, 'unit_id', unit_id)} autonomous_disabled=True")
+                    log.info(
+                        f"manual_override unit_id={getattr(unit, 'unit_id', unit_id)} autonomous_disabled=True"
+                    )
                 unit.autonomous = False
 
         # Autonomous movement for units with autonomous=True
@@ -461,7 +471,9 @@ def handle_camera_movement(self):
                 ]
             )
             if self.camera.scale != old_scale:
-                log.info(f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}")
+                log.info(
+                    f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}"
+                )
                 if self.camera.scale != attempted:
                     log.warn(
                         f"camera_zoom_clamped attempted={attempted:.2f} clamped_to={self.camera.scale:.2f}"
@@ -478,7 +490,9 @@ def handle_camera_movement(self):
                 ]
             )
             if self.camera.scale != old_scale:
-                log.info(f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}")
+                log.info(
+                    f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}"
+                )
                 if self.camera.scale != attempted:
                     log.warn(
                         f"camera_zoom_clamped attempted={attempted:.2f} clamped_to={self.camera.scale:.2f}"

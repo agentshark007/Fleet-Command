@@ -1,5 +1,6 @@
 from pgiud import *
 import log
+import asset
 
 
 def initialize(self) -> None:
@@ -29,28 +30,29 @@ def late_initialize(self) -> None:
 
 
 def load_assets(self) -> None:
-    log.info("Loading assets started")
+    log.info(f"Loading assets started, with base path: {asset.BASE_PATH}")
     # Load fonts for UI text rendering
     self.title_font = Font(
-        "assets/fonts/BlackOpsOne-Regular.ttf", size=32
+        asset.asset("fonts/BlackOpsOne-Regular.ttf"), size=32
     )  # Large title font
     self.context_font = Font(
-        "assets/fonts/WDXLLubrifontSC-Regular.ttf", size=16
+        asset.asset("fonts/WDXLLubrifontSC-Regular.ttf"), size=16
     )  # Regular UI font
 
     # Load images for world and UI rendering
     # Water texture for background
-    self.water_image = Image("assets/images/water.jpg")
+    self.water_image = Image(asset.asset("images/water.jpg"))
     self.selection_marker_image = Image(
-        "assets/images/selection-marker.png"
+        asset.asset("images/selection-marker.png")
     )  # Team color marker
     self.autonomous_target_image = Image(
-        "assets/images/target.png"
+        asset.asset("images/target.png")
     )  # Autonomous movement target
     self.projectile_images = [
-        Image("assets/images/projectile_0.png"),
-        Image("assets/images/projectile_1.png"),  # Projectile images
-        Image("assets/images/projectile_2.png"),
+        Image(asset.asset("images/projectile_0.png")),
+        # Projectile images
+        Image(asset.asset("images/projectile_1.png")),
+        Image(asset.asset("images/projectile_2.png")),
     ]
     log.info("Loading assets complete")
 
