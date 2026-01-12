@@ -1,4 +1,3 @@
-rm -rf dist/
 rm -rf build/
 
 python format.py
