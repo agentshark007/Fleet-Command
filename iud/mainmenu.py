@@ -35,7 +35,7 @@ def update(self) -> None:
             self.music_started = True
 
     # Define button actions
-    buttons = [("newgame", newgame), ("settings", settings), ("quit", quit)]
+    buttons = [("newgame", newgame), ("settings", settings), ("quit", _quit)]
 
     for index, (button_id, action) in enumerate(reversed(buttons)):
         left, bottom, right, top = get_button_bounds(self, index)
@@ -54,6 +54,12 @@ def newgame(self) -> None:
 
 def settings(self) -> None:
     self.menu_state = GameState.SETTINGS
+
+
+def _quit(self) -> None:
+    self._running = False
+    self.music.stop()
+    log.info("Quit action triggered from main menu")
 
 
 def draw(self) -> None:
