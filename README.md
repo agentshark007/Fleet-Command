@@ -122,74 +122,125 @@ External contributors must use pull requests.
 
 ## Build & Packaging
 
-This project includes a PyInstaller spec (`Fleet-Command.spec`) and a previous build output in `build/`. The steps below explain how to build a standalone executable bundle (macOS examples are shown — adapt paths/flags for Linux or Windows).
+This project includes helper scripts at the project root to simplify building, cleaning, and running during development:
 
-Checklist (what these instructions do)
-- Create an isolated environment
-- Install required runtime/development dependencies
-- Produce a standalone app/distributable using PyInstaller (using the included spec or a simple command)
+- `build.sh` — creates/refreshes a virtualenv, installs runtime and build deps, and runs PyInstaller using `Fleet-Command.spec` (it also removes previous `dist/`, `build/`, and `.venv/` before building).
+- `clean.sh` — removes build artifacts and runs formatters (`autopep8`, `ruff`, `black`) to tidy the codebase.
+- `run.sh` — runs the game locally with `python main.py` using the active Python interpreter.
 
-Prerequisites
-- macOS (examples below use zsh) — Linux and Windows are similar but use platform-appropriate options
-- Python 3.10+ (3.12 recommended)
-- Xcode command line tools (macOS) for building certain native dependencies
-
-1) Create and activate a virtual environment (recommended)
+Prefer these scripts for local development and building. Example (macOS / Linux / zsh):
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+# Make sure the scripts are executable once (only needed once):
+chmod +x build.sh clean.sh run.sh
+
+# Build the app (creates dist/):
+./build.sh
+
+# Run the game locally (during development):
+./run.sh
+
+# Clean and format the repo:
+./clean.sh
 ```
 
-2) Install runtime + build tools
+What `build.sh` does (summary)
+- Deletes old `dist/`, `build/`, `__pycache__/`, and `.venv/` directories
+- Creates and activates a fresh virtualenv (`.venv`)
+- Upgrades pip and installs `requirements.txt` and `pyinstaller`
+- Runs `pyinstaller Fleet-Command.spec` to produce `dist/`
+
+Notes & manual alternatives
+- The scripts are written for macOS/Linux shells. On Windows use WSL or adapt commands for PowerShell / CMD if necessary.
+- If you prefer to run steps manually or need custom options, the README still documents PyInstaller examples (one-folder and one-file builds) and the `--add-data` syntax differences between platforms.
+
+Troubleshooting and customization
+- If `build.sh` fails because of missing native toolchains (e.g., Visual C++ on Windows or Xcode CLT on macOS), install the platform-specific build tools and re-run the script.
+- To add extra `--add-data` entries or `--hidden-import` options, either edit `Fleet-Command.spec` or run PyInstaller manually instead of `build.sh`.
+
+The rest of the PyInstaller examples, code signing/notarization notes, troubleshooting tips, and verification checklist remain below for reference.
+
+macOS / Linux — one-folder (creates `dist/Fleet-Command/`):
 
 ```bash
-python -m pip install --upgrade pip setuptools wheel
-pip install -r requirements.txt
-pip install pyinstaller
+pyinstaller --name "Fleet-Command" \
+  --add-data "assets:assets" \
+  --icon icon.png \
+  --windowed main.py
 ```
 
-3) Quick build using the included spec file
-
-From the project root run (this will use the options recorded in `Fleet-Command.spec`):
+macOS / Linux — one-file (single binary):
 
 ```bash
-pyinstaller Fleet-Command.spec
+pyinstaller --onefile --name "Fleet-Command" \
+  --add-data "assets:assets" \
+  --icon icon.png \
+  --windowed main.py
 ```
 
-4) Or build directly with a command (example macOS .app / one-folder build)
+Windows (cmd) — one-folder:
 
-- One-folder (creates `dist/Fleet-Command/`):
+```cmd
+pyinstaller --name "Fleet-Command" --add-data "assets;assets" --icon icon.png --windowed main.py
+```
+
+If you have multiple asset directories (images, fonts, sounds) you can repeat `--add-data` multiple times, e.g.:
 
 ```bash
-pyinstaller --name "Fleet-Command" --add-data "assets:assets" --icon icon.png --windowed main.py
+--add-data "assets/images:assets/images" --add-data "assets/fonts:assets/fonts" --add-data "assets/sounds:assets/sounds"
 ```
 
-- One-file (single executable, larger startup time):
+Helpful PyInstaller flags
+- `--clean`: remove temporary build files before building
+- `--distpath <path>` / `--workpath <path>`: control output directories for reproducible builds
+- `--hidden-import modulename`: include modules PyInstaller misses
+
+4) macOS: code signing & notarization (optional but required for distribution)
+
+To distribute a macOS `.app` outside a dev machine you typically need to sign and notarize it.
+
+Example signing (replace the identity):
 
 ```bash
-pyinstaller --onefile --name "Fleet-Command" --add-data "assets:assets" --icon icon.png --windowed main.py
+codesign --deep --force --verify --verbose --sign "Developer ID Application: Your Name (TEAMID)" "dist/Fleet-Command.app"
 ```
 
-Notes on the `--add-data` argument
-- On macOS/Linux use `source:dest` (as shown). On Windows use `source;dest`.
-- Adjust the `--add-data` entries if you have extra asset folders (images, sounds, fonts).
+Notarize the app (classic `altool` example):
 
-Where to find the output
-- `dist/` will contain the generated app or folder. Example:
-  - `dist/Fleet-Command/` (one-folder) or
-  - `dist/Fleet-Command` (one-file on macOS will be a single binary or wrapped by `pyinstaller`)
-- `build/` contains intermediate build files.
+```bash
+# zip or create an archive of the .app first
+ditto -c -k --sequesterRsrc --keepParent "dist/Fleet-Command.app" "Fleet-Command.zip"
+xcrun altool --notarize-app --primary-bundle-id "com.yourdomain.fleetcommand" --username "APPLEID" --password "@keychain:AC_PASSWORD" --file "Fleet-Command.zip"
+```
 
-Code signing & notarization (macOS)
-- To distribute a macOS app outside of your dev machine you will likely need to sign and notarize the bundle. Typical steps (not included here) are:
-  - codesign --deep --force --verify --verbose --sign "Developer ID Application: Your Name (TEAMID)" "dist/Fleet-Command.app"
-  - xcrun altool --notarize-app --primary-bundle-id "com.yourdomain.fleetcommand" --username "APPLEID" --password "@keychain:AC_PASSWORD" --file "dist/Fleet-Command.zip"
+Modern alternative — `notarytool` (recommended by Apple):
+
+```bash
+xcrun notarytool submit "Fleet-Command.zip" --keychain-profile "AC_PASSWORD_PROFILE" --wait
+xcrun stapler staple "dist/Fleet-Command.app"
+```
+
+Notes on signing/notarization
+- You need an Apple Developer account and a signing identity for `codesign`.
+- Notarization may require network upload and can take several minutes.
+- Test the signed/notarized app on a clean macOS machine where Gatekeeper is active.
 
 Troubleshooting
-- Missing modules at runtime: Re-run PyInstaller with `--hidden-import modulename` or add the imports to the spec file.
-- Assets not found: confirm `--add-data` paths or that assets are packaged inside the final bundle (inspect the `dist/` folder).
-- Audio/backends: If audio fails on a target machine, ensure platform audio libraries are installed and `pygame` dependencies were correctly compiled.
+- Missing modules at runtime: Re-run PyInstaller with `--hidden-import modulename` or add the missing imports to `Fleet-Command.spec` hooks. Inspect the runtime traceback to identify the missing module name.
+- Assets not found at runtime: Confirm the `--add-data` source paths are correct and match your project layout. When running a PyInstaller onefile, files are unpacked to a runtime temp folder (`sys._MEIPASS`) — use that to locate packaged assets from code if needed.
+- Audio/backends: If audio fails on a target machine, ensure platform audio libraries are installed and `pygame` was compiled against them. On Linux, check SDL/ALSA/OSS packages; on macOS ensure system audio frameworks are available.
+- Large startup time (one-file): The one-file option unpacks to a temp directory at start — prefer one-folder for faster startup.
+
+Quick verification checklist (after a build)
+- Inspect `dist/` for `Fleet-Command.app` (macOS) or `dist/Fleet-Command/` (one-folder) or the single binary (one-file).
+- Run the built app locally:
+  - macOS (open the app): `open dist/Fleet-Command.app`
+  - macOS/Linux (one-folder / binary): `./dist/Fleet-Command/Fleet-Command` or `./dist/Fleet-Command` depending on build
+  - Windows: run the `.exe` from Explorer or CMD
+- Watch the stdout/stderr for traceback about missing modules or missing assets.
+- Verify images and sounds play correctly. If not, re-check `--add-data` entries and pygame/audio backend installation.
 
 Advanced: creating a DMG / installer
-- Use hdiutil or a packaging tool (create-dmg, electron-builder-like tools) to wrap `dist/Fleet-Command.app` into a `.dmg` for macOS.
+- On macOS use `hdiutil` or a tool like `create-dmg` to package `dist/Fleet-Command.app` into a `.dmg` for distribution.
+
+If you encounter a build/runtime issue, collect the PyInstaller build log and the runtime traceback and open an issue with those logs attached.
