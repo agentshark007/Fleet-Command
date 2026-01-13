@@ -71,6 +71,8 @@ class GameWindow(Window):
 
 
 def main():
+    log.reset("fleet-command.log", "DEBUG")
+
     log.info("Creating game window")
     window = GameWindow()
     log.info("Game window created")

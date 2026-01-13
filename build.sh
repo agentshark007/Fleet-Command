@@ -2,5 +2,5 @@
 
 pyinstaller Fleet-Command.spec
 
-rm-rf build/
+rm -rf build/
 rm -rf __pycache__/
