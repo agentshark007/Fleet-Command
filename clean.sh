@@ -1,8 +1,8 @@
 # Clean the code
 
-rm -rf dist/
 rm -rf build/
 rm -rf __pycache__/
+rm -rf fleet-command.log
 
 autopep8 --in-place --recursive .
 black .
