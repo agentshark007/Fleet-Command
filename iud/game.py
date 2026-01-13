@@ -1,14 +1,14 @@
 import sys
 
-import log
+from libraries import log
 from core.camera import Camera
 from core.enums import ExtendDirection
 from core.utility import distance, pseudo_random_offset
-from game.explosion import Explosion
-from game.projectile import *
-from game.team import *
-from game.unit import *
-from pgiud import *
+from core.explosion import Explosion
+from core.projectile import *
+from core.team import *
+from core.unit import *
+from libraries.pgiud import *
 
 
 def initialize(self):

@@ -1,4 +1,4 @@
-from pgiud import Image
+from libraries.pgiud import Image
 
 
 class Explosion:
