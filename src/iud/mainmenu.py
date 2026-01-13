@@ -1,7 +1,7 @@
-from core.enums import ExtendDirection, GameState
-from core.utility import mouse_in_area
-from libraries import log
-from libraries.pgiud import *
+from src import log
+from src.core.enums import ExtendDirection, GameState
+from src.core.utility import mouse_in_area
+from src.pgiud import *
 
 
 def initialize(self) -> None:
