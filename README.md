@@ -67,7 +67,7 @@ Get running quickly (recommended shell: zsh):
 - When a feature is complete and there are no major bugs, merge `development` into `feature`.
 - When `feature` is stable and ready for release, merge `feature` into `release`.
 
-**Note**: Before creating a commit, run `format.py` to format the code using `autopep8`, `ruff`, and `black`.
+**Note**: Before creating a commit, run `format.sh` to prepare the codebase for a commit.
 
 ---
 
@@ -95,7 +95,7 @@ External contributors must use pull requests.
 ### Rules
 
 * Do **not** commit directly to `release`, `feature`, or `development`.
-* Run `format.py` before committing.
+* Run `format.sh` before committing.
 * Keep pull requests focused on a single change or feature.
 * Clearly describe what your pull request changes and why.
 
@@ -120,127 +120,92 @@ External contributors must use pull requests.
 
 ---
 
-## Build & Packaging
+## Shell Scripts
 
-This project includes helper scripts at the project root to simplify building, cleaning, and running during development:
+This project includes a few convenience shell scripts in the repository root to help with setup, formatting, and building a packaged executable. They are small wrappers around common developer tasks — read the comments inside each script before running them.
 
-- `build.sh` — creates/refreshes a virtualenv, installs runtime and build deps, and runs PyInstaller using `Fleet-Command.spec` (it also removes previous `dist/`, `build/`, and `.venv/` before building).
-- `clean.sh` — removes build artifacts and runs formatters (`autopep8`, `ruff`, `black`) to tidy the codebase.
-- `run.sh` — runs the game locally with `python main.py` using the active Python interpreter.
+Important: many of these scripts modify or remove files (for example the install script deletes `.venv/`); run them only when you understand the effect or run them from a disposable environment.
 
-Prefer these scripts for local development and building. Example (macOS / Linux / zsh):
+- `install.sh` — Installs project dependencies and development tools.
+- `format.sh` — Cleans a few build artifacts and formats the codebase.
+- `build.sh` — Builds a distributable using PyInstaller and the included spec file (`Fleet-Command.spec`).
+
+Usage notes and examples (recommended shell: zsh):
+
+1. install.sh
+
+- What it does:
+  - Removes any existing `.venv/` directory (uses `rm -rf .venv/`).
+  - Creates a new virtual environment at `.venv/` and attempts to activate it.
+  - Upgrades `pip`, installs `requirements.txt`, and installs development tools used by the project (`autopep8`, `isort`, `black`, `pyinstaller`).
+
+- Recommended way to run:
+  - Because the script calls `source .venv/bin/activate` to activate the virtualenv, run it with `source` so the resulting environment remains active in your shell:
 
 ```bash
-# Make sure the scripts are executable once (only needed once):
-chmod +x build.sh clean.sh run.sh
+source install.sh
+```
 
-# Build the app (creates dist/):
+- If you prefer not to source a script, run the commands manually or run `./install.sh` (or `sh install.sh`) but note the activation will only apply inside the subshell that ran the script.
+
+2. format.sh
+
+- What it does:
+  - Deletes common build artifacts (`build/`, `dist/`), `__pycache__/` directories, and the log file `fleet-command.log`.
+  - Runs formatting tools against the codebase: `autopep8`, `isort`, and `black`.
+
+- Usage:
+
+```bash
+./format.sh
+```
+
+- Notes:
+  - Ensure `autopep8`, `isort`, and `black` are available in your PATH (they are installed by `install.sh`).
+  - This script is intended to be run before creating commits.
+
+3. build.sh
+
+- What it does:
+  - Invokes `pyinstaller` with the repository's spec file (`pyinstaller Fleet-Command.spec`).
+  - Produces `build/` and `dist/` directories containing the packaged application.
+
+- Usage:
+
+```bash
 ./build.sh
-
-# Run the game locally (during development):
-./run.sh
-
-# Clean and format the repo:
-./clean.sh
 ```
 
-What `build.sh` does (summary)
-- Deletes old `dist/`, `build/`, `__pycache__/`, and `.venv/` directories
-- Creates and activates a fresh virtualenv (`.venv`)
-- Upgrades pip and installs `requirements.txt` and `pyinstaller`
-- Runs `pyinstaller Fleet-Command.spec` to produce `dist/`
+- Notes:
+  - You must have `pyinstaller` installed (installable via `pip install pyinstaller` or by running `install.sh`).
+  - Building a standalone executable is platform-specific; the produced binary will target the platform you run `pyinstaller` on.
 
-Notes & manual alternatives
-- The scripts are written for macOS/Linux shells. On Windows use WSL or adapt commands for PowerShell / CMD if necessary.
-- If you prefer to run steps manually or need custom options, the README still documents PyInstaller examples (one-folder and one-file builds) and the `--add-data` syntax differences between platforms.
-
-Troubleshooting and customization
-- If `build.sh` fails because of missing native toolchains (e.g., Visual C++ on Windows or Xcode CLT on macOS), install the platform-specific build tools and re-run the script.
-- To add extra `--add-data` entries or `--hidden-import` options, either edit `Fleet-Command.spec` or run PyInstaller manually instead of `build.sh`.
-
-The rest of the PyInstaller examples, code signing/notarization notes, troubleshooting tips, and verification checklist remain below for reference.
-
-macOS / Linux — one-folder (creates `dist/Fleet-Command/`):
+Quick checklist for a typical developer setup:
 
 ```bash
-pyinstaller --name "Fleet-Command" \
-  --add-data "assets:assets" \
-  --icon icon.png \
-  --windowed main.py
+# from project root (recommended)
+source install.sh   # create and activate venv + install deps
+./format.sh         # clean and format code
+python main.py      # run the game
 ```
 
-macOS / Linux — one-file (single binary):
+Advanced / troubleshooting
+
+- If formatting tools are missing, install them inside the venv:
 
 ```bash
-pyinstaller --onefile --name "Fleet-Command" \
-  --add-data "assets:assets" \
-  --icon icon.png \
-  --windowed main.py
+pip install autopep8 isort black
 ```
 
-Windows (cmd) — one-folder:
-
-```cmd
-pyinstaller --name "Fleet-Command" --add-data "assets;assets" --icon icon.png --windowed main.py
-```
-
-If you have multiple asset directories (images, fonts, sounds) you can repeat `--add-data` multiple times, e.g.:
+- If you want to build a distributable for testing, ensure the venv's Python matches the target runtime and run:
 
 ```bash
---add-data "assets/images:assets/images" --add-data "assets/fonts:assets/fonts" --add-data "assets/sounds:assets/sounds"
+./build.sh
+ls -la dist/
 ```
 
-Helpful PyInstaller flags
-- `--clean`: remove temporary build files before building
-- `--distpath <path>` / `--workpath <path>`: control output directories for reproducible builds
-- `--hidden-import modulename`: include modules PyInstaller misses
+---
 
-4) macOS: code signing & notarization (optional but required for distribution)
-
-To distribute a macOS `.app` outside a dev machine you typically need to sign and notarize it.
-
-Example signing (replace the identity):
-
-```bash
-codesign --deep --force --verify --verbose --sign "Developer ID Application: Your Name (TEAMID)" "dist/Fleet-Command.app"
-```
-
-Notarize the app (classic `altool` example):
-
-```bash
-# zip or create an archive of the .app first
-ditto -c -k --sequesterRsrc --keepParent "dist/Fleet-Command.app" "Fleet-Command.zip"
-xcrun altool --notarize-app --primary-bundle-id "com.yourdomain.fleetcommand" --username "APPLEID" --password "@keychain:AC_PASSWORD" --file "Fleet-Command.zip"
-```
-
-Modern alternative — `notarytool` (recommended by Apple):
-
-```bash
-xcrun notarytool submit "Fleet-Command.zip" --keychain-profile "AC_PASSWORD_PROFILE" --wait
-xcrun stapler staple "dist/Fleet-Command.app"
-```
-
-Notes on signing/notarization
-- You need an Apple Developer account and a signing identity for `codesign`.
-- Notarization may require network upload and can take several minutes.
-- Test the signed/notarized app on a clean macOS machine where Gatekeeper is active.
-
-Troubleshooting
-- Missing modules at runtime: Re-run PyInstaller with `--hidden-import modulename` or add the missing imports to `Fleet-Command.spec` hooks. Inspect the runtime traceback to identify the missing module name.
-- Assets not found at runtime: Confirm the `--add-data` source paths are correct and match your project layout. When running a PyInstaller onefile, files are unpacked to a runtime temp folder (`sys._MEIPASS`) — use that to locate packaged assets from code if needed.
-- Audio/backends: If audio fails on a target machine, ensure platform audio libraries are installed and `pygame` was compiled against them. On Linux, check SDL/ALSA/OSS packages; on macOS ensure system audio frameworks are available.
-- Large startup time (one-file): The one-file option unpacks to a temp directory at start — prefer one-folder for faster startup.
-
-Quick verification checklist (after a build)
-- Inspect `dist/` for `Fleet-Command.app` (macOS) or `dist/Fleet-Command/` (one-folder) or the single binary (one-file).
-- Run the built app locally:
-  - macOS (open the app): `open dist/Fleet-Command.app`
-  - macOS/Linux (one-folder / binary): `./dist/Fleet-Command/Fleet-Command` or `./dist/Fleet-Command` depending on build
-  - Windows: run the `.exe` from Explorer or CMD
-- Watch the stdout/stderr for traceback about missing modules or missing assets.
-- Verify images and sounds play correctly. If not, re-check `--add-data` entries and pygame/audio backend installation.
-
-Advanced: creating a DMG / installer
-- On macOS use `hdiutil` or a tool like `create-dmg` to package `dist/Fleet-Command.app` into a `.dmg` for distribution.
-
-If you encounter a build/runtime issue, collect the PyInstaller build log and the runtime traceback and open an issue with those logs attached.
+If you want, I can also:
+- Add a small `Makefile` wrapper that exposes these scripts as `make setup`, `make fmt`, and `make build`.
+- Update `format.sh` to include `ruff` (the README originally mentioned `ruff`) and/or add a `format.py` wrapper if you prefer a Python-based formatter script.

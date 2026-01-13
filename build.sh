@@ -1,6 +1,3 @@
-# Build the code
+# Build the code using PyInstaller
 
 pyinstaller Fleet-Command.spec
-
-rm -rf build/
-rm -rf __pycache__/

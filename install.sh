@@ -1,13 +1,5 @@
 # Install dependencies and set up virtual environment for the game
 
-# Delete build folders
-rm -rf dist/
-rm -rf build/
-
-# Delete cache and log files
-rm -rf __pycache__/
-rm -rf fleet-command.log
-
 # Delete virtual environment
 rm -rf .venv/
 
