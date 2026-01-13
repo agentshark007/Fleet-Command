@@ -1,5 +1,2 @@
 pygame>=2.1
-autopep8
-ruff
-black
 Pillow>=12.0
