@@ -1,7 +1,7 @@
+import log
 from core.enums import ExtendDirection, GameState
 from iud import core, game, mainmenu, newgame, paused, settings
 from pgiud import *
-import log
 
 
 class GameWindow(Window):

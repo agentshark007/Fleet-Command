@@ -693,7 +693,8 @@ class Window:
             height = max_y - min_y
 
             if width <= 0 or height <= 0:
-                # Fallback: draw directly (alpha will be ignored), but avoid crash
+                # Fallback: draw directly (alpha will be ignored), but avoid
+                # crash
                 try:
                     pygame.draw.polygon(self._screen, color.rgb_tuple(), pg_points)
                 except Exception:
@@ -783,7 +784,8 @@ class Window:
         px -= surf.get_width() // 2
         py -= surf.get_height() // 2
 
-        # Custom anchor (ox: -1 left, 0 center, 1 right; oy inverted to match screen space)
+        # Custom anchor (ox: -1 left, 0 center, 1 right; oy inverted to match
+        # screen space)
         px -= ox * surf.get_width() // 2
         py -= oy * surf.get_height() // 2
 
@@ -800,7 +802,8 @@ class Window:
     ):
         """Draw text at (x, y) in IUD coordinates. `origin` specifies the text anchor."""
         surf = font.font.render(text, True, color.rgb_tuple())
-        # Ensure the surface supports per-pixel alpha so per-surface alpha works
+        # Ensure the surface supports per-pixel alpha so per-surface alpha
+        # works
         try:
             surf = surf.convert_alpha()
         except Exception:
@@ -825,7 +828,8 @@ class Window:
         py -= oy * surf.get_height() // 2
 
         # Alpha
-        # If color has alpha (<255), set surface alpha (per-surface) so blit respects it.
+        # If color has alpha (<255), set surface alpha (per-surface) so blit
+        # respects it.
         if color.a != 255:
             try:
                 surf.set_alpha(color.a)

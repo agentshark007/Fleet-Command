@@ -17,5 +17,6 @@ class Explosion:
         ]
 
     def image(self):
-        # The images list already contains Image instances — return the current one
+        # The images list already contains Image instances — return the current
+        # one
         return self.images[self.current_frame]

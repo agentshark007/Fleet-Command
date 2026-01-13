@@ -1,3 +1,6 @@
+import sys
+
+import log
 from core.camera import Camera
 from core.enums import ExtendDirection
 from core.utility import distance, pseudo_random_offset
@@ -6,8 +9,6 @@ from game.projectile import *
 from game.team import *
 from game.unit import *
 from pgiud import *
-import sys
-import log
 
 
 def initialize(self):
@@ -75,7 +76,8 @@ def initialize_game_logic(self):
     team_count = 4
     self.teams = random_teams(team_count)
 
-    # Create initial battleships for each team with random positions and directions (degrees)
+    # Create initial battleships for each team with random positions and
+    # directions (degrees)
     self.units = {}
     for i in range(20):
         unit = Battleship(
@@ -166,16 +168,21 @@ def handle_unit_selection(self):
                     if closest_unit_index_selectable not in self.selected_units_ids:
                         self.selected_units_ids.append(closest_unit_index_selectable)
                         log.info(
-                            f"selection_added unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}"
+                            f"selection_added unit_id={closest_unit_index_selectable} selected_units={
+                                self.selected_units_ids}"
                         )
                     else:
                         self.selected_units_ids.remove(closest_unit_index_selectable)
                         log.info(
-                            f"selection_removed unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}"
+                            f"selection_removed unit_id={closest_unit_index_selectable} selected_units={
+                                self.selected_units_ids}"
                         )
                 else:
                     self.selected_units_ids = [closest_unit_index_selectable]
-                    log.info(f"selection_set selected_units={self.selected_units_ids}")
+                    log.info(
+                        f"selection_set selected_units={
+                            self.selected_units_ids}"
+                    )
             else:
                 log.warn(
                     f"selection_non_player unit_id={closest_unit_index_selectable}"
@@ -220,13 +227,23 @@ def handle_unit_control(self):
                 unit.autonomous_target_x = mouse_world_x
                 unit.autonomous_target_y = mouse_world_y
                 log.info(
-                    f"autonomous_target_set unit_id={getattr(unit, 'unit_id', unit_id)} target=({unit.autonomous_target_x:.1f},{unit.autonomous_target_y:.1f})"
+                    f"autonomous_target_set unit_id={
+                        getattr(
+                            unit,
+                            'unit_id',
+                            unit_id)} target=({
+                        unit.autonomous_target_x: .1f}, {
+                        unit.autonomous_target_y: .1f})"
                 )
             # Manual key input overrides autonomous movement
             if manual_override():
                 if getattr(unit, "autonomous", False):
                     log.info(
-                        f"manual_override unit_id={getattr(unit, 'unit_id', unit_id)} autonomous_disabled=True"
+                        f"manual_override unit_id={
+                            getattr(
+                                unit,
+                                'unit_id',
+                                unit_id)} autonomous_disabled=True"
                     )
                 unit.autonomous = False
 
@@ -356,7 +373,11 @@ def handle_unit_shooting(self):
             pid = self.next_projectile_id
             self.projectiles[pid] = projectile
             log.info(
-                f"projectile_created id={pid} type=Missile shooter_team={unit.team_index} pos=({unit.position_x:.1f},{unit.position_y:.1f}) dir={direction:.1f}"
+                f"projectile_created id={pid} type=Missile shooter_team={
+                    unit.team_index} pos=({
+                    unit.position_x: .1f}, {
+                    unit.position_y: .1f}) dir={
+                    direction: .1f}"
             )
             self.next_projectile_id += 1
 
@@ -383,12 +404,17 @@ def detect_collisions(self):
                 unit.health -= projectile.damage
                 projectiles_to_remove.add(projectile_id)
                 log.info(
-                    f"hit projectile_id={projectile_id} target_unit={unit_id} damage={projectile.damage} unit_health_after={unit.health}"
+                    f"hit projectile_id={projectile_id} target_unit={unit_id} damage={
+                        projectile.damage} unit_health_after={
+                        unit.health}"
                 )
                 if unit.health <= 0:
                     units_to_remove.add(unit_id)
                     log.info(
-                        f"unit_destroyed unit_id={unit_id} team={unit.team_index} pos=({unit.position_x:.1f},{unit.position_y:.1f})"
+                        f"unit_destroyed unit_id={unit_id} team={
+                            unit.team_index} pos=({
+                            unit.position_x: .1f}, {
+                            unit.position_y: .1f})"
                     )
                     create_explosion(
                         self,
@@ -412,7 +438,15 @@ def detect_collisions(self):
                 units_to_remove.add(unit_id_a)
                 units_to_remove.add(unit_id_b)
                 log.info(
-                    f"unit_collision unit_a={unit_id_a} unit_b={unit_id_b} contact_pos=({(unit_a.position_x + unit_b.position_x) / 2:.1f},{(unit_a.position_y + unit_b.position_y) / 2:.1f})"
+                    f"unit_collision unit_a={unit_id_a} unit_b={unit_id_b} contact_pos=({
+                        (
+                            unit_a.position_x +
+                            unit_b.position_x) /
+                        2: .1f}, {
+                        (
+                            unit_a.position_y +
+                            unit_b.position_y) /
+                        2: .1f})"
                 )
                 create_explosion(
                     self,
@@ -439,7 +473,7 @@ def detect_collisions(self):
 def create_explosion(self, x, y):
     eid = self.next_explosion_id
     self.explosions[eid] = Explosion(x, y)
-    log.info(f"explosion_created id={eid} pos=({x:.1f},{y:.1f})")
+    log.info(f"explosion_created id={eid} pos=({x: .1f}, {y: .1f})")
     self.next_explosion_id += 1
 
 
@@ -472,11 +506,15 @@ def handle_camera_movement(self):
             )
             if self.camera.scale != old_scale:
                 log.info(
-                    f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}"
+                    f"camera_zoom old_scale={
+                        old_scale: .2f} new_scale={
+                        self.camera.scale: .2f}"
                 )
                 if self.camera.scale != attempted:
                     log.warn(
-                        f"camera_zoom_clamped attempted={attempted:.2f} clamped_to={self.camera.scale:.2f}"
+                        f"camera_zoom_clamped attempted={
+                            attempted: .2f} clamped_to={
+                            self.camera.scale: .2f}"
                     )
 
         # Zoom out when minus key pressed
@@ -491,11 +529,15 @@ def handle_camera_movement(self):
             )
             if self.camera.scale != old_scale:
                 log.info(
-                    f"camera_zoom old_scale={old_scale:.2f} new_scale={self.camera.scale:.2f}"
+                    f"camera_zoom old_scale={
+                        old_scale: .2f} new_scale={
+                        self.camera.scale: .2f}"
                 )
                 if self.camera.scale != attempted:
                     log.warn(
-                        f"camera_zoom_clamped attempted={attempted:.2f} clamped_to={self.camera.scale:.2f}"
+                        f"camera_zoom_clamped attempted={
+                            attempted: .2f} clamped_to={
+                            self.camera.scale: .2f}"
                     )
 
     # Accelerate camera based on arrow key input
@@ -511,7 +553,8 @@ def handle_camera_movement(self):
     if self.keydown(Key.DOWN):
         self.camera.velocity_y -= factor_y  # Move camera down
 
-    # Apply friction to camera velocity (smooth deceleration - frame-independent)
+    # Apply friction to camera velocity (smooth deceleration -
+    # frame-independent)
     friction_factor = pow(self.camera_move_friction, self.deltatime * 60)
     self.camera.velocity_x *= friction_factor
     self.camera.velocity_y *= friction_factor
@@ -693,7 +736,8 @@ def draw_explosions(self):
 
 
 def draw_water(self):  # TODO: Make water layers have higher fps
-    # Layer 0: Ocean base layer with slow circular motion (moves in a circular path)
+    # Layer 0: Ocean base layer with slow circular motion (moves in a circular
+    # path)
     rotation_speed_0 = 0.03
     rotation_radius_0 = 7.0
     offset_x_0 = math.sin(self.water_state * rotation_speed_0) * rotation_radius_0

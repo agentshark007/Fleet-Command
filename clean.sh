@@ -1,10 +1,8 @@
-# Clean the code
+# Removes build artifacts and formats Python code in the current directory and its subdirectories.
 
 rm -rf build/
 rm -rf __pycache__/
 rm -rf fleet-command.log
 
-autopep8 --in-place --recursive .
-black .
-
-rm -rf __pycache__/
+chmod +x format.sh
+./format.sh

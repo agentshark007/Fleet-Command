@@ -60,7 +60,7 @@ def _timestamp():
     t = time.time()
     lt = time.localtime(t)
     ms = int((t - int(t)) * 1000)
-    return time.strftime("%Y-%m-%d %H:%M:%S", lt) + f".{ms:03d}"
+    return time.strftime("%Y-%m-%d %H:%M:%S", lt) + f".{ms: 03d}"
 
 
 def _log(level: str, message: str, color: str = None):
@@ -71,7 +71,7 @@ def _log(level: str, message: str, color: str = None):
         return
 
     ts = _timestamp()
-    line = f"{ts} [{level:<5}] {message}"
+    line = f"{ts} [{level: <5}] {message}"
 
     # Write to file (plain text)
     with open(_log_file, "a") as f:

@@ -1,6 +1,6 @@
-from pgiud import *
-import log
 import asset
+import log
+from pgiud import *
 
 
 def initialize(self) -> None:
@@ -84,12 +84,18 @@ def handle_gui_scaling(self) -> None:
         if self.keydown(Key.EQUALS) and not self.plus_last_frame:
             old_gui_scale = self.gui_scale
             self.gui_scale *= self.gui_scale_factor
-            log.info(f"GUI scale increased: old={old_gui_scale}, new={self.gui_scale}")
+            log.info(
+                f"GUI scale increased: old={old_gui_scale}, new={
+                    self.gui_scale}"
+            )
         # Scale down on minus key (only trigger once per key press)
         elif self.keydown(Key.MINUS) and not self.minus_last_frame:
             old_gui_scale = self.gui_scale
             self.gui_scale /= self.gui_scale_factor
-            log.info(f"GUI scale decreased: old={old_gui_scale}, new={self.gui_scale}")
+            log.info(
+                f"GUI scale decreased: old={old_gui_scale}, new={
+                    self.gui_scale}"
+            )
 
     # Clamp GUI scale to valid range
     self.gui_scale = max(self.gui_scale_min, min(self.gui_scale, self.gui_scale_max))
