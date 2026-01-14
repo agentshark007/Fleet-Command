@@ -1,4 +1,3 @@
-import math
 import random
 import sys
 
@@ -231,20 +230,31 @@ def handle_unit_control(self):
                     unit.autonomous_target_x = mouse_world_x
                     unit.autonomous_target_y = mouse_world_y
                     log.info(
-                        f"autonomous_target_set unit_id={getattr(unit, 'unit_id', unit_id)} "
-                        f"target=({unit.autonomous_target_x:.1f}, {unit.autonomous_target_y:.1f})"
+                        f"autonomous_target_set unit_id={
+                            getattr(
+                                unit,
+                                'unit_id',
+                                unit_id)} "
+                        f"target=({
+                            unit.autonomous_target_x:.1f}, {
+                            unit.autonomous_target_y:.1f})"
                     )
                 # Manual key input overrides autonomous movement
                 if manual_override():
                     if getattr(unit, "autonomous", False):
                         log.info(
-                            f"manual_override unit_id={getattr(unit, 'unit_id', unit_id)} autonomous_disabled=True"
+                            f"manual_override unit_id={
+                                getattr(
+                                    unit,
+                                    'unit_id',
+                                    unit_id)} autonomous_disabled=True"
                         )
                     unit.autonomous = False
                 # Manual WASD control: translate key presses into acceleration
                 # and rotational acceleration for selected player units.
                 # W/S -> forward/backward acceleration, A/D -> rotate left/right.
-                # These values match autonomous magnitudes so behavior is similar.
+                # These values match autonomous magnitudes so behavior is
+                # similar.
                 acc = 0
                 rot_acc = 0
                 if self.keydown(Key.W):
