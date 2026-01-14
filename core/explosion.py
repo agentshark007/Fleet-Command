@@ -1,5 +1,5 @@
-from libraries.pgiud import Image
 from libraries.asset import asset
+from libraries.pgiud import Image
 
 
 class Explosion:

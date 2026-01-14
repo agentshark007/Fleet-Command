@@ -1,13 +1,14 @@
 import random
 import sys
+
 import libraries.log as log
 from core.camera import Camera
 from core.enums import ExtendDirection
+from core.explosion import Explosion
+from core.team import TeamType, random_teams
+from core.unit import *
 from core.utility import distance, pseudo_random_offset
-from game.explosion import Explosion
-from game.unit import *
 from libraries.pgiud import *
-from game.team import random_teams, TeamType
 
 
 def initialize(self):

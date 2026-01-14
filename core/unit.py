@@ -1,5 +1,5 @@
-from libraries.pgiud import Image
 from libraries.asset import asset
+from libraries.pgiud import Image
 
 
 class Unit:
@@ -71,7 +71,7 @@ class Battleship(Unit):
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
         # Initialize with battleship-specific stats
         super().__init__(
-            Image(asset("images/battleship.png")),
+            Image(asset("images/units/battleship.png")),
             image_scale=0.1,
             health=600,  # High health
             speed=200,  # Fast movement speed
@@ -91,7 +91,7 @@ class Warship(Unit):
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
         # Initialize with warship-specific stats
         super().__init__(
-            Image(asset("images/warship.png")),
+            Image(asset("images/units/warship.png")),
             image_scale=0.1,
             health=400,  # Medium health
             speed=250,  # Moderate movement speed
