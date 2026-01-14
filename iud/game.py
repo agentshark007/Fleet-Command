@@ -1,3 +1,4 @@
+import math
 import random
 import sys
 
@@ -5,7 +6,7 @@ import libraries.log as log
 from core.camera import Camera
 from core.enums import ExtendDirection
 from core.explosion import Explosion
-from core.projectile import calculate_direction
+from core.projectile import *
 from core.team import TeamType, random_teams
 from core.unit import *
 from core.utility import distance, pseudo_random_offset
@@ -204,7 +205,6 @@ def handle_unit_selection(self):
 
 
 def handle_unit_control(self):
-    # Helper function to check if any manual control keys are held
     def manual_override():
         return any(
             [
@@ -215,50 +215,54 @@ def handle_unit_control(self):
             ]
         )
 
-    # Calculate average direction of selected units
-    avg_direction = 0.0
-    total_selected = len(self.selected_units_ids)
+    # Process input
     for unit_id, unit in self.units.items():
-        if unit_id in self.selected_units_ids:
-            avg_direction += unit.direction
-    if total_selected > 0:
-        avg_direction /= total_selected
-
-    # Process input and control for all units
-    for unit_id, unit in self.units.items():
-        # Handle input for selected unit only
-        if unit_id in self.selected_units_ids:
-            # Right-click sets autonomous target
-            if self.mousedownsecondary:
-                mouse_world_x, mouse_world_y = self.camera.deduce(
-                    self.mousex, self.mousey
-                )
-                unit.autonomous = True
-                unit.autonomous_target_x = mouse_world_x
-                unit.autonomous_target_y = mouse_world_y
-                log.info(
-                    f"autonomous_target_set unit_id={
-                        getattr(
-                            unit,
-                            'unit_id',
-                            unit_id)} target=({
-                        unit.autonomous_target_x: .1f}, {
-                        unit.autonomous_target_y: .1f})"
-                )
-            # Manual key input overrides autonomous movement
-            if manual_override():
-                if getattr(unit, "autonomous", False):
+        # Handle control
+        team = self.teams[unit.team_index]
+        if team.type == TeamType.PLAYER:
+            # Handle player control
+            if unit_id in self.selected_units_ids:
+                # Right-click sets autonomous target
+                if self.mousedownsecondary:
+                    mouse_world_x, mouse_world_y = self.camera.deduce(
+                        self.mousex, self.mousey
+                    )
+                    unit.autonomous = True
+                    unit.autonomous_target_x = mouse_world_x
+                    unit.autonomous_target_y = mouse_world_y
                     log.info(
-                        f"manual_override unit_id={
+                        f"autonomous_target_set unit_id={
                             getattr(
                                 unit,
                                 'unit_id',
-                                unit_id)} autonomous_disabled=True"
+                                unit_id)} target=({
+                            unit.autonomous_target_x: .1f}, {
+                            unit.autonomous_target_y: .1f})"
                     )
-                unit.autonomous = False
+                # Manual key input overrides autonomous movement
+                if manual_override():
+                    if getattr(unit, "autonomous", False):
+                        log.info(
+                            f"manual_override unit_id={
+                                getattr(
+                                    unit,
+                                    'unit_id',
+                                    unit_id)} autonomous_disabled=True"
+                        )
+                    unit.autonomous = False
 
-        # Autonomous movement for units with autonomous=True
-        if unit.autonomous:
+        elif team.type == TeamType.AI:
+            # Handle AI control
+            pass
+
+        else:
+            log.warn(
+                f"unknown_team_type unit_id={unit_id} team_index={
+                    unit.team_index}"
+            )
+
+        # Handle autonomous
+        if getattr(unit, "autonomous", False):
             # Calculate direction and distance to target
             target_x, target_y = (
                 unit.autonomous_target_x,
@@ -282,71 +286,27 @@ def handle_unit_control(self):
             # Decide movement direction based on angle
             if abs(angle_diff) < self.autonomous_forward_backward_angle_threshold:
                 # Face target and move forward
-                direction = max(
+                rotation_change = max(
                     -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
                 )
                 acceleration = unit.speed
             else:
                 # Move backward while turning (faster evasion)
-                direction = max(
+                rotation_change = max(
                     -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
                 )
                 acceleration = -unit.speed
 
             # Clamp accelerations to valid ranges
-            acceleration = min(acceleration, unit.speed)
-            direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
+            acceleration = max(-unit.speed, min(unit.speed, acceleration))
+            rotation_change = max(
+                -unit.rotation_speed, min(unit.rotation_speed, rotation_change)
+            )
             unit.acceleration = acceleration
-            unit.rotation_acceleration = direction
+            unit.rotation_acceleration = rotation_change
 
-        elif unit_id in self.selected_units_ids:
-            # Manual control for selected unit (only if not autonomous)
-            acceleration = 0
-            direction = 0
-
-            # Process movement input
-            if self.keydown(Key.W):
-                acceleration += unit.speed  # Move forward
-            if self.keydown(Key.S):
-                acceleration -= unit.speed  # Move backward
-            # Only allow turning when moving (to prevent spinning in place)
-            if self.keydown(Key.A) and acceleration != 0:
-                direction -= unit.rotation_speed  # Turn left
-            if self.keydown(Key.D) and acceleration != 0:
-                direction += unit.rotation_speed  # Turn right
-
-            if len(self.selected_units_ids) > 1:
-                if self.keydown(Key.TAB):
-                    # Ship alignment method is similar to autonomous movement
-
-                    # Align to average direction of selected units
-                    angle_diff = (avg_direction - unit.direction + 360) % 360
-                    if angle_diff > 180:
-                        angle_diff -= 360
-                    direction = max(
-                        -unit.rotation_speed,
-                        min(unit.rotation_speed, angle_diff),
-                    )
-
-                    # Move forward while aligning
-                    acceleration = unit.speed
-
-            # Clamp accelerations to valid ranges
-            acceleration = min(acceleration, unit.speed)
-            direction = max(-unit.rotation_speed, min(unit.rotation_speed, direction))
-            unit.acceleration = acceleration
-            unit.rotation_acceleration = direction
-
-        elif self.teams[unit.team_index].type == TeamType.PLAYER:
-            # Non-selected player units: idle (no input)
-            pass
-        elif self.teams[unit.team_index].type == TeamType.AI:
-            # AI-controlled units: placeholder for future AI logic
-            pass
-
-    # Run physics and movement for all units
-
-    for unit in self.units.values():
+    # Process movement
+    for unit_id, unit in self.units.items():
         angle_rad = math.radians(unit.direction)
         unit.velocity_x += math.sin(angle_rad) * unit.acceleration * self.deltatime
         unit.velocity_y += math.cos(angle_rad) * unit.acceleration * self.deltatime
@@ -367,13 +327,34 @@ def handle_unit_control(self):
 
 
 def handle_unit_shooting(self):
-    for unit_id in self.selected_units_ids:
+    for unit_id, unit in self.units.items():
+        team = self.teams[unit.team_index]
+        if team.type == TeamType.PLAYER:
+            if unit_id in self.selected_units_ids:
+                # Shooting is handled in the shooting input section below
+                pass
+
+        elif team.type == TeamType.AI:
+            # AI shooting logic would go here (e.g. shoot at nearest enemy
+            # within range)
+            pass
+
+        else:
+            log.warn(
+                f"unknown_team_type unit_id={unit_id} team_index={
+                    unit.team_index}"
+            )
+
+    for unit_id in list(self.selected_units_ids):
+        # Ensure selected unit still exists
+        if unit_id not in self.units:
+            continue
         unit = self.units[unit_id]
         if self.keydown(Key.SPACE) and not self.space_last_frame:
             mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
             direction = calculate_direction(
                 unit.position_x, unit.position_y, mouse_world_x, mouse_world_y
-            )  # degrees
+            )  # degrees (standard projectile convention)
             projectile = Missile(
                 x=unit.position_x,
                 y=unit.position_y,
