@@ -49,10 +49,10 @@ def load_assets(self) -> None:
         asset.asset("images/target.png")
     )  # Autonomous movement target
     self.projectile_images = [
-        Image(asset.asset("images/projectile_0.png")),
+        Image(asset.asset("images/projectile/projectile_0.png")),
         # Projectile images
-        Image(asset.asset("images/projectile_1.png")),
-        Image(asset.asset("images/projectile_2.png")),
+        Image(asset.asset("images/projectile/projectile_1.png")),
+        Image(asset.asset("images/projectile/projectile_2.png")),
     ]
     log.info("Loading assets complete")
 

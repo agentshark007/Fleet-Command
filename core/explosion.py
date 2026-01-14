@@ -13,7 +13,7 @@ class Explosion:
         # Load images using the asset helper so paths are resolved relative to
         # src/
         self.images = [
-            Image(asset(f"images/explosion_{i}.png")) for i in range(self.frames)
+            Image(asset(f"images/explosion/explosion_{i}.png")) for i in range(self.frames)
         ]
 
     def image(self):
