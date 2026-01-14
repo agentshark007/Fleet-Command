@@ -14,7 +14,4 @@ python -m pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 
 # Install development tools
-pip install autopep8
-pip install isort
-pip install black
-pip install pyinstaller
+pip install -r dev-requirements.txt

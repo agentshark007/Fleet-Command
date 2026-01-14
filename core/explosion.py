@@ -1,4 +1,4 @@
-from libraries.asset import asset
+from core.asset import asset
 from libraries.pgiud import Image
 
 

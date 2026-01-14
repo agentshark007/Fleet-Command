@@ -5,6 +5,7 @@ import libraries.log as log
 from core.camera import Camera
 from core.enums import ExtendDirection
 from core.explosion import Explosion
+from core.projectile import calculate_direction
 from core.team import TeamType, random_teams
 from core.unit import *
 from core.utility import distance, pseudo_random_offset

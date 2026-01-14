@@ -1,7 +1,7 @@
 import libraries.log as log
 from core.enums import ExtendDirection, GameState
 from core.utility import mouse_in_area
-from libraries.asset import asset
+from core.asset import asset
 from libraries.pgiud import *
 
 

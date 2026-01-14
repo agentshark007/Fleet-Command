@@ -1,0 +1,4 @@
+autopepe8
+isort
+black
+pyinstaller

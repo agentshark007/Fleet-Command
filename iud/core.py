@@ -1,4 +1,4 @@
-import libraries.asset as asset
+import core.asset as asset
 import libraries.log as log
 from libraries.pgiud import *
 
