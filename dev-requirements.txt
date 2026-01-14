@@ -1,4 +1,4 @@
-autopepe8
+autopep8
 isort
 black
 pyinstaller
