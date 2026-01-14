@@ -351,12 +351,30 @@ def handle_unit_shooting(self):
         team = self.teams[unit.team_index]
         if team.type == TeamType.PLAYER:
             if unit_id in self.selected_units_ids:
-                # Shooting is handled in the shooting input section below
-                pass
+                if self.keydown(Key.SPACE) and not self.space_last_frame:
+                    mouse_world_pos = self.camera.deduce(self.mousex, self.mousey)
+                    direction = calculate_direction(
+                        unit.position_x, unit.position_y, *mouse_world_pos
+                    )
+                    projectile = Missile(
+                        x=unit.position_x,
+                        y=unit.position_y,
+                        direction=direction,
+                        shooter_id=unit.team_index,
+                    )
+                    pid = self.next_projectile_id
+                    self.projectiles[pid] = projectile
+                    log.info(
+                        f"projectile_created id={pid} type=Missile shooter_team={
+                            unit.team_index} pos=({
+                            unit.position_x: .1f}, {
+                            unit.position_y: .1f}) dir={
+                            direction: .1f}"
+                    )
+                    self.next_projectile_id += 1
 
         elif team.type == TeamType.AI:
-            # AI shooting logic would go here (e.g. shoot at nearest enemy
-            # within range)
+            # Handle AI shooting
             pass
 
         else:
@@ -364,33 +382,6 @@ def handle_unit_shooting(self):
                 f"unknown_team_type unit_id={unit_id} team_index={
                     unit.team_index}"
             )
-
-    for unit_id in list(self.selected_units_ids):
-        # Ensure selected unit still exists
-        if unit_id not in self.units:
-            continue
-        unit = self.units[unit_id]
-        if self.keydown(Key.SPACE) and not self.space_last_frame:
-            mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
-            direction = calculate_direction(
-                unit.position_x, unit.position_y, mouse_world_x, mouse_world_y
-            )  # degrees (standard projectile convention)
-            projectile = Missile(
-                x=unit.position_x,
-                y=unit.position_y,
-                direction=direction,  # degrees
-                shooter_id=unit.team_index,
-            )
-            pid = self.next_projectile_id
-            self.projectiles[pid] = projectile
-            log.info(
-                f"projectile_created id={pid} type=Missile shooter_team={
-                    unit.team_index} pos=({
-                    unit.position_x: .1f}, {
-                    unit.position_y: .1f}) dir={
-                    direction: .1f}"
-            )
-            self.next_projectile_id += 1
 
 
 def update_projectiles(self):
