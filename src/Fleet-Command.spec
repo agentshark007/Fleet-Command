@@ -39,7 +39,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='assets/icon.png',
+    icon='assets/images/icon.png',
     version='1.0.0',
     copyright='Copyright (c) 2026 Fleet Command Team',
 )
@@ -47,7 +47,7 @@ exe = EXE(
 app = BUNDLE(
     exe,
     name='Fleet-Command.app',
-    icon='assets/icon.png',
+    icon='assets/images/icon.png',
     bundle_identifier='com.fleetcommand.app',
     info_plist={
         'NSHighResolutionCapable': 'True',
