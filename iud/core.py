@@ -1,5 +1,6 @@
-from src import asset, log
-from src.pgiud import *
+from libraries.pgiud import *
+import libraries.log as log
+import libraries.asset as asset
 
 
 def initialize(self) -> None:

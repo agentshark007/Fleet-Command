@@ -1,7 +1,7 @@
 import random
 from enum import Enum
 
-from src.pgiud import Color
+from libraries.pgiud import Color
 
 
 class TeamType(Enum):

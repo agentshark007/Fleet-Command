@@ -1,4 +1,5 @@
-from src.pgiud import Image
+from libraries.pgiud import Image
+from libraries.asset import asset
 
 
 class Explosion:
@@ -8,12 +9,11 @@ class Explosion:
         self.duration = 30
         self.frames = 10
         self.current_frame = 0
-        self.image_prefix = "assets/images/explosion_"
-        self.image_suffix = ".png"
         self.scale = 1.0
+        # Load images using the asset helper so paths are resolved relative to
+        # src/
         self.images = [
-            Image(f"{self.image_prefix}{i}{self.image_suffix}")
-            for i in range(self.frames)
+            Image(asset(f"images/explosion_{i}.png")) for i in range(self.frames)
         ]
 
     def image(self):

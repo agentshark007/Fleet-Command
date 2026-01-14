@@ -1,11 +1,13 @@
+import random
 import sys
-
-from src import log
-from src.core.camera import Camera
-from src.core.enums import ExtendDirection
-from src.core.utility import distance, pseudo_random_offset
-from src.game.explosion import Explosion
-from src.pgiud import *
+import libraries.log as log
+from core.camera import Camera
+from core.enums import ExtendDirection
+from core.utility import distance, pseudo_random_offset
+from game.explosion import Explosion
+from game.unit import *
+from libraries.pgiud import *
+from game.team import random_teams, TeamType
 
 
 def initialize(self):
@@ -67,7 +69,7 @@ def initialize_state_variables(self):
 
 def initialize_game_logic(self):
     # Available unit types that can be created
-    self.unit_types = [Battleship]
+    self.unit_types = [Battleship, Warship]
 
     # Generate random teams for this game session
     team_count = 4
@@ -77,12 +79,21 @@ def initialize_game_logic(self):
     # directions (degrees)
     self.units = {}
     for i in range(20):
-        unit = Battleship(
-            team_index=random.randint(0, len(self.teams) - 1),
-            position_x=random.uniform(-1000, 1000),
-            position_y=random.uniform(-1000, 1000),
-            direction=random.uniform(0, 360),  # degrees
-        )
+        possible_units = [
+            Battleship(
+                team_index=random.randint(0, len(self.teams) - 1),
+                position_x=random.uniform(-1000, 1000),
+                position_y=random.uniform(-1000, 1000),
+                direction=random.uniform(0, 360),  # degrees
+            ),
+            Warship(
+                team_index=random.randint(0, len(self.teams) - 1),
+                position_x=random.uniform(-1000, 1000),
+                position_y=random.uniform(-1000, 1000),
+                direction=random.uniform(0, 360),  # degrees
+            ),
+        ]
+        unit = random.choice(possible_units)
         unit.unit_id = i
         self.units[i] = unit
 

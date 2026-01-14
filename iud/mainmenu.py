@@ -1,7 +1,8 @@
-from src import log
-from src.core.enums import ExtendDirection, GameState
-from src.core.utility import mouse_in_area
-from src.pgiud import *
+import libraries.log as log
+from core.enums import ExtendDirection, GameState
+from core.utility import mouse_in_area
+from libraries.pgiud import *
+from libraries.asset import asset
 
 
 def initialize(self) -> None:
@@ -22,7 +23,7 @@ def initialize(self) -> None:
     self.mainmenu_button_outline_color = Color(0, 0, 0)  # Black border
 
     # Music
-    self.music = Sound("assets/sounds/cinematic-powerful-battle-music-414692.mp3")
+    self.music = Sound(asset("sounds/cinematic-powerful-battle-music-414692.mp3"))
     self.music_started = False
     log.info("Main menu initialized")
 

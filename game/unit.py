@@ -1,4 +1,5 @@
-from src.pgiud import Image
+from libraries.pgiud import Image
+from libraries.asset import asset
 
 
 class Unit:
@@ -70,14 +71,34 @@ class Battleship(Unit):
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
         # Initialize with battleship-specific stats
         super().__init__(
-            Image("assets/images/battleship.png"),
+            Image(asset("images/battleship.png")),
             image_scale=0.1,
             health=600,  # High health
             speed=200,  # Fast movement speed
             rotation_speed=100,  # Rotation speed
             friction=0.97,  # Low friction (maintains momentum well)
             rotation_friction=0.9,  # Rotation friction
-            collision_radius=30,  # Larger collision radius
+            collision_radius=25,  # Medium collision radius
+        )
+        # Set initial position and team
+        self.team_index = team_index
+        self.position_x = position_x
+        self.position_y = position_y
+        self.direction = direction
+
+
+class Warship(Unit):
+    def __init__(self, team_index, position_x=0, position_y=0, direction=0):
+        # Initialize with warship-specific stats
+        super().__init__(
+            Image(asset("images/warship.png")),
+            image_scale=0.1,
+            health=400,  # Medium health
+            speed=250,  # Moderate movement speed
+            rotation_speed=150,  # Faster rotation speed
+            friction=0.95,  # Moderate friction
+            rotation_friction=0.85,  # Rotation friction
+            collision_radius=25,  # Medium collision radius
         )
         # Set initial position and team
         self.team_index = team_index
