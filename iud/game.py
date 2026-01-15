@@ -613,6 +613,8 @@ def handle_camera_movement(self):
                     )
 
     # Dragging
+    mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+
     closest_unit_index = -1
     closest_unit_index_selectable = -1
     closest_distance = float("inf")
@@ -633,8 +635,8 @@ def handle_camera_movement(self):
         if self.mousedownprimary:
             self.camera.velocity_x = 0
             self.camera.velocity_y = 0
-            self.camera.x += (self.mousex - self.mousex_last_frame) * self.camera.scale
-            self.camera.y += (self.mousey - self.mousey_last_frame) *  self.camera.scale
+            self.camera.x += (self.mousex_last_frame - self.mousex) / self.camera.scale
+            self.camera.y += (self.mousey_last_frame - self.mousey) / self.camera.scale
 
     # Accelerate camera based on arrow key input
     factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
