@@ -11,19 +11,12 @@ def calculate_direction(
 
 
 class Projectile:
-    def __init__(
-        self,
-        x: float,
-        y: float,
-        direction: float,
-        speed: float,
-        shooter_id: int,
-    ) -> None:
+    def __init__(self, x: float, y: float, direction: float, shooter_id: int, speed: float, damage: int, cooldown: float) -> None:
         self.x = x
         self.y = y
+        self.direction = direction  # degrees
         self.speed = speed
-        self.direction = direction  # angle in degrees
-        self.damage = 10
+        self.damage = damage
         self.shooter_id = shooter_id
 
     def update(self, deltatime: float) -> None:
@@ -34,5 +27,4 @@ class Projectile:
 
 class Missile(Projectile):
     def __init__(self, x: float, y: float, direction: float, shooter_id: int) -> None:
-        super().__init__(x, y, direction, speed=100, shooter_id=shooter_id)
-        self.damage = 20
+        super().__init__(x, y, direction, shooter_id=shooter_id, speed=100, damage=2, cooldown=0.5)

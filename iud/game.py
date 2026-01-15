@@ -51,6 +51,9 @@ def initialize_settings(self):
     # UI positioning
     self.selection_marker_offset = 20  # Pixels above unit for team marker
 
+    # Projectiles
+    self.projectile_limit = 1000
+
 
 def initialize_state_variables(self):
     # GUI scaling key state tracking
@@ -417,6 +420,15 @@ def handle_unit_shooting(self):
 
 
 def update_projectiles(self):
+    # Cap projectiles
+    if len(self.projectiles) > self.projectile_limit:
+        excess = len(self.projectiles) - self.projectile_limit
+        log.warn(f"too_many_projectiles limit={self.projectile_limit} actual={len(self.projectiles)}")
+        for _ in range(excess):
+            if self.projectiles:
+                del self.projectiles[list(self.projectiles.keys())[0]]
+
+    # Move projectiles
     for projectile in self.projectiles.values():
         projectile.update(self.deltatime)
 
