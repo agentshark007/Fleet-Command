@@ -430,7 +430,12 @@ def update_projectiles(self):
     # Cap projectiles
     if len(self.projectiles) > self.projectile_limit:
         excess = len(self.projectiles) - self.projectile_limit
-        log.warn(f"too_many_projectiles limit={self.projectile_limit} actual={len(self.projectiles)}")
+        log.warn(
+            f"too_many_projectiles limit={
+                self.projectile_limit} actual={
+                len(
+                    self.projectiles)}"
+        )
         for _ in range(excess):
             if self.projectiles:
                 del self.projectiles[list(self.projectiles.keys())[0]]
