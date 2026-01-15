@@ -612,6 +612,30 @@ def handle_camera_movement(self):
                             self.camera.scale: .2f}"
                     )
 
+    # Dragging
+    closest_unit_index = -1
+    closest_unit_index_selectable = -1
+    closest_distance = float("inf")
+    closest_distance_selectable = float("inf")
+
+    for unit_id, unit in self.units.items():
+        dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
+        # Track the closest unit overall
+        if dist < closest_distance:
+            closest_distance = dist
+            closest_unit_index = unit_id
+        # Track the closest unit within selection range
+        if dist < closest_distance_selectable and dist < self.selection_distance:
+            closest_distance_selectable = dist
+            closest_unit_index_selectable = unit_id
+
+    if closest_unit_index_selectable == -1:
+        if self.mousedownprimary:
+            self.camera.velocity_x = 0
+            self.camera.velocity_y = 0
+            self.camera.x += (self.mousex - self.mousex_last_frame) * self.camera.scale
+            self.camera.y += (self.mousey - self.mousey_last_frame) *  self.camera.scale
+
     # Accelerate camera based on arrow key input
     factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
     factor_y = self.camera_move_speed / self.camera.scale * self.deltatime
