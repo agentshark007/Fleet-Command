@@ -385,7 +385,12 @@ def handle_unit_shooting(self):
             # Shoot at random enemy ship
             target_unit = random.choice(possible_target_units)
 
-            direction = calculate_direction(unit.position_x, unit.position_y, target_unit[1].position_x, target_unit[1].position_y)
+            direction = calculate_direction(
+                unit.position_x,
+                unit.position_y,
+                target_unit[1].position_x,
+                target_unit[1].position_y,
+            )
 
             projectile = Missile(
                 x=unit.position_x,
@@ -397,10 +402,10 @@ def handle_unit_shooting(self):
             self.projectiles[pid] = projectile
             log.info(
                 f"projectile_created id={pid} type=Missile shooter_team={
-                unit.team_index} pos=({
-                unit.position_x: .1f}, {
-                unit.position_y: .1f}) dir={
-                direction: .1f}"
+                    unit.team_index} pos=({
+                    unit.position_x: .1f}, {
+                    unit.position_y: .1f}) dir={
+                    direction: .1f}"
             )
             self.next_projectile_id += 1
 
