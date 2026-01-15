@@ -66,6 +66,9 @@ class Unit:
         # Target position for autonomous movement (Y)
         self.autonomous_target_y = 0
 
+        # Projectiles
+        self.cooldown_timer = 0
+
 
 class Battleship(Unit):
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):

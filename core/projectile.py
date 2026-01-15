@@ -18,6 +18,7 @@ class Projectile:
         self.speed = speed
         self.damage = damage
         self.shooter_id = shooter_id
+        self.cooldown = cooldown
 
     def update(self, deltatime: float) -> None:
         rad = math.radians(self.direction)
