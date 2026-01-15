@@ -20,6 +20,7 @@ class Projectile:
         speed: float,
         damage: int,
         cooldown: float,
+        fuel: float,
     ) -> None:
         self.x = x
         self.y = y
@@ -28,15 +29,26 @@ class Projectile:
         self.damage = damage
         self.shooter_id = shooter_id
         self.cooldown = cooldown
+        self.fuel = fuel
 
     def update(self, deltatime: float) -> None:
         rad = math.radians(self.direction)
         self.x += math.cos(rad) * self.speed * deltatime
         self.y += math.sin(rad) * self.speed * deltatime
 
+    def update_fuel(self, deltatime: float) -> None:
+        self.fuel -= deltatime
+
 
 class Missile(Projectile):
     def __init__(self, x: float, y: float, direction: float, shooter_id: int) -> None:
         super().__init__(
-            x, y, direction, shooter_id=shooter_id, speed=100, damage=2, cooldown=0.5
+            x,
+            y,
+            direction,
+            shooter_id=shooter_id,
+            speed=100,
+            damage=2,
+            cooldown=0.5,
+            fuel=15,
         )

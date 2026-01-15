@@ -440,6 +440,20 @@ def update_projectiles(self):
             if self.projectiles:
                 del self.projectiles[list(self.projectiles.keys())[0]]
 
+    # Increment projectile fuel
+    for projectile in self.projectiles.values():
+        projectile.update_fuel(self.deltatime)
+
+    # Projectiles run out of fuel
+    to_delete = []
+    for projectile_id, projectile in self.projectiles.items():
+        if projectile.fuel <= 0:
+            to_delete.append(projectile_id)
+
+    # Delete dead projectiles
+    for delete in to_delete:
+        del self.projectiles[delete]
+
     # Move projectiles
     for projectile in self.projectiles.values():
         projectile.update(self.deltatime)
