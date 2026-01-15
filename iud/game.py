@@ -87,14 +87,14 @@ def initialize_game_logic(self):
         possible_units = [
             Battleship(
                 team_index=random.randint(0, len(self.teams) - 1),
-                position_x=random.uniform(-10000, 10000),
-                position_y=random.uniform(-10000, 10000),
+                position_x=random.uniform(-3000, 3000),
+                position_y=random.uniform(-3000, 3000),
                 direction=random.uniform(0, 360),  # degrees
             ),
             Warship(
                 team_index=random.randint(0, len(self.teams) - 1),
-                position_x=random.uniform(-10000, 10000),
-                position_y=random.uniform(-10000, 10000),
+                position_x=random.uniform(-3000, 3000),
+                position_y=random.uniform(-3000, 3000),
                 direction=random.uniform(0, 360),  # degrees
             ),
         ]
