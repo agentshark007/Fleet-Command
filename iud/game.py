@@ -1,3 +1,4 @@
+import math
 import random
 import sys
 
@@ -275,8 +276,7 @@ def handle_unit_control(self):
                     unit.rotation_acceleration = rot_acc
 
         elif team.type == TeamType.AI:
-            # TODO: Handle AI movement
-            pass
+            handle_ai_for_unit(self, unit_id, unit)
 
         else:
             log.warn(
@@ -424,6 +424,99 @@ def handle_unit_shooting(self):
 
         else:
             unit.cooldown_timer -= self.deltatime
+
+
+def handle_ai_for_unit(self, unit_id, unit):
+    # Initialize AI fields if missing
+    if not hasattr(unit, "ai_state"):
+        unit.ai_state = "WANDER"  # "WANDER", "CHASE", "EVADE"
+        unit.ai_state_timer = 0.0
+        unit.ai_wander_target_x = unit.position_x
+        unit.ai_wander_target_y = unit.position_y
+
+    # Utilities
+    def nearest_enemy():
+        best = (None, float("inf"))
+        for sid, s in self.units.items():
+            if s.team_index == unit.team_index:
+                continue
+            d = distance(unit.position_x, unit.position_y, s.position_x, s.position_y)
+            if d < best[1]:
+                best = (s, d)
+        return best  # (unit, dist)
+
+    # State update timers
+    unit.ai_state_timer -= self.deltatime
+    enemy, enemy_dist = nearest_enemy()
+
+    # State transitions
+    low_health_threshold = unit.max_health * 0.35
+    if unit.health <= low_health_threshold and enemy is not None:
+        unit.ai_state = "EVADE"
+        unit.ai_state_timer = max(
+            unit.ai_state_timer, 1.0
+        )  # keep evade for at least 1s
+    elif enemy is not None and enemy_dist < 800:  # engage range
+        unit.ai_state = "CHASE"
+    else:
+        unit.ai_state = "WANDER"
+
+    # Behavior implementations
+    if unit.ai_state == "WANDER":
+        # pick new random nearby waypoint occasionally
+        if unit.ai_state_timer <= 0:
+            radius = 600
+            unit.ai_wander_target_x = unit.position_x + random.uniform(-radius, radius)
+            unit.ai_wander_target_y = unit.position_y + random.uniform(-radius, radius)
+            unit.ai_state_timer = random.uniform(2.0, 5.0)
+        unit.autonomous = True
+        unit.autonomous_target_x = unit.ai_wander_target_x
+        unit.autonomous_target_y = unit.ai_wander_target_y
+
+    elif unit.ai_state == "CHASE":
+        if enemy is None:
+            unit.ai_state = "WANDER"
+        else:
+            # Optional simple lead: predict enemy position by its velocity
+            lead_seconds = min(1.0, enemy_dist / 600.0)
+            predict_x = (
+                enemy.position_x + getattr(enemy, "velocity_x", 0) * lead_seconds
+            )
+            predict_y = (
+                enemy.position_y + getattr(enemy, "velocity_y", 0) * lead_seconds
+            )
+            unit.autonomous = True
+            unit.autonomous_target_x = predict_x
+            unit.autonomous_target_y = predict_y
+
+            # If very close, sometimes back off (kiting)
+            if enemy_dist < 200 and random.random() < 0.3:
+                # move to a point opposite the enemy a bit
+                dx = unit.position_x - enemy.position_x
+                dy = unit.position_y - enemy.position_y
+                nd = math.hypot(dx, dy) or 1.0
+                unit.autonomous_target_x = unit.position_x + (dx / nd) * 300
+                unit.autonomous_target_y = unit.position_y + (dy / nd) * 300
+
+    elif unit.ai_state == "EVADE":
+        if enemy is None:
+            unit.ai_state = "WANDER"
+        else:
+            # Move away from nearest enemy
+            dx = unit.position_x - enemy.position_x
+            dy = unit.position_y - enemy.position_y
+            nd = math.hypot(dx, dy) or 1.0
+            flee_dist = 800
+            unit.autonomous = True
+            unit.autonomous_target_x = unit.position_x + (dx / nd) * flee_dist
+            unit.autonomous_target_y = unit.position_y + (dy / nd) * flee_dist
+            # keep evasive maneuvers for a short time
+            unit.ai_state_timer = max(unit.ai_state_timer, 1.0)
+
+    # Slight randomness in movement to avoid predictable paths
+    if getattr(unit, "autonomous", False) and random.random() < 0.02:
+        unit.autonomous_target_x += random.uniform(-20, 20)
+        unit.autonomous_target_y += random.uniform(-20, 20)
 
 
 def update_projectiles(self):
