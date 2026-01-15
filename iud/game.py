@@ -272,7 +272,7 @@ def handle_unit_control(self):
                     unit.rotation_acceleration = rot_acc
 
         elif team.type == TeamType.AI:
-            # Handle AI control
+            # TODO: Handle AI movement
             pass
 
         else:
@@ -351,7 +351,7 @@ def handle_unit_shooting(self):
         team = self.teams[unit.team_index]
         if team.type == TeamType.PLAYER:
             if unit_id in self.selected_units_ids:
-                if self.keydown(Key.SPACE) and not self.space_last_frame:
+                if self.keydown(Key.SPACE):
                     mouse_world_pos = self.camera.deduce(self.mousex, self.mousey)
                     direction = calculate_direction(
                         unit.position_x, unit.position_y, *mouse_world_pos
@@ -374,8 +374,35 @@ def handle_unit_shooting(self):
                     self.next_projectile_id += 1
 
         elif team.type == TeamType.AI:
-            # Handle AI shooting
-            pass
+            possible_target_units = []
+            for sub_unit_id, sub_unit in self.units.items():
+                if sub_unit.team_index != unit.team_index:
+                    possible_target_units.append((sub_unit_id, sub_unit))
+
+            if len(possible_target_units) == 0:
+                continue
+
+            # Shoot at random enemy ship
+            target_unit = random.choice(possible_target_units)
+
+            direction = calculate_direction(unit.position_x, unit.position_y, target_unit[1].position_x, target_unit[1].position_y)
+
+            projectile = Missile(
+                x=unit.position_x,
+                y=unit.position_y,
+                direction=direction,
+                shooter_id=unit.team_index,
+            )
+            pid = self.next_projectile_id
+            self.projectiles[pid] = projectile
+            log.info(
+                f"projectile_created id={pid} type=Missile shooter_team={
+                unit.team_index} pos=({
+                unit.position_x: .1f}, {
+                unit.position_y: .1f}) dir={
+                direction: .1f}"
+            )
+            self.next_projectile_id += 1
 
         else:
             log.warn(

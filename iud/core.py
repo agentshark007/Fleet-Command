@@ -19,7 +19,6 @@ def initialize(self) -> None:
     self.mouseprimary_last_frame = False  # Track primary mouse button state
     self.mousemiddle_last_frame = False  # Track middle mouse button state
     self.mousesecondary_last_frame = False  # Track secondary mouse button state
-    self.space_last_frame = False  # Track space key state
     log.info("Core initialization complete")
 
 
@@ -71,7 +70,6 @@ def late_update(self) -> None:
     self.mousemiddle_last_frame = self.mousedownmiddle
     # Track secondary mouse button state
     self.mousesecondary_last_frame = self.mousedownsecondary
-    self.space_last_frame = self.keydown(Key.SPACE)  # Track space key state
 
 
 def handle_gui_scaling(self) -> None:
