@@ -33,7 +33,7 @@ def reset(file: str = "app.log", level: str = "INFO", console: bool = True):
 
     # Clear the log file
     with open(_log_file, "w") as f:
-        f.write("-- Log Start --\n")
+        f.write(f"Log Started with level: {level}\n")
 
 
 def debug(message: str):
