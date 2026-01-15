@@ -1,4 +1,5 @@
 import math
+import random
 
 
 def calculate_direction(
@@ -21,6 +22,7 @@ class Projectile:
         damage: int,
         cooldown: float,
         fuel: float,
+        accuracy: float,
     ) -> None:
         self.x = x
         self.y = y
@@ -30,8 +32,10 @@ class Projectile:
         self.shooter_id = shooter_id
         self.cooldown = cooldown
         self.fuel = fuel
+        self.accuracy = accuracy # Closer to 0 = more accurate and less turning
 
     def update(self, deltatime: float) -> None:
+        self.direction += math.sin(self.x * self.y) * self.accuracy * deltatime
         rad = math.radians(self.direction)
         self.x += math.cos(rad) * self.speed * deltatime
         self.y += math.sin(rad) * self.speed * deltatime
@@ -51,4 +55,5 @@ class Missile(Projectile):
             damage=2,
             cooldown=0.5,
             fuel=15,
+            accuracy=5
         )
