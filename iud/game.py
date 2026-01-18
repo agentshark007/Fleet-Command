@@ -240,8 +240,8 @@ def handle_unit_control(self):
                                 'unit_id',
                                 unit_id)} "
                         f"target=({
-                            unit.autonomous_target_x:.1f}, {
-                            unit.autonomous_target_y:.1f})"
+                            unit.autonomous_target_x: .1f}, {
+                            unit.autonomous_target_y: .1f})"
                     )
                 # Manual key input overrides autonomous movement
                 if manual_override():

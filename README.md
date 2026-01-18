@@ -12,6 +12,12 @@ I dont want to write lots of readme stuff so this is what u get...
 
 ---
 
+## PGIUD
+
+Uses pgiud version 1.0.
+
+---
+
 ## License
 
 **PayaLabs** Non-Commercial Open Source License v1.0:

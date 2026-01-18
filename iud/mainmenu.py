@@ -41,7 +41,7 @@ def update(self) -> None:
     for index, (button_id, action) in enumerate(reversed(buttons)):
         left, bottom, right, top = get_button_bounds(self, index)
 
-        if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top):
+        if mouse_in_area(*self.mouse_pos.to_tuple(), left, right, bottom, top):
             if self.mousedownprimary:
                 action(self)
                 log.info(f"Main menu button clicked: id={button_id}")
@@ -66,10 +66,8 @@ def _quit(self) -> None:
 def draw(self) -> None:
     # Draw background
     self.fill_rect(
-        self.screen_left,
-        self.screen_bottom,
-        self.screen_right,
-        self.screen_top,
+        V(self.screen_left, self.screen_bottom),
+        V(self.screen_right, self.screen_top),
         color=self.mainmenu_background_color,
     )
 
@@ -119,16 +117,14 @@ def draw_button(self, text, index, max_index):
     # Determine button color based on hover state
     button_color = (
         self.mainmenu_button_color_hover
-        if mouse_in_area(self.mousex, self.mousey, left, right, bottom, top)
+        if mouse_in_area(*self.mouse_pos.to_tuple(), left, right, bottom, top)
         else self.mainmenu_button_color
     )
 
     # Draw button background
     self.fill_rounded_rect(
-        left,
-        bottom,
-        right,
-        top,
+        V(left, bottom),
+        V(right, top),
         color=button_color,
         outline_thickness=self.mainmenu_button_outline_thickness * self.gui_scale,
         outline_color=self.mainmenu_button_outline_color,
@@ -141,8 +137,7 @@ def draw_button(self, text, index, max_index):
     # Draw button text
     self.draw_text(
         text,
-        x=(left + right) / 2,
-        y=(bottom + top) / 2,
+        pos=V((left + right) / 2, (bottom + top) / 2),
         font=self.context_font.new_size(int(20 * self.gui_scale)),
         color=Color(255, 255, 255),
         origin=Origin.CENTER,
