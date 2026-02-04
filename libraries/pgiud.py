@@ -8,6 +8,7 @@ import pygame
 
 
 class V:
+
     def __init__(self, x: float, y: float):
         self.x: float = float(x)
         self.y: float = float(y)
@@ -22,7 +23,6 @@ class V:
         return V(self.x * scalar, self.y * scalar)
 
     def __truediv__(self, scalar: float) -> V:
-        # Guard division by zero for clarity
         if scalar == 0:
             raise ZeroDivisionError("division by zero")
         return V(self.x / scalar, self.y / scalar)
@@ -49,11 +49,10 @@ class V:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, V):
             return False
-        # Use a tolerant comparison for floats
         try:
             return math.isclose(
-                self.x, other.x, rel_tol=1e-9, abs_tol=1e-9
-            ) and math.isclose(self.y, other.y, rel_tol=1e-9, abs_tol=1e-9)
+                self.x, other.x, rel_tol=1e-09, abs_tol=1e-09
+            ) and math.isclose(self.y, other.y, rel_tol=1e-09, abs_tol=1e-09)
         except Exception:
             return self.x == other.x and self.y == other.y
 
@@ -64,7 +63,7 @@ class V:
         return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
 
     def to_tuple(self) -> Tuple[float, float]:
-        return self.x, self.y
+        return (self.x, self.y)
 
     @staticmethod
     def distance(a: V, b: V) -> float:
@@ -72,7 +71,6 @@ class V:
 
 
 class Key(Enum):
-    # Letters
     A = pygame.K_a
     B = pygame.K_b
     C = pygame.K_c
@@ -99,8 +97,6 @@ class Key(Enum):
     X = pygame.K_x
     Y = pygame.K_y
     Z = pygame.K_z
-
-    # Numbers
     NUM_0 = pygame.K_0
     NUM_1 = pygame.K_1
     NUM_2 = pygame.K_2
@@ -111,8 +107,6 @@ class Key(Enum):
     NUM_7 = pygame.K_7
     NUM_8 = pygame.K_8
     NUM_9 = pygame.K_9
-
-    # Function keys
     F1 = pygame.K_F1
     F2 = pygame.K_F2
     F3 = pygame.K_F3
@@ -125,14 +119,10 @@ class Key(Enum):
     F10 = pygame.K_F10
     F11 = pygame.K_F11
     F12 = pygame.K_F12
-
-    # Arrows
     LEFT = pygame.K_LEFT
     RIGHT = pygame.K_RIGHT
     UP = pygame.K_UP
     DOWN = pygame.K_DOWN
-
-    # Modifiers
     LSHIFT = pygame.K_LSHIFT
     RSHIFT = pygame.K_RSHIFT
     LCTRL = pygame.K_LCTRL
@@ -141,8 +131,6 @@ class Key(Enum):
     RALT = pygame.K_RALT
     LSUPER = pygame.K_LSUPER
     RSUPER = pygame.K_RSUPER
-
-    # Common keys
     SPACE = pygame.K_SPACE
     RETURN = pygame.K_RETURN
     ENTER = pygame.K_RETURN
@@ -156,8 +144,6 @@ class Key(Enum):
     END = pygame.K_END
     PAGEUP = pygame.K_PAGEUP
     PAGEDOWN = pygame.K_PAGEDOWN
-
-    # Symbols
     MINUS = pygame.K_MINUS
     EQUALS = pygame.K_EQUALS
     LEFTBRACKET = pygame.K_LEFTBRACKET
@@ -169,8 +155,6 @@ class Key(Enum):
     COMMA = pygame.K_COMMA
     PERIOD = pygame.K_PERIOD
     SLASH = pygame.K_SLASH
-
-    # Keypad
     KP0 = pygame.K_KP0
     KP1 = pygame.K_KP1
     KP2 = pygame.K_KP2
@@ -191,6 +175,7 @@ class Key(Enum):
 
 
 class Font:
+
     def __init__(self, file: str = None, size: int = 24):
         pygame.font.init()
         self.size = size
@@ -215,23 +200,21 @@ class Font:
 
 
 class Color:
+
     def __init__(self, r: int, g: int, b: int, a: int = 255):
-        # Note: all values must range from 0-255. Greater/lesser values will be
-        # clamped.
         self.r = max(0, min(255, int(r)))
         self.g = max(0, min(255, int(g)))
         self.b = max(0, min(255, int(b)))
         self.a = max(0, min(255, int(a)))
 
     def to_tuple(self):
-        return self.r, self.g, self.b, self.a
+        return (self.r, self.g, self.b, self.a)
 
     def rgb_tuple(self):
-        return self.r, self.g, self.b
+        return (self.r, self.g, self.b)
 
     def mix(self, other: "Color", factor: float = 0.5):
         factor = max(0.0, min(1.0, factor))
-        # Use rounding to avoid bias from truncation
         r = int(round(self.r * (1 - factor) + other.r * factor))
         g = int(round(self.g * (1 - factor) + other.g * factor))
         b = int(round(self.b * (1 - factor) + other.b * factor))
@@ -240,6 +223,7 @@ class Color:
 
 
 class Image:
+
     def __init__(self, path: str):
         try:
             loaded = pygame.image.load(path)
@@ -259,6 +243,7 @@ class Image:
 
 
 class Sound:
+
     def __init__(self, path: str):
         try:
             if not pygame.mixer.get_init():
@@ -328,6 +313,7 @@ class Resizable(Enum):
 
 
 class Window:
+
     def __init__(
         self,
         width: int = 800,
@@ -341,20 +327,15 @@ class Window:
             pygame.mixer.init()
         except Exception:
             pass
-
-        self._width, self._height = width, height
+        self._width, self._height = (width, height)
         self._title = title
-
         self._flags = pygame.RESIZABLE if resizable != Resizable.NONE else 0
-
         self._screen = pygame.display.set_mode((width, height), self._flags)
         pygame.display.set_caption(title)
-
         self._origin = origin
         self._resizable = resizable
         self._original_width = width
         self._original_height = height
-
         self._clock = pygame.time.Clock()
         self._running = False
         self._mousex = 0
@@ -385,6 +366,35 @@ class Window:
     def mouse_pos(self):
         return V(self._mousex, self._mousey)
 
+    @mouse_pos.setter
+    def mouse_pos(self, v: V):
+        try:
+            self._mousex = float(v.x)
+            self._mousey = float(v.y)
+        except Exception:
+            try:
+                x, y = v
+                self._mousex = float(x)
+                self._mousey = float(y)
+            except Exception:
+                pass
+
+    @property
+    def mousex(self):
+        return self._mousex
+
+    @mousex.setter
+    def mousex(self, value):
+        self._mousex = float(value)
+
+    @property
+    def mousey(self):
+        return self._mousey
+
+    @mousey.setter
+    def mousey(self, value):
+        self._mousey = float(value)
+
     @property
     def mousedownprimary(self):
         return self._mousedownprimary
@@ -406,16 +416,10 @@ class Window:
         return bool(pressed[key.value])
 
     def screen_position(self, origin: Origin):
-        # Return the IUD coordinates that correspond to the given `origin`
-
-        # Find pygame screen center
-        cx, cy = self._width // 2, self._height // 2
-
-        # Find the pygame position of the given origin (use .value)
+        cx, cy = (self._width // 2, self._height // 2)
         ox, oy = origin.value
-        px = cx + (ox * (self.width // 2))
-        py = cy - (oy * (self.height // 2))
-        # Convert to IUD coordinates and return
+        px = cx + ox * (self.width // 2)
+        py = cy - oy * (self.height // 2)
         return V(*self._pg_to_iud(px, py))
 
     @property
@@ -442,23 +446,21 @@ class Window:
     def screen_right(self):
         return self.screen_position(Origin.RIGHT).x
 
-    def _pg_to_iud(self, x: int, y: int):
-        # Convert pygame (top-left origin) to IUD (custom origin)
+    def _pg_to_iud(self, x: float, y: float):
         ox, oy = self._origin.value
-        cx = self.width // 2 if ox == 0 else (0 if ox == -1 else self.width)
-        cy = self.height // 2 if oy == 0 else (0 if oy == -1 else self.height)
+        cx = self.width // 2 if ox == 0 else 0 if ox == -1 else self.width
+        cy = self.height // 2 if oy == 0 else 0 if oy == -1 else self.height
         new_x = x - cx
-        new_y = (self.height - y) - cy
-        return new_x, new_y
+        new_y = self.height - y - cy
+        return (new_x, new_y)
 
-    def _iud_to_pg(self, x: int, y: int):
-        # Convert IUD (custom origin) to pygame (top-left origin)
+    def _iud_to_pg(self, x: float, y: float):
         ox, oy = self._origin.value
-        cx = self.width // 2 if ox == 0 else (0 if ox == -1 else self.width)
-        cy = self.height // 2 if oy == 0 else (0 if oy == -1 else self.height)
+        cx = self.width // 2 if ox == 0 else 0 if ox == -1 else self.width
+        cy = self.height // 2 if oy == 0 else 0 if oy == -1 else self.height
         new_x = x + cx
         new_y = self.height - (y + cy)
-        return new_x, new_y
+        return (new_x, new_y)
 
     def _handle_resize(self, w, h):
         if self._resizable == Resizable.NONE:
@@ -477,7 +479,7 @@ class Window:
                 w = int(h * ratio)
             else:
                 h = int(w / ratio)
-        self.width, self.height = w, h
+        self.width, self.height = (w, h)
         self._screen = pygame.display.set_mode((w, h), self._flags)
 
     def start(self):
@@ -485,16 +487,13 @@ class Window:
         self.initialize()
         while self._running:
             self._deltatime = self._clock.tick(60) / 1000.0
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.on_quit()
                     self._running = False
-
                 elif event.type == pygame.VIDEORESIZE:
                     self._handle_resize(event.w, event.h)
                     self.on_resize(event.w, event.h)
-
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self._mousedownprimary = True
@@ -502,7 +501,6 @@ class Window:
                         self._mousedownmiddle = True
                     elif event.button == 3:
                         self._mousedownsecondary = True
-
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
                         self._mousedownprimary = False
@@ -510,39 +508,30 @@ class Window:
                         self._mousedownmiddle = False
                     elif event.button == 3:
                         self._mousedownsecondary = False
-
             self._mousex, self._mousey = self._pg_to_iud(*pygame.mouse.get_pos())
-
             self.update()
             self.draw()
             pygame.display.flip()
 
     def toggle_fullscreen(self):
-        """Toggles fullscreen mode."""
         pygame.display.toggle_fullscreen()
 
     def initialize(self):
-        """Called once when the window is initialized."""
         pass
 
     def update(self):
-        """Called every frame to update the window's state."""
         pass
 
     def draw(self):
-        """Called every frame to draw the window's contents."""
         pass
 
     def on_quit(self):
-        """Called when the window is closed."""
         pass
 
     def on_resize(self, width, height):
-        """Called when the window is resized."""
         pass
 
     def clear(self, color: "Color"):
-        """Clear the screen to the given color."""
         self._screen.fill(color.rgb_tuple() if color.a == 255 else color.to_tuple())
 
     def fill_rect(
@@ -553,12 +542,9 @@ class Window:
         outline_thickness: int = 0,
         outline_color: "Color" = None,
     ):
-        """Draw a filled rectangle from a to b in IUD coordinates."""
         outline_thickness = int(outline_thickness)
-
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
-
         ax, ay = self._iud_to_pg(ax, ay)
         bx, by = self._iud_to_pg(bx, by)
         width = bx - ax
@@ -599,117 +585,91 @@ class Window:
         bottomright_roundness: float = 0.0,
         steps: int = 10,
     ):
-        """Draw a filled rounded rectangle with optional outline."""
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
-
-        left, right = min(ax, bx), max(ax, bx)
-        bottom, top = min(ay, by), max(ay, by)
+        left, right = (min(ax, bx), max(ax, bx))
+        bottom, top = (min(ay, by), max(ay, by))
         w = right - left
         h = top - bottom
-
         outline_thickness = int(outline_thickness)
-
-        # Ensure steps is at least 1
         steps = max(1, int(steps))
-
-        # Clamp corner radii to [0, min(w,h)/2]
         max_radius = min(w, h) / 2 if w > 0 and h > 0 else 0
         tl = int(max(0, min(max_radius, topleft_roundness)))
         tr = int(max(0, min(max_radius, topright_roundness)))
         bl = int(max(0, min(max_radius, bottomleft_roundness)))
         br = int(max(0, min(max_radius, bottomright_roundness)))
-
         points = []
-
-        # Top-left
         if tl > 0:
-            cx, cy = left + tl, top - tl
+            cx, cy = (left + tl, top - tl)
             arc_points = []
             for i in range(steps + 1):
-                theta = math.pi / 2 + (math.pi / 2) * (i / steps)
+                theta = math.pi / 2 + math.pi / 2 * (i / steps)
                 arc_points.append(
                     (cx + tl * math.cos(theta), cy + tl * math.sin(theta))
                 )
             points.extend(reversed(arc_points))
         else:
             points.append((left, top))
-
         points.append((right - tr, top))
-
-        # Top-right
         if tr > 0:
-            cx, cy = right - tr, top - tr
+            cx, cy = (right - tr, top - tr)
             arc_points = []
             for i in range(steps + 1):
-                theta = 0 + (math.pi / 2) * (i / steps)
+                theta = 0 + math.pi / 2 * (i / steps)
                 arc_points.append(
                     (cx + tr * math.cos(theta), cy + tr * math.sin(theta))
                 )
             points.extend(reversed(arc_points[1:]))
         else:
             points.append((right, top))
-
-        # Bottom-right
         if br > 0:
-            cx, cy = right - br, bottom + br
+            cx, cy = (right - br, bottom + br)
             arc_points = []
             for i in range(steps + 1):
-                theta = math.pi / 2 + math.pi + (math.pi / 2) * (i / steps)
+                theta = math.pi / 2 + math.pi + math.pi / 2 * (i / steps)
                 arc_points.append(
                     (cx + br * math.cos(theta), cy + br * math.sin(theta))
                 )
             points.extend(reversed(arc_points))
         else:
             points.append((right, bottom))
-
-        # Bottom-left
         if bl > 0:
-            cx, cy = left + bl, bottom + bl
+            cx, cy = (left + bl, bottom + bl)
             arc_points = []
             for i in range(steps + 1):
-                theta = math.pi + (math.pi / 2) * (i / steps)
+                theta = math.pi + math.pi / 2 * (i / steps)
                 arc_points.append(
                     (cx + bl * math.cos(theta), cy + bl * math.sin(theta))
                 )
             points.extend(reversed(arc_points))
         else:
             points.append((left, bottom))
-
         xlist = [p[0] for p in points]
         ylist = [p[1] for p in points]
-
-        # Remove the last item
         xlist = xlist[:-1]
         ylist = ylist[:-1]
-
         points = list(zip(xlist, ylist))
         if len(points) < 3:
-            # nothing sensible to draw
             return
-
         self.fill_polygon(points, color, outline_thickness, outline_color)
 
     def draw_line(self, a: V, b: V, color: "Color", width: int = 1):
-        """Draw a line from (ax, ay) to (bx, by) in IUD coordinates."""
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
-
         ax, ay = self._iud_to_pg(ax, ay)
         bx, by = self._iud_to_pg(bx, by)
         if color.a == 255:
             pygame.draw.line(self._screen, color.rgb_tuple(), (ax, ay), (bx, by), width)
         else:
-            # Draw to a temporary surface so alpha is respected
             min_x = min(ax, bx) - width
             min_y = min(ay, by) - width
             max_x = max(ax, bx) + width
             max_y = max(ay, by) + width
-            tw = max(1, max_x - min_x)
-            th = max(1, max_y - min_y)
+            tw = max(1, int(round(max_x - min_x)))
+            th = max(1, int(round(max_y - min_y)))
             temp = pygame.Surface((tw, th), pygame.SRCALPHA)
-            sax, say = ax - min_x, ay - min_y
-            sbx, sby = bx - min_x, by - min_y
+            sax, say = (ax - min_x, ay - min_y)
+            sbx, sby = (bx - min_x, by - min_y)
             pygame.draw.line(temp, color.to_tuple(), (sax, say), (sbx, sby), width)
             self._screen.blit(temp, (min_x, min_y))
 
@@ -720,33 +680,23 @@ class Window:
         outline_thickness: int = 0,
         outline_color: "Color" = None,
     ):
-        """Draw a filled polygon. Points should be an iterable of (x, y) pairs."""
-        # Convert points to pygame coordinates
         pg_points = [self._iud_to_pg(x, y) for x, y in points]
-
         if color.a == 255:
-            # Draw the filled polygon directly
             try:
                 pygame.draw.polygon(self._screen, color.rgb_tuple(), pg_points)
             except Exception:
-                # In case of degenerate polygon, avoid crashing
                 return
         else:
-            # Create a surface for alpha blending. Guard against zero-size.
-            min_x = min(p[0] for p in pg_points)
-            min_y = min(p[1] for p in pg_points)
-            max_x = max(p[0] for p in pg_points)
-            max_y = max(p[1] for p in pg_points)
+            min_x = min((p[0] for p in pg_points))
+            min_y = min((p[1] for p in pg_points))
+            max_x = max((p[0] for p in pg_points))
+            max_y = max((p[1] for p in pg_points))
             width = max_x - min_x
             height = max_y - min_y
-
             if width <= 0 or height <= 0:
-                # Degenerate: nothing visible to draw
                 return
-
-            # Ensure integer dimensions at least 1
-            tw = max(1, int(round(width)))
-            th = max(1, int(round(height)))
+            tw = max(1, int(round(max_x - min_x)))
+            th = max(1, int(round(max_y - min_y)))
             temp = pygame.Surface((tw, th), pygame.SRCALPHA)
             shifted = [
                 (int(round(x - min_x)), int(round(y - min_y))) for x, y in pg_points
@@ -756,8 +706,6 @@ class Window:
                 self._screen.blit(temp, (min_x, min_y))
             except Exception:
                 return
-
-        # Draw the outline if specified
         if outline_thickness > 0 and outline_color is not None:
             try:
                 pygame.draw.polygon(
@@ -780,33 +728,15 @@ class Window:
         rotation: int = 0,
         antialiasing: bool = True,
     ):
-        """Draw an image at (x, y) in IUD coordinates.
-
-        Optional:
-          - filter: a `Color` to tint/multiply the image with (None = no tint)
-          - scalex, scaley: scaling factors (scaley defaults to scalex)
-          - rotation: rotation angle in degrees (clockwise)
-          - antialiasing: whether to use smooth scaling when available
-        """
         x, y = pos.to_tuple()
-
-        # Get pygame position
         px, py = self._iud_to_pg(x, y)
-
-        # Get origin position and invert y for anchor calculations
         ox, oy = origin.value
         oy *= -1
-
-        # Base surface
         surf = getattr(image, "surface", None)
         if surf is None:
             return
-
-        # Default scaley to scalex when not provided
         if scaley is None:
             scaley = scalex
-
-        # Scaling (with optional antialiasing)
         try:
             if scalex != 1.0 or scaley != 1.0:
                 new_w = max(1, int(round(image.get_width() * scalex)))
@@ -816,16 +746,9 @@ class Window:
                 else:
                     surf = pygame.transform.scale(surf, (new_w, new_h))
         except Exception:
-            # Fallback to original surface on any error
             surf = image.surface
-
-        # Rotation
         if rotation != 0:
-            surf = pygame.transform.rotate(
-                surf, -rotation
-            )  # Negative for clockwise rotation
-
-        # Color filter / tint (multiply)
+            surf = pygame.transform.rotate(surf, -rotation)
         if image_filter is not None:
             try:
                 surf = surf.copy()
@@ -834,16 +757,10 @@ class Window:
                 surf.blit(tint, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
             except Exception:
                 pass
-
-        # Anchor center
         px -= surf.get_width() // 2
         py -= surf.get_height() // 2
-
-        # Custom anchor (ox: -1 left, 0 center, 1 right; oy inverted to match
-        # screen space)
         px -= ox * surf.get_width() // 2
         py -= oy * surf.get_height() // 2
-
         self._screen.blit(surf, (px, py))
 
     def draw_text(
@@ -854,12 +771,8 @@ class Window:
         color: "Color",
         origin: Origin = Origin.BOTTOMLEFT,
     ):
-        """Draw text at (x, y) in IUD coordinates. `origin` specifies the text anchor."""
         x, y = pos.to_tuple()
-
         surf = font.font.render(text, True, color.rgb_tuple())
-        # Ensure the surface supports per-pixel alpha so per-surface alpha
-        # works
         try:
             surf = surf.convert_alpha()
         except Exception:
@@ -867,29 +780,16 @@ class Window:
                 surf = surf.convert()
             except Exception:
                 pass
-
-        # Get pygame position
         px, py = self._iud_to_pg(x, y)
-
-        # Get origin position and invert y position
         ox, oy = origin.value
         oy *= -1
-
-        # Anchor center
         px -= surf.get_width() // 2
         py -= surf.get_height() // 2
-
-        # Custom anchor
         px -= ox * surf.get_width() // 2
         py -= oy * surf.get_height() // 2
-
-        # Alpha
-        # If color has alpha (<255), set surface alpha (per-surface) so blit
-        # respects it.
         if color.a != 255:
             try:
                 surf.set_alpha(color.a)
             except Exception:
                 pass
-
         self._screen.blit(surf, (px, py))

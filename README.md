@@ -8,7 +8,7 @@
 
 ---
 
-I dont want to write lots of readme stuff so this is what u get...
+I don't want to write lots of readme stuff so this is what you get...
 
 ---
 
@@ -33,5 +33,5 @@ Uses pgiud version 1.0.
 - Lead developer & game designer: Andru Cupala
 - Artist & sound designer: Remi Heath
 - Project website: [andrucupala.com/payalabs](https://andrucupala.com/payalabs/fleetcommand.html)
-- Email: [andru@cupala.com](mailto:andrucupala@icloud.com)
+- Email: [andru@cupala.com](mailto:andru@cupala.com)
 

@@ -1,46 +1,36 @@
-import libraries.log as log
 from core.asset import asset
 from core.enums import ExtendDirection, GameState
 from core.utility import mouse_in_area
+from libraries import log
 from libraries.pgiud import *
 
 
 def initialize(self) -> None:
     log.info("Main menu initialization started")
-    # Button positioning
-    self.mainmenu_button_extend_x = 50  # Pixels from left edge
-    self.mainmenu_button_extend_y = 50  # Pixels from bottom edge
-    self.mainmenu_button_spacing = 20  # Pixels between buttons
-    self.mainmenu_button_width = 150  # Button width in pixels
-    self.mainmenu_button_height = 60  # Button height in pixels
-    self.mainmenu_button_roundness = 15  # Corner radius in pixels
-
-    # Color scheme
-    self.mainmenu_background_color = Color(0, 0, 50)  # Dark blue background
-    self.mainmenu_button_color = Color(0, 0, 100)  # Normal button color
-    self.mainmenu_button_color_hover = Color(30, 30, 130)  # Hovered button color
-    self.mainmenu_button_outline_thickness = 2  # Button border width
-    self.mainmenu_button_outline_color = Color(0, 0, 0)  # Black border
-
-    # Music
+    self.mainmenu_button_extend_x = 50
+    self.mainmenu_button_extend_y = 50
+    self.mainmenu_button_spacing = 20
+    self.mainmenu_button_width = 150
+    self.mainmenu_button_height = 60
+    self.mainmenu_button_roundness = 15
+    self.mainmenu_background_color = Color(0, 0, 50)
+    self.mainmenu_button_color = Color(0, 0, 100)
+    self.mainmenu_button_color_hover = Color(30, 30, 130)
+    self.mainmenu_button_outline_thickness = 2
+    self.mainmenu_button_outline_color = Color(0, 0, 0)
     self.music = Sound(asset("sounds/cinematic-powerful-battle-music-414692.mp3"))
     self.music_started = False
     log.info("Main menu initialized")
 
 
 def update(self) -> None:
-    # Start background music if not already playing
     if not self.music_started:
         if self.menu_state == GameState.MAINMENU:
             self.music.play()
             self.music_started = True
-
-    # Define button actions
     buttons = [("newgame", newgame), ("settings", settings), ("quit", _quit)]
-
     for index, (button_id, action) in enumerate(reversed(buttons)):
         left, bottom, right, top = get_button_bounds(self, index)
-
         if mouse_in_area(*self.mouse_pos.to_tuple(), left, right, bottom, top):
             if self.mousedownprimary:
                 action(self)
@@ -64,22 +54,13 @@ def _quit(self) -> None:
 
 
 def draw(self) -> None:
-    # Draw background
     self.fill_rect(
         V(self.screen_left, self.screen_bottom),
         V(self.screen_right, self.screen_top),
         color=self.mainmenu_background_color,
     )
-
-    # Define menu buttons
-    buttons = [
-        ("newgame", "New Game"),
-        ("settings", "Settings"),
-        ("quit", "Quit"),
-    ]
-
+    buttons = [("newgame", "New Game"), ("settings", "Settings"), ("quit", "Quit")]
     for index, (button_id, button_text) in enumerate(buttons):
-        # Draw button and text
         draw_button(self, button_text, index, len(buttons))
 
 
@@ -96,32 +77,24 @@ def get_button_bounds(self, index: int) -> tuple[float, float, float, float]:
     button_top = self.extend(
         button_bottom, self.mainmenu_button_height, ExtendDirection.UP
     )
-
     spacing = (
         self.mainmenu_button_spacing + self.mainmenu_button_height
     ) * self.gui_scale
     vertical_offset = spacing * index
-
     left = button_left
-    bottom = button_bottom + vertical_offset  # Add offset, don't multiply
+    bottom = button_bottom + vertical_offset
     right = button_right
     top = button_top + vertical_offset
-
-    return left, bottom, right, top
+    return (left, bottom, right, top)
 
 
 def draw_button(self, text, index, max_index):
-    # Get button bounds
     left, bottom, right, top = get_button_bounds(self, max_index - index - 1)
-
-    # Determine button color based on hover state
     button_color = (
         self.mainmenu_button_color_hover
         if mouse_in_area(*self.mouse_pos.to_tuple(), left, right, bottom, top)
         else self.mainmenu_button_color
     )
-
-    # Draw button background
     self.fill_rounded_rect(
         V(left, bottom),
         V(right, top),
@@ -133,8 +106,6 @@ def draw_button(self, text, index, max_index):
         bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
         bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale,
     )
-
-    # Draw button text
     self.draw_text(
         text,
         pos=V((left + right) / 2, (bottom + top) / 2),

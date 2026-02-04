@@ -14,6 +14,7 @@ rm -rf fleet-command.log
 echo "Log files deleted."
 
 echo "Formatting codebase..."
+python recompile.py ""
 autopep8 --in-place --recursive --aggressive --aggressive .
 isort .
 black .

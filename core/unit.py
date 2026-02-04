@@ -1,5 +1,5 @@
 from core.asset import asset
-from libraries.pgiud import Image
+from libraries.pgiud import Image, V
 
 
 class Unit:
@@ -16,95 +16,141 @@ class Unit:
         rotation_friction: float = 0.9,
         collision_radius: int = 20,
     ) -> None:
-        # Appearance
-        self.image = image  # Image used to render this unit
-        # Scale applied to the image (independent of camera zoom)
+        self.image = image
         self.image_scale = 1.0
-        self.team_index = -1  # Index of the team this unit belongs to
-
-        # Unit statistics
-        self.max_health = health  # Maximum health/hit points
-        self.health = health  # Current health/hit points
-
-        # Position and direction
-        self.position_x = 0  # X position on the game map
-        self.position_y = 0  # Y position on the game map
-        self.direction = 0  # Direction the unit is facing (degrees, 0=up)
-
-        # Movement properties
-        self.speed = speed  # Speed in units per second
-        self.rotation_speed = rotation_speed  # Rotation speed in degrees per second
-
-        # Current velocity in units per second (X direction)
-        self.velocity_x = 0
-        # Current velocity in units per second (Y direction)
-        self.velocity_y = 0
-        self.velocity_rotation = 0  # Current rotational velocity in degrees per second
-
-        self.acceleration = 0  # Current acceleration for this frame
-        self.rotation_acceleration = 0  # Current rotational acceleration for this frame
-
-        # Friction factor applied each frame (slows movement)
+        self.team_index = -1
+        self.max_health = health
+        self.health = health
+        self.position = V(0, 0)
+        self.direction = 0
+        self.speed = speed
+        self.rotation_speed = rotation_speed
+        self.velocity = V(0, 0)
+        self.velocity_rotation = 0
+        self.acceleration = 0
+        self.rotation_acceleration = 0
         self.friction = friction
-        self.rotation_friction = rotation_friction  # Friction factor for rotation
-
-        # Shooting/targeting
-        # Direction the unit's guns are facing (degrees)
+        self.rotation_friction = rotation_friction
         self.gun_direction = 0
-        # Target position for weapons (X coordinate)
-        self.target_position_x = 0
-        # Target position for weapons (Y coordinate)
-        self.target_position_y = 0
-
-        # Collisions
-        self.collision_radius = collision_radius  # Radius for collision detection
-
-        # Autonomous control
-        self.autonomous = False  # True if unit is controlled by autonomous movement
-        # Target position for autonomous movement (X)
-        self.autonomous_target_x = 0
-        # Target position for autonomous movement (Y)
-        self.autonomous_target_y = 0
-
-        # Projectiles
+        self.target_position = V(0, 0)
+        self.collision_radius = collision_radius
+        self.autonomous = False
+        self.autonomous_target = V(0, 0)
+        self.ai_wander_target = V(0, 0)
         self.cooldown_timer = 0
+
+    @property
+    def position_x(self) -> float:
+        return self.position.x
+
+    @position_x.setter
+    def position_x(self, value: float) -> None:
+        self.position.x = float(value)
+
+    @property
+    def position_y(self) -> float:
+        return self.position.y
+
+    @position_y.setter
+    def position_y(self, value: float) -> None:
+        self.position.y = float(value)
+
+    @property
+    def velocity_x(self) -> float:
+        return self.velocity.x
+
+    @velocity_x.setter
+    def velocity_x(self, value: float) -> None:
+        self.velocity.x = float(value)
+
+    @property
+    def velocity_y(self) -> float:
+        return self.velocity.y
+
+    @velocity_y.setter
+    def velocity_y(self, value: float) -> None:
+        self.velocity.y = float(value)
+
+    @property
+    def target_position_x(self) -> float:
+        return self.target_position.x
+
+    @target_position_x.setter
+    def target_position_x(self, value: float) -> None:
+        self.target_position.x = float(value)
+
+    @property
+    def target_position_y(self) -> float:
+        return self.target_position.y
+
+    @target_position_y.setter
+    def target_position_y(self, value: float) -> None:
+        self.target_position.y = float(value)
+
+    @property
+    def autonomous_target_x(self) -> float:
+        return self.autonomous_target.x
+
+    @autonomous_target_x.setter
+    def autonomous_target_x(self, value: float) -> None:
+        self.autonomous_target.x = float(value)
+
+    @property
+    def autonomous_target_y(self) -> float:
+        return self.autonomous_target.y
+
+    @autonomous_target_y.setter
+    def autonomous_target_y(self, value: float) -> None:
+        self.autonomous_target.y = float(value)
+
+    @property
+    def ai_wander_target_x(self) -> float:
+        return self.ai_wander_target.x
+
+    @ai_wander_target_x.setter
+    def ai_wander_target_x(self, value: float) -> None:
+        self.ai_wander_target.x = float(value)
+
+    @property
+    def ai_wander_target_y(self) -> float:
+        return self.ai_wander_target.y
+
+    @ai_wander_target_y.setter
+    def ai_wander_target_y(self, value: float) -> None:
+        self.ai_wander_target.y = float(value)
 
 
 class Battleship(Unit):
+
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
-        # Initialize with battleship-specific stats
         super().__init__(
             Image(asset("images/units/battleship.png")),
             image_scale=0.1,
-            health=600,  # High health
-            speed=200,  # Fast movement speed
-            rotation_speed=100,  # Rotation speed
-            friction=0.97,  # Low friction (maintains momentum well)
-            rotation_friction=0.9,  # Rotation friction
-            collision_radius=25,  # Medium collision radius
+            health=600,
+            speed=200,
+            rotation_speed=100,
+            friction=0.97,
+            rotation_friction=0.9,
+            collision_radius=25,
         )
-        # Set initial position and team
         self.team_index = team_index
-        self.position_x = position_x
-        self.position_y = position_y
+        self.position = V(position_x, position_y)
         self.direction = direction
 
 
 class Warship(Unit):
+
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
-        # Initialize with warship-specific stats
         super().__init__(
             Image(asset("images/units/warship.png")),
             image_scale=0.1,
-            health=400,  # Medium health
-            speed=250,  # Moderate movement speed
-            rotation_speed=150,  # Faster rotation speed
-            friction=0.95,  # Moderate friction
-            rotation_friction=0.85,  # Rotation friction
-            collision_radius=25,  # Medium collision radius
+            health=400,
+            speed=250,
+            rotation_speed=150,
+            friction=0.95,
+            rotation_friction=0.85,
+            collision_radius=25,
         )
-        # Set initial position and team
         self.team_index = team_index
-        self.position_x = position_x
-        self.position_y = position_y
+        self.position = V(position_x, position_y)
         self.direction = direction

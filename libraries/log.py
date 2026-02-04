@@ -1,37 +1,21 @@
 import time
 
 _log_file = None
-_log_level = 20  # default INFO
+_log_level = 20
 _console = True
-
-# ANSI colors for console
-_GREEN = "\033[32m"
-_YELLOW = "\033[33m"
-_RED = "\033[31m"
-_CYAN = "\033[36m"
-_RESET = "\033[0m"
-
-# Log levels
-_LEVELS = {
-    "DEBUG": 10,
-    "INFO": 20,
-    "WARN": 30,
-    "ERROR": 40,
-    "FATAL": 50,
-}
+_GREEN = "\x1b[32m"
+_YELLOW = "\x1b[33m"
+_RED = "\x1b[31m"
+_CYAN = "\x1b[36m"
+_RESET = "\x1b[0m"
+_LEVELS = {"DEBUG": 10, "INFO": 20, "WARN": 30, "ERROR": 40, "FATAL": 50}
 
 
 def reset(file: str = "app.log", level: str = "INFO", console: bool = True):
-    """
-    Set the log file, minimum log level, and console output, and clear the file.
-    Must be called before logging.
-    """
     global _log_file, _log_level, _console
     _log_file = file
     _log_level = _LEVELS.get(level.upper(), 20)
     _console = console
-
-    # Clear the log file
     with open(_log_file, "w") as f:
         f.write(f"Log Started with level: {level}\n")
 
@@ -66,18 +50,12 @@ def _timestamp():
 def _log(level: str, message: str, color: str = None):
     if _log_file is None:
         raise RuntimeError("Logger not initialized. Call reset() before logging.")
-
     if _LEVELS[level] < _log_level:
         return
-
     ts = _timestamp()
     line = f"{ts} [{level: <5}] {message}"
-
-    # Write to file (plain text)
     with open(_log_file, "a") as f:
         f.write(line + "\n")
-
-    # Console output
     if _console:
         if color:
             print(f"{color}{line}{_RESET}")

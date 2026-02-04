@@ -1,10 +1,12 @@
-import libraries.log as log
 from core.enums import ExtendDirection, GameState
 from iud import core, game, mainmenu, newgame, paused, settings
+from libraries import log
 from libraries.pgiud import *
 
 
 class GameWindow(Window):
+    gui_scale: float = 1.0
+
     def __init__(self) -> None:
         super().__init__(
             width=800,
@@ -13,69 +15,59 @@ class GameWindow(Window):
             resizable=Resizable.BOTH,
             origin=Origin.CENTER,
         )
+        self.gui_scale = 1.0
 
     def extend(self, pivot, value, direction: ExtendDirection):
-        return pivot + (value * direction.value * self.gui_scale)
+        return pivot + value * direction.value * self.gui_scale
 
     def initialize(self):
         log.info("Global initialization started")
-        self.menu_state = GameState.MAINMENU  # Current game state tracking
-
-        core.initialize(self)  # Initialize core systems (assets, GUI scale)
-
-        game.initialize(self)  # Initialize gameplay systems
-        mainmenu.initialize(self)  # Initialize main menu UI
-        newgame.initialize(self)  # Initialize new game screen
-        paused.initialize(self)  # Initialize pause menu
-        settings.initialize(self)  # Initialize settings menu
-
-        core.late_initialize(self)  # Finalize core systems if needed
+        self.menu_state = GameState.MAINMENU
+        core.initialize(self)
+        game.initialize(self)
+        mainmenu.initialize(self)
+        newgame.initialize(self)
+        paused.initialize(self)
+        settings.initialize(self)
+        core.late_initialize(self)
         log.info("Global initialization complete")
 
     def update(self):
-        core.update(self)  # Update core systems (GUI scaling)
-
-        # Route update to current game state
+        core.update(self)
         match self.menu_state:
             case GameState.MAINMENU:
                 mainmenu.update(self)
             case GameState.NEWGAME:
                 newgame.update(self)
             case GameState.GAME:
-                game.update(self)  # Main gameplay loop
+                game.update(self)
             case GameState.PAUSED:
                 paused.update(self)
             case GameState.SETTINGS:
                 settings.update(self)
-
-        # Finalize core systems (update key state for next frame)
         core.late_update(self)
 
     def draw(self):
-        core.draw(self)  # Draw core systems if needed
-
-        # Route drawing to current game state
+        core.draw(self)
         match self.menu_state:
             case GameState.MAINMENU:
                 mainmenu.draw(self)
             case GameState.NEWGAME:
                 newgame.draw(self)
             case GameState.GAME:
-                game.draw(self)  # Draw game world, units, and UI
+                game.draw(self)
             case GameState.PAUSED:
                 paused.draw(self)
             case GameState.SETTINGS:
                 settings.draw(self)
-
-        core.late_draw(self)  # Finalize core drawing if needed
+        core.late_draw(self)
 
 
 def main():
     log.reset("fleet-command.log", "WARN")
-
     log.info("Creating game window")
     window = GameWindow()
     log.info("Game window created")
     log.info("Starting game window")
-    window.start()  # Start the main game loop
+    window.start()
     log.info("Game window closed")

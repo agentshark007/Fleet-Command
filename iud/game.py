@@ -2,7 +2,6 @@ import math
 import random
 import sys
 
-import libraries.log as log
 from core.camera import Camera
 from core.enums import ExtendDirection
 from core.explosion import Explosion
@@ -10,79 +9,53 @@ from core.projectile import *
 from core.team import TeamType, random_teams
 from core.unit import *
 from core.utility import distance, pseudo_random_offset
+from libraries import log
 from libraries.pgiud import *
+
+_unused_math_random = (math, random)
 
 
 def initialize(self):
-    check_flags(self)  # Check command-line flags
-    initialize_settings(self)  # Load configuration values
-    initialize_state_variables(self)  # Initialize variables
-    initialize_game_logic(self)  # Create teams and units
-    initialize_layout(self)  # Set up UI colors and appearance
+    check_flags(self)
+    initialize_settings(self)
+    initialize_state_variables(self)
+    initialize_game_logic(self)
+    initialize_layout(self)
 
 
 def check_flags(self):
-    # Check for command-line flags and log their status
     log.info(f"flags: {sys.argv}")
 
 
 def initialize_settings(self):
-    # Water animation
-    self.water_state_speed = 5  # Speed of water animation cycles
-
-    # Camera controls
-    self.camera_zoom_speed = 0.5  # Rate of zoom change per frame
-    self.min_camera_scale = 0.3  # Minimum zoom level
-    self.max_camera_scale = 3.0  # Maximum zoom level
-    self.camera_move_speed = 50.0  # Pixels per second for camera movement
-    self.camera_move_friction = 0.9  # Friction for smooth camera deceleration
-
-    # Visual scaling
-    self.selection_marker_scale = 0.03  # Scale of unit team markers
-    self.selection_distance = 100  # Pixels: range for selecting units
-    # Scale of autonomous target indicators
+    self.water_state_speed = 5
+    self.camera_zoom_speed = 0.5
+    self.min_camera_scale = 0.3
+    self.max_camera_scale = 3.0
+    self.camera_move_speed = 50.0
+    self.camera_move_friction = 0.9
+    self.selection_marker_scale = 0.03
+    self.selection_distance = 100
     self.autonomous_target_image_scale = 0.05
-    self.water_image_scale = 0.3  # Scale for water tiles
-
-    # Autonomous movement
-    self.target_stop_distance = 100  # Distance to stop at target
-    # Degrees: threshold for moving backward
+    self.water_image_scale = 0.3
+    self.target_stop_distance = 100
     self.autonomous_forward_backward_angle_threshold = 45
-
-    # UI positioning
-    self.selection_marker_offset = 20  # Pixels above unit for team marker
-
-    # Projectiles
+    self.selection_marker_offset = 20
     self.projectile_limit = 1000
 
 
 def initialize_state_variables(self):
-    # GUI scaling key state tracking
-    self.gui_scale = 1.0  # Current GUI scale multiplier
-
-    # Water animation
-    self.water_state = 0  # Current animation frame counter for water
-    # Tracking offset for each layer
+    self.gui_scale = 1.0
+    self.water_state = 0
     self.water_layer_offsets = [0.0, 0.0, 0.0, 0.0]
-
-    # Camera
-    # Create camera at origin with default zoom
     self.camera = Camera(0.0, 0.0, 1.0)
-
-    # Selection
-    self.selected_units_ids = []  # List of selected unit IDs
+    self.selected_units_ids = []
 
 
 def initialize_game_logic(self):
-    # Available unit types that can be created
     self.unit_types = [Battleship, Warship]
-
-    # Generate random teams for this game session
     team_count = 4
     self.teams = random_teams(team_count)
-
-    # Create initial battleships for each team with random positions and
-    # directions (degrees)
     self.units = {}
     for i in range(20):
         possible_units = [
@@ -90,26 +63,22 @@ def initialize_game_logic(self):
                 team_index=random.randint(0, len(self.teams) - 1),
                 position_x=random.uniform(-3000, 3000),
                 position_y=random.uniform(-3000, 3000),
-                direction=random.uniform(0, 360),  # degrees
+                direction=random.uniform(0, 360),
             ),
             Warship(
                 team_index=random.randint(0, len(self.teams) - 1),
                 position_x=random.uniform(-3000, 3000),
                 position_y=random.uniform(-3000, 3000),
-                direction=random.uniform(0, 360),  # degrees
+                direction=random.uniform(0, 360),
             ),
         ]
         unit = random.choice(possible_units)
         unit.unit_id = i
         self.units[i] = unit
-
-    self.projectiles = {}  # No projectiles at start of game
+    self.projectiles = {}
     self.next_projectile_id = 0
-
-    self.explosions = {}  # No explosions at start of game
+    self.explosions = {}
     self.next_explosion_id = 0
-
-    # Log game initialization summary
     try:
         unit_type_names = [t.__name__ for t in self.unit_types]
     except Exception:
@@ -120,61 +89,45 @@ def initialize_game_logic(self):
 
 
 def initialize_layout(self):
-    # GUI panel colors
-    # Side panel background color
     self.side_panel_color = Color(0, 0, 144, 150)
-    self.middle_panel_color = Color(0, 0, 70, 150)  # Middle panel color
-    self.panel_outline_color = Color(0, 0, 100, 50)  # Panel border color
-    self.title_text_color = Color(100, 100, 20)  # Title text color
-    self.title_text_shadow_color = Color(20, 20, 50, 150)  # Title shadow color
-    self.title_text_shadow_offset = 1  # Pixels of shadow offset
-
-    # GUI shape properties
-    self.panel_outline_thickness = 2  # Pixels: panel border width
-    self.side_panel_roundness = 15  # Pixels: corner roundness for side panels
-
-    # Unit visual filters (color tints applied when rendering)
-    self.other_unit_filter = Color(150, 150, 150, 255)  # Neutral units
-    self.hover_unit_filter = Color(200, 200, 200, 255)  # Hovered units
-    # Selected units (bright white)
+    self.middle_panel_color = Color(0, 0, 70, 150)
+    self.panel_outline_color = Color(0, 0, 100, 50)
+    self.title_text_color = Color(100, 100, 20)
+    self.title_text_shadow_color = Color(20, 20, 50, 150)
+    self.title_text_shadow_offset = 1
+    self.panel_outline_thickness = 2
+    self.side_panel_roundness = 15
+    self.other_unit_filter = Color(150, 150, 150, 255)
+    self.hover_unit_filter = Color(200, 200, 200, 255)
     self.selected_unit_filter = Color(255, 255, 255, 255)
 
 
 def update(self):
-    handle_camera_movement(self)  # Process camera movement
-    handle_unit_selection(self)  # Handle unit selection clicks
-    handle_unit_control(self)  # Process unit movement and physics
-    handle_unit_shooting(self)  # Process unit shooting
-    update_projectiles(self)  # Update all projectiles
-    detect_collisions(self)  # Check for collisions
-    update_explosions(self)  # Update explosions
-    update_water(self)  # Advance water animation
+    handle_camera_movement(self)
+    handle_unit_selection(self)
+    handle_unit_control(self)
+    handle_unit_shooting(self)
+    update_projectiles(self)
+    detect_collisions(self)
+    update_explosions(self)
+    update_water(self)
 
 
 def handle_unit_selection(self):
-    # Calculate mouse position in world coordinates (using camera)
-    mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
-
-    # Find the closest unit and closest selectable unit to the mouse
+    mouse_world_pos = self.camera.deduce_v(self.mouse_pos)
     closest_unit_index = -1
     closest_unit_index_selectable = -1
     closest_distance = float("inf")
     closest_distance_selectable = float("inf")
-
     for unit_id, unit in self.units.items():
-        dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
-        # Track the closest unit overall
+        dist = distance(unit.position, mouse_world_pos)
         if dist < closest_distance:
             closest_distance = dist
             closest_unit_index = unit_id
-        # Track the closest unit within selection range
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
             closest_unit_index_selectable = unit_id
-
-    # Handle selection input (left mouse button)
-    if self.mousedownprimary and not self.mouseprimary_last_frame:
-        # Only allow selecting units from the player team
+    if self.mousedownprimary and (not self.mouse_primary_last_frame):
         if closest_unit_index_selectable != -1:
             team = self.teams[self.units[closest_unit_index_selectable].team_index]
             if team.type == TeamType.PLAYER:
@@ -193,10 +146,8 @@ def handle_unit_selection(self):
                         )
                 else:
                     self.selected_units_ids = [closest_unit_index_selectable]
-                    log.info(
-                        f"selection_set selected_units={
-                            self.selected_units_ids}"
-                    )
+                    log.info(f"selection_set selected_units={
+                            self.selected_units_ids}")
             else:
                 log.warn(
                     f"selection_non_player unit_id={closest_unit_index_selectable}"
@@ -208,24 +159,21 @@ def handle_unit_selection(self):
 
 
 def handle_unit_control(self):
+
     def manual_override():
         return any(
             [
-                self.keydown(Key.W),  # Forward
-                self.keydown(Key.S),  # Backward
-                self.keydown(Key.A),  # Left turn
-                self.keydown(Key.D),  # Right turn
+                self.keydown(Key.W),
+                self.keydown(Key.S),
+                self.keydown(Key.A),
+                self.keydown(Key.D),
             ]
         )
 
-    # Process input
     for unit_id, unit in self.units.items():
-        # Handle control
         team = self.teams[unit.team_index]
         if team.type == TeamType.PLAYER:
-            # Handle player control
             if unit_id in self.selected_units_ids:
-                # Right-click sets autonomous target
                 if self.mousedownsecondary:
                     mouse_world_x, mouse_world_y = self.camera.deduce(
                         self.mousex, self.mousey
@@ -233,32 +181,21 @@ def handle_unit_control(self):
                     unit.autonomous = True
                     unit.autonomous_target_x = mouse_world_x
                     unit.autonomous_target_y = mouse_world_y
-                    log.info(
-                        f"autonomous_target_set unit_id={
+                    log.info(f"autonomous_target_set unit_id={
                             getattr(
                                 unit,
                                 'unit_id',
-                                unit_id)} "
-                        f"target=({
+                                unit_id)} target=({
                             unit.autonomous_target_x: .1f}, {
-                            unit.autonomous_target_y: .1f})"
-                    )
-                # Manual key input overrides autonomous movement
+                            unit.autonomous_target_y: .1f})")
                 if manual_override():
                     if getattr(unit, "autonomous", False):
-                        log.info(
-                            f"manual_override unit_id={
+                        log.info(f"manual_override unit_id={
                                 getattr(
                                     unit,
                                     'unit_id',
-                                    unit_id)} autonomous_disabled=True"
-                        )
+                                    unit_id)} autonomous_disabled=True")
                     unit.autonomous = False
-                # Manual WASD control: translate key presses into acceleration
-                # and rotational acceleration for selected player units.
-                # W/S -> forward/backward acceleration, A/D -> rotate left/right.
-                # These values match autonomous magnitudes so behavior is
-                # similar.
                 acc = 0
                 rot_acc = 0
                 if self.keydown(Key.W):
@@ -269,82 +206,56 @@ def handle_unit_control(self):
                     rot_acc -= unit.rotation_speed
                 if self.keydown(Key.D):
                     rot_acc += unit.rotation_speed
-                # Apply manual inputs (overrides autonomous for this frame)
                 if acc != 0 or rot_acc != 0:
                     unit.autonomous = False
                     unit.acceleration = acc
                     unit.rotation_acceleration = rot_acc
-
         elif team.type == TeamType.AI:
             handle_ai_for_unit(self, unit_id, unit)
-
         else:
-            log.warn(
-                f"unknown_team_type unit_id={unit_id} team_index={
-                    unit.team_index}"
-            )
-
-        # Handle autonomous
+            log.warn(f"unknown_team_type unit_id={unit_id} team_index={
+                    unit.team_index}")
         if getattr(unit, "autonomous", False):
-            # Calculate direction and distance to target
-            target_x, target_y = (
-                unit.autonomous_target_x,
-                unit.autonomous_target_y,
-            )
+            target_x, target_y = (unit.autonomous_target_x, unit.autonomous_target_y)
             dx = target_x - unit.position_x
             dy = target_y - unit.position_y
             distance_to_target = math.hypot(dx, dy)
-
-            # Stop moving if we've reached the target
             if distance_to_target < self.target_stop_distance:
                 unit.autonomous = False
                 continue
-
-            # Calculate angle to target
             angle_to_target = math.degrees(math.atan2(dx, dy))
             angle_diff = (angle_to_target - unit.direction + 360) % 360
             if angle_diff > 180:
                 angle_diff -= 360
-
-            # Decide movement direction based on angle
             if abs(angle_diff) < self.autonomous_forward_backward_angle_threshold:
-                # Face target and move forward
                 rotation_change = max(
                     -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
                 )
                 acceleration = unit.speed
             else:
-                # Move backward while turning (faster evasion)
                 rotation_change = max(
                     -unit.rotation_speed, min(unit.rotation_speed, angle_diff)
                 )
                 acceleration = -unit.speed
-
-            # Clamp accelerations to valid ranges
             acceleration = max(-unit.speed, min(unit.speed, acceleration))
             rotation_change = max(
                 -unit.rotation_speed, min(unit.rotation_speed, rotation_change)
             )
             unit.acceleration = acceleration
             unit.rotation_acceleration = rotation_change
-
-    # Process movement
     for unit_id, unit in self.units.items():
         angle_rad = math.radians(unit.direction)
         unit.velocity_x += math.sin(angle_rad) * unit.acceleration * self.deltatime
         unit.velocity_y += math.cos(angle_rad) * unit.acceleration * self.deltatime
         unit.velocity_rotation += unit.rotation_acceleration * self.deltatime
-
         friction_factor = pow(unit.friction, self.deltatime * 60)
         unit.velocity_x *= friction_factor
         unit.velocity_y *= friction_factor
         rotation_friction_factor = pow(unit.rotation_friction, self.deltatime * 60)
         unit.velocity_rotation *= rotation_friction_factor
-
         unit.direction += unit.velocity_rotation * self.deltatime
         unit.position_x += unit.velocity_x * self.deltatime
         unit.position_y += unit.velocity_y * self.deltatime
-
         unit.acceleration = 0
         unit.rotation_acceleration = 0
 
@@ -352,7 +263,6 @@ def handle_unit_control(self):
 def handle_unit_shooting(self):
     for unit_id, unit in self.units.items():
         team = self.teams[unit.team_index]
-        # Only allow shooting if cooldown timer is <=0
         if unit.cooldown_timer <= 0:
             if team.type == TeamType.PLAYER:
                 if unit_id in self.selected_units_ids:
@@ -378,26 +288,20 @@ def handle_unit_shooting(self):
                         )
                         self.next_projectile_id += 1
                         unit.cooldown_timer = projectile.cooldown
-
             elif team.type == TeamType.AI:
                 possible_target_units = []
                 for sub_unit_id, sub_unit in self.units.items():
                     if sub_unit.team_index != unit.team_index:
                         possible_target_units.append((sub_unit_id, sub_unit))
-
                 if len(possible_target_units) == 0:
                     continue
-
-                # Shoot at random enemy ship
                 target_unit = random.choice(possible_target_units)
-
                 direction = calculate_direction(
                     unit.position_x,
                     unit.position_y,
                     target_unit[1].position_x,
                     target_unit[1].position_y,
                 )
-
                 projectile = Missile(
                     x=unit.position_x,
                     y=unit.position_y,
@@ -406,35 +310,27 @@ def handle_unit_shooting(self):
                 )
                 pid = self.next_projectile_id
                 self.projectiles[pid] = projectile
-                log.info(
-                    f"projectile_created id={pid} type=Missile shooter_team={
+                log.info(f"projectile_created id={pid} type=Missile shooter_team={
                         unit.team_index} pos=({
                         unit.position_x: .1f}, {
                         unit.position_y: .1f}) dir={
-                        direction: .1f}"
-                )
+                        direction: .1f}")
                 self.next_projectile_id += 1
                 unit.cooldown_timer = projectile.cooldown
-
             else:
-                log.warn(
-                    f"unknown_team_type unit_id={unit_id} team_index={
-                        unit.team_index}"
-                )
-
+                log.warn(f"unknown_team_type unit_id={unit_id} team_index={
+                        unit.team_index}")
         else:
             unit.cooldown_timer -= self.deltatime
 
 
 def handle_ai_for_unit(self, unit_id, unit):
-    # Initialize AI fields if missing
     if not hasattr(unit, "ai_state"):
-        unit.ai_state = "WANDER"  # "WANDER", "CHASE", "EVADE"
+        unit.ai_state = "WANDER"
         unit.ai_state_timer = 0.0
         unit.ai_wander_target_x = unit.position_x
         unit.ai_wander_target_y = unit.position_y
 
-    # Utilities
     def nearest_enemy():
         best = (None, float("inf"))
         for sid, s in self.units.items():
@@ -443,27 +339,19 @@ def handle_ai_for_unit(self, unit_id, unit):
             d = distance(unit.position_x, unit.position_y, s.position_x, s.position_y)
             if d < best[1]:
                 best = (s, d)
-        return best  # (unit, dist)
+        return best
 
-    # State update timers
     unit.ai_state_timer -= self.deltatime
     enemy, enemy_dist = nearest_enemy()
-
-    # State transitions
     low_health_threshold = unit.max_health * 0.35
     if unit.health <= low_health_threshold and enemy is not None:
         unit.ai_state = "EVADE"
-        unit.ai_state_timer = max(
-            unit.ai_state_timer, 1.0
-        )  # keep evade for at least 1s
-    elif enemy is not None and enemy_dist < 800:  # engage range
+        unit.ai_state_timer = max(unit.ai_state_timer, 1.0)
+    elif enemy is not None and enemy_dist < 800:
         unit.ai_state = "CHASE"
     else:
         unit.ai_state = "WANDER"
-
-    # Behavior implementations
     if unit.ai_state == "WANDER":
-        # pick new random nearby waypoint occasionally
         if unit.ai_state_timer <= 0:
             radius = 600
             unit.ai_wander_target_x = unit.position_x + random.uniform(-radius, radius)
@@ -472,12 +360,10 @@ def handle_ai_for_unit(self, unit_id, unit):
         unit.autonomous = True
         unit.autonomous_target_x = unit.ai_wander_target_x
         unit.autonomous_target_y = unit.ai_wander_target_y
-
     elif unit.ai_state == "CHASE":
         if enemy is None:
             unit.ai_state = "WANDER"
         else:
-            # Optional simple lead: predict enemy position by its velocity
             lead_seconds = min(1.0, enemy_dist / 600.0)
             predict_x = (
                 enemy.position_x + getattr(enemy, "velocity_x", 0) * lead_seconds
@@ -488,78 +374,56 @@ def handle_ai_for_unit(self, unit_id, unit):
             unit.autonomous = True
             unit.autonomous_target_x = predict_x
             unit.autonomous_target_y = predict_y
-
-            # If very close, sometimes back off (kiting)
             if enemy_dist < 200 and random.random() < 0.3:
-                # move to a point opposite the enemy a bit
                 dx = unit.position_x - enemy.position_x
                 dy = unit.position_y - enemy.position_y
                 nd = math.hypot(dx, dy) or 1.0
-                unit.autonomous_target_x = unit.position_x + (dx / nd) * 300
-                unit.autonomous_target_y = unit.position_y + (dy / nd) * 300
-
+                unit.autonomous_target_x = unit.position_x + dx / nd * 300
+                unit.autonomous_target_y = unit.position_y + dy / nd * 300
     elif unit.ai_state == "EVADE":
         if enemy is None:
             unit.ai_state = "WANDER"
         else:
-            # Move away from nearest enemy
             dx = unit.position_x - enemy.position_x
             dy = unit.position_y - enemy.position_y
             nd = math.hypot(dx, dy) or 1.0
             flee_dist = 800
             unit.autonomous = True
-            unit.autonomous_target_x = unit.position_x + (dx / nd) * flee_dist
-            unit.autonomous_target_y = unit.position_y + (dy / nd) * flee_dist
-            # keep evasive maneuvers for a short time
+            unit.autonomous_target_x = unit.position_x + dx / nd * flee_dist
+            unit.autonomous_target_y = unit.position_y + dy / nd * flee_dist
             unit.ai_state_timer = max(unit.ai_state_timer, 1.0)
-
-    # Slight randomness in movement to avoid predictable paths
     if getattr(unit, "autonomous", False) and random.random() < 0.02:
         unit.autonomous_target_x += random.uniform(-20, 20)
         unit.autonomous_target_y += random.uniform(-20, 20)
 
 
 def update_projectiles(self):
-    # Cap projectiles
     if len(self.projectiles) > self.projectile_limit:
         excess = len(self.projectiles) - self.projectile_limit
-        log.warn(
-            f"too_many_projectiles limit={
+        log.warn(f"too_many_projectiles limit={
                 self.projectile_limit} actual={
                 len(
-                    self.projectiles)}"
-        )
+                    self.projectiles)}")
         for _ in range(excess):
             if self.projectiles:
                 del self.projectiles[list(self.projectiles.keys())[0]]
-
-    # Increment projectile fuel
     for projectile in self.projectiles.values():
         projectile.update_fuel(self.deltatime)
-
-    # Projectiles run out of fuel
     to_delete = []
     for projectile_id, projectile in self.projectiles.items():
         if projectile.fuel <= 0:
             to_delete.append(projectile_id)
-
-    # Delete dead projectiles
     for delete in to_delete:
         del self.projectiles[delete]
-
-    # Move projectiles
     for projectile in self.projectiles.values():
         projectile.update(self.deltatime)
 
 
 def detect_collisions(self):
-    # Initialize sets to track units and projectiles to remove
     units_to_remove = set()
     projectiles_to_remove = set()
-    # Detect collisions between projectiles and units
     for unit_id, unit in self.units.items():
         for projectile_id, projectile in self.projectiles.items():
-            # Prevent projectile from hitting the same team/unit that fired it
             if unit.team_index == projectile.shooter_id:
                 continue
             dist = distance(
@@ -575,19 +439,12 @@ def detect_collisions(self):
                 )
                 if unit.health <= 0:
                     units_to_remove.add(unit_id)
-                    log.info(
-                        f"unit_destroyed unit_id={unit_id} team={
+                    log.info(f"unit_destroyed unit_id={unit_id} team={
                             unit.team_index} pos=({
                             unit.position_x: .1f}, {
-                            unit.position_y: .1f})"
-                    )
-                    create_explosion(
-                        self,
-                        unit.position_x,
-                        unit.position_y,
-                    )
+                            unit.position_y: .1f})")
+                    create_explosion(self, unit.position_x, unit.position_y)
                 break
-    # Detect collisions between units and units
     for unit_id_a, unit_a in self.units.items():
         for unit_id_b, unit_b in self.units.items():
             if unit_id_a >= unit_id_b:
@@ -618,7 +475,6 @@ def detect_collisions(self):
                     (unit_a.position_x + unit_b.position_x) / 2,
                     (unit_a.position_y + unit_b.position_y) / 2,
                 )
-    # Remove destroyed units and projectiles
     for uid in units_to_remove:
         if uid in self.units:
             del self.units[uid]
@@ -629,7 +485,6 @@ def detect_collisions(self):
             del self.projectiles[pid]
         else:
             log.warn(f"removal_warning missing_projectile_id={pid}")
-    # Remove dead units from selection
     self.selected_units_ids = [
         uid for uid in self.selected_units_ids if uid in self.units
     ]
@@ -654,103 +509,68 @@ def update_explosions(self):
 
 
 def handle_camera_movement(self):
-    # Detect command key
     command_down = self.keydown(Key.LSUPER) or self.keydown(Key.RSUPER)
-
-    # Get +/- input for camera zoom (only when command is NOT held)
     if not command_down:
-        # Zoom in when plus key pressed
-        if self.keydown(Key.EQUALS) and not self.plus_last_frame:
+        if self.keydown(Key.EQUALS) and (not self.plus_last_frame):
             old_scale = self.camera.scale
             attempted = old_scale + self.camera_zoom_speed
             self.camera.scale = min(
-                [
-                    self.max_camera_scale,
-                    self.camera.scale + self.camera_zoom_speed,
-                ]
+                [self.max_camera_scale, self.camera.scale + self.camera_zoom_speed]
             )
             if self.camera.scale != old_scale:
-                log.info(
-                    f"camera_zoom old_scale={
+                log.info(f"camera_zoom old_scale={
                         old_scale: .2f} new_scale={
-                        self.camera.scale: .2f}"
-                )
+                        self.camera.scale: .2f}")
                 if self.camera.scale != attempted:
-                    log.warn(
-                        f"camera_zoom_clamped attempted={
+                    log.warn(f"camera_zoom_clamped attempted={
                             attempted: .2f} clamped_to={
-                            self.camera.scale: .2f}"
-                    )
-
-        # Zoom out when minus key pressed
-        elif self.keydown(Key.MINUS) and not self.minus_last_frame:
+                            self.camera.scale: .2f}")
+        elif self.keydown(Key.MINUS) and (not self.minus_last_frame):
             old_scale = self.camera.scale
             attempted = old_scale - self.camera_zoom_speed
             self.camera.scale = max(
-                [
-                    self.min_camera_scale,
-                    self.camera.scale - self.camera_zoom_speed,
-                ]
+                [self.min_camera_scale, self.camera.scale - self.camera_zoom_speed]
             )
             if self.camera.scale != old_scale:
-                log.info(
-                    f"camera_zoom old_scale={
+                log.info(f"camera_zoom old_scale={
                         old_scale: .2f} new_scale={
-                        self.camera.scale: .2f}"
-                )
+                        self.camera.scale: .2f}")
                 if self.camera.scale != attempted:
-                    log.warn(
-                        f"camera_zoom_clamped attempted={
+                    log.warn(f"camera_zoom_clamped attempted={
                             attempted: .2f} clamped_to={
-                            self.camera.scale: .2f}"
-                    )
-
-    # Dragging
+                            self.camera.scale: .2f}")
     mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
-
     closest_unit_index = -1
     closest_unit_index_selectable = -1
     closest_distance = float("inf")
     closest_distance_selectable = float("inf")
-
     for unit_id, unit in self.units.items():
         dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
-        # Track the closest unit overall
         if dist < closest_distance:
             closest_distance = dist
             closest_unit_index = unit_id
-        # Track the closest unit within selection range
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
             closest_unit_index_selectable = unit_id
-
     if closest_unit_index_selectable == -1:
         if self.mousedownprimary:
             self.camera.velocity_x = 0
             self.camera.velocity_y = 0
             self.camera.x += (self.mousex_last_frame - self.mousex) / self.camera.scale
             self.camera.y += (self.mousey_last_frame - self.mousey) / self.camera.scale
-
-    # Accelerate camera based on arrow key input
     factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
     factor_y = self.camera_move_speed / self.camera.scale * self.deltatime
-
     if self.keydown(Key.LEFT):
-        self.camera.velocity_x -= factor_x  # Move camera left
+        self.camera.velocity_x -= factor_x
     if self.keydown(Key.RIGHT):
-        self.camera.velocity_x += factor_x  # Move camera right
+        self.camera.velocity_x += factor_x
     if self.keydown(Key.UP):
-        self.camera.velocity_y += factor_y  # Move camera up
+        self.camera.velocity_y += factor_y
     if self.keydown(Key.DOWN):
-        self.camera.velocity_y -= factor_y  # Move camera down
-
-    # Apply friction to camera velocity (smooth deceleration -
-    # frame-independent)
+        self.camera.velocity_y -= factor_y
     friction_factor = pow(self.camera_move_friction, self.deltatime * 60)
     self.camera.velocity_x *= friction_factor
     self.camera.velocity_y *= friction_factor
-
-    # Update camera position based on velocity
     self.camera.x += self.camera.velocity_x
     self.camera.y += self.camera.velocity_y
 
@@ -761,203 +581,163 @@ def update_water(self):
 
 def draw(self):
     if "--no-water" not in sys.argv:
-        draw_water(self)  # Draw water background
-    draw_units(self)  # Draw all units
-    draw_explosions(self)  # Draw all explosions
-    draw_projectiles(self)  # Draw all projectiles
+        draw_water(self)
+    draw_units(self)
+    draw_explosions(self)
+    draw_projectiles(self)
     if "--no-ui" not in sys.argv:
-        draw_ui_panels(self)  # Draw UI panels and title
+        draw_ui_panels(self)
     if "--fps" in sys.argv:
-        draw_fps(self)  # Draw FPS counter for debugging
+        draw_fps(self)
 
 
 def draw_units(self):
-    # Calculate mouse position in world coordinates for hover detection
     mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
-
-    # Find the closest unit to mouse for hover effect
     closest_unit_index = -1
     closest_unit_index_selectable = -1
     closest_distance = float("inf")
     closest_distance_selectable = float("inf")
-
     for unit_id, unit in self.units.items():
         dist = distance(unit.position_x, unit.position_y, mouse_world_x, mouse_world_y)
-        # Track the closest unit overall
         if dist < closest_distance:
             closest_distance = dist
             closest_unit_index = unit_id
-        # Track the closest unit within selection range
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
             closest_unit_index_selectable = unit_id
-
-    # Render all units with appropriate colors
     for unit_id, unit in self.units.items():
-        # Project unit world position to screen coordinates
         screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
-
-        # Draw unit image with color based on state
         if unit_id in self.selected_units_ids:
-            # Selected unit: bright white highlight
             self.draw_image(
                 unit.image,
-                screen_x,
-                screen_y,
+                pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
                 scalex=0.5 * self.camera.scale,
                 scaley=0.5 * self.camera.scale,
-                filter=self.selected_unit_filter,
+                image_filter=self.selected_unit_filter,
                 rotation=unit.direction,
             )
-
-            # Draw autonomous target indicator if moving autonomously
             if unit.autonomous:
                 target_screen_x, target_screen_y = self.camera.project(
                     unit.autonomous_target_x, unit.autonomous_target_y
                 )
                 self.draw_image(
                     self.autonomous_target_image,
-                    target_screen_x,
-                    target_screen_y,
+                    pos=V(target_screen_x, target_screen_y),
                     origin=Origin.CENTER,
                     scalex=self.autonomous_target_image_scale * self.camera.scale,
                     scaley=self.autonomous_target_image_scale * self.camera.scale,
                     rotation=0,
                 )
         elif unit_id == closest_unit_index_selectable:
-            # Hovered unit: lighter highlight to indicate it's selectable
             self.draw_image(
                 unit.image,
-                screen_x,
-                screen_y,
+                pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
                 scalex=0.5 * self.camera.scale,
                 scaley=0.5 * self.camera.scale,
-                filter=self.hover_unit_filter,
+                image_filter=self.hover_unit_filter,
                 rotation=unit.direction,
             )
-
             if (
                 self.teams[self.units[closest_unit_index_selectable].team_index].type
                 == TeamType.PLAYER
             ):
-                # Draw autonomous target indicator if moving autonomously
                 if unit.autonomous:
                     target_screen_x, target_screen_y = self.camera.project(
                         unit.autonomous_target_x, unit.autonomous_target_y
                     )
                     self.draw_image(
                         self.autonomous_target_image,
-                        target_screen_x,
-                        target_screen_y,
+                        pos=V(target_screen_x, target_screen_y),
                         origin=Origin.CENTER,
                         scalex=self.autonomous_target_image_scale * self.camera.scale,
                         scaley=self.autonomous_target_image_scale * self.camera.scale,
                         rotation=0,
                     )
         else:
-            # Other units: neutral gray color
             self.draw_image(
                 unit.image,
-                screen_x,
-                screen_y,
+                pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
                 scalex=0.5 * self.camera.scale,
                 scaley=0.5 * self.camera.scale,
-                filter=self.other_unit_filter,
+                image_filter=self.other_unit_filter,
                 rotation=unit.direction,
             )
-
-    # Draw team color markers above each unit
     for unit_id, unit in self.units.items():
-        # Project unit position to screen coordinates
         screen_x, screen_y = self.camera.project(unit.position_x, unit.position_y)
-
-        # Draw colored marker above unit showing team color
         self.draw_image(
             self.selection_marker_image,
-            screen_x,
-            screen_y + self.selection_marker_offset * self.camera.scale,
+            pos=V(
+                screen_x, screen_y + self.selection_marker_offset * self.camera.scale
+            ),
             origin=Origin.BOTTOM,
             scalex=self.selection_marker_scale * self.camera.scale,
             scaley=self.selection_marker_scale * self.camera.scale,
-            filter=self.teams[unit.team_index].color,
+            image_filter=self.teams[unit.team_index].color,
             rotation=0,
         )
 
 
 def draw_projectiles(self):
     for projectile in self.projectiles.values():
-        # Project projectile world position to screen coordinates
         screen_x, screen_y = self.camera.project(projectile.x, projectile.y)
-        # Draw projectile image
         if self.projectile_images:
             img = self.projectile_images[
                 random.randint(0, len(self.projectile_images) - 1)
             ]
             self.draw_image(
                 img,
-                screen_x,
-                screen_y,
+                pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
                 scalex=1 * self.camera.scale,
                 scaley=1 * self.camera.scale,
-                filter=Color(255, 255, 255, 255),
-                rotation=90 - projectile.direction,  # direction is now degrees
+                image_filter=Color(255, 255, 255, 255),
+                rotation=90 - projectile.direction,
             )
 
 
 def draw_explosions(self):
     for explosion_id, explosion in self.explosions.items():
-        # Project explosion world position to screen coordinates
         screen_x, screen_y = self.camera.project(explosion.x, explosion.y)
-        # Draw current frame of explosion animation
         img = explosion.image()
         self.draw_image(
             img,
-            screen_x,
-            screen_y,
+            pos=V(screen_x, screen_y),
             origin=Origin.CENTER,
             scalex=explosion.scale * self.camera.scale,
             scaley=explosion.scale * self.camera.scale,
-            filter=Color(255, 255, 255, 255),
+            image_filter=Color(255, 255, 255, 255),
             rotation=0,
         )
 
 
-def draw_water(self):  # TODO: Make water layers have higher fps
-    # Layer 0: Ocean base layer with slow circular motion (moves in a circular
-    # path)
+def draw_water(self):
     rotation_speed_0 = 0.03
     rotation_radius_0 = 7.0
     offset_x_0 = math.sin(self.water_state * rotation_speed_0) * rotation_radius_0
     offset_y_0 = math.cos(self.water_state * rotation_speed_0) * rotation_radius_0
-    # Dynamic color modulation for base layer (darker)
     draw_water_layer(
         self,
-        Color(30, 60, 170, 255),  # Dark blue with some transparency
-        Color(20, 20, 20, 0),  # Moderate color fluctuation strength
-        Color(0.2, 0.2, 0.2, 0),  # Moderate fluctuation speed
+        Color(30, 60, 170, 255),
+        Color(20, 20, 20, 0),
+        Color(51, 51, 51, 0),
         offset_x_0,
         offset_y_0,
-        False,  # No per-tile offset for this layer
+        False,
     )
-
-    # Layer 1: Turquoise wave layer (moves diagonally)
     wave_speed_1 = 1.5
     offset_x_1 = self.water_state * wave_speed_1
-    offset_y_1 = (
-        -self.water_state * wave_speed_1 * 0.8
-    )  # Negative for opposite direction
+    offset_y_1 = -self.water_state * wave_speed_1 * 0.8
     draw_water_layer(
         self,
-        Color(70, 170, 230, 120),  # Light turquoise with some transparency
-        Color(15, 15, 15, 0),  # Moderate color fluctuation strength
-        Color(0.1, 0.1, 0.1, 0),  # Slow fluctuation speed
+        Color(70, 170, 230, 120),
+        Color(15, 15, 15, 0),
+        Color(26, 26, 26, 0),
         offset_x_1,
         offset_y_1,
-        True,  # Enable per-tile offset for this layer
+        True,
     )
 
 
@@ -970,7 +750,6 @@ def draw_water_layer(
     offset_y: float = 0.0,
     per_tile_offset: bool = False,
 ):
-    # Combine base color with fluctuation for dynamic effect
     final_color = Color(
         color.r
         + math.sin(color_fluctuation_speed.r * self.water_state)
@@ -995,78 +774,55 @@ def draw_tiled_water(
     offset_y: float = 0.0,
     per_tile_offset: bool = False,
 ):
-    # Small overlap to prevent gaps between tiles
     offset = 5
-
-    # Calculate tile dimensions in world space
     world_tile_w = (self.water_image.get_width() - offset) * self.water_image_scale
     world_tile_h = (self.water_image.get_height() - offset) * self.water_image_scale
-
-    # Get screen dimensions
     screen_w = self.screen_right - self.screen_left
     screen_h = self.screen_top - self.screen_bottom
-
-    # Effective camera position with offsets (creates parallax effect)
     eff_cam_x = self.camera.x + offset_x
     eff_cam_y = self.camera.y + offset_y
-
-    # Convert screen edges to world coordinates using effective camera
     world_left = self.screen_left / self.camera.scale + eff_cam_x
     world_bottom = self.screen_bottom / self.camera.scale + eff_cam_y
     world_right = self.screen_right / self.camera.scale + eff_cam_x
     world_top = self.screen_top / self.camera.scale + eff_cam_y
-
-    # Calculate starting position for tiling (align to grid)
-    start_world_x = world_left - (world_left % world_tile_w) - world_tile_w
-    start_world_y = world_bottom - (world_bottom % world_tile_h) - world_tile_h
-
-    # Calculate screen-space tile dimensions
+    start_world_x = world_left - world_left % world_tile_w - world_tile_w
+    start_world_y = world_bottom - world_bottom % world_tile_h - world_tile_h
     tile_w_screen = world_tile_w * self.camera.scale
     tile_h_screen = world_tile_h * self.camera.scale
-
-    # Calculate how many tiles needed to cover screen
     cols = int(math.ceil(screen_w / tile_w_screen)) + 3
     rows = int(math.ceil(screen_h / tile_h_screen)) + 3
-
-    # Calculate scale factors for rendering
     scalex = self.water_image_scale * self.camera.scale
     scaley = scalex
-
-    # Render all tiles
     for col in range(cols):
         for row in range(rows):
-            # Calculate world position of this tile
             wx = start_world_x + col * world_tile_w
             wy = start_world_y + row * world_tile_h
             tile_offset_x = 0
             tile_offset_y = 0
             if per_tile_offset:
-                tile_offset_x = (
-                    pseudo_random_offset(wx, wy, seed=1) - 0.5
-                ) * 2  # Range: -1 to +1
+                tile_offset_x = (pseudo_random_offset(wx, wy, seed=1) - 0.5) * 2
                 tile_offset_y = (pseudo_random_offset(wx, wy, seed=2) - 0.5) * 2
             sx, sy = self.camera.project(
                 wx - offset_x - tile_offset_x, wy - offset_y - tile_offset_y
             )
             self.draw_image(
                 self.water_image,
-                sx,
-                sy,
+                pos=V(sx, sy),
                 origin=Origin.BOTTOMLEFT,
                 scalex=scalex,
                 scaley=scaley,
-                filter=filter_color,
+                image_filter=filter_color,
                 rotation=0,
             )
 
 
 def draw_ui_panels(self):
-    # Left side panel (with rounded corner)
     self.fill_rounded_rect(
-        self.screen_left,
-        self.screen_bottom,
-        self.extend(self.screen_left, 150, ExtendDirection.RIGHT),
-        self.extend(self.screen_bottom, 100, ExtendDirection.UP),
+        V(self.screen_left, self.screen_bottom),
+        V(
+            self.extend(self.screen_left, 150, ExtendDirection.RIGHT),
+            self.extend(self.screen_bottom, 100, ExtendDirection.UP),
+        ),
         color=self.side_panel_color,
         outline_thickness=self.panel_outline_thickness * self.gui_scale,
         outline_color=self.panel_outline_color,
@@ -1075,13 +831,12 @@ def draw_ui_panels(self):
         bottomleft_roundness=0,
         bottomright_roundness=0,
     )
-
-    # Right side panel (with rounded corner)
     self.fill_rounded_rect(
-        self.extend(self.screen_right, 150, ExtendDirection.LEFT),
-        self.screen_bottom,
-        self.screen_right,
-        self.extend(self.screen_bottom, 100, ExtendDirection.UP),
+        V(
+            self.extend(self.screen_right, 150, ExtendDirection.LEFT),
+            self.screen_bottom,
+        ),
+        V(self.screen_right, self.extend(self.screen_bottom, 100, ExtendDirection.UP)),
         color=self.side_panel_color,
         outline_thickness=self.panel_outline_thickness * self.gui_scale,
         outline_color=self.panel_outline_color,
@@ -1090,99 +845,81 @@ def draw_ui_panels(self):
         bottomleft_roundness=0,
         bottomright_roundness=0,
     )
-
-    # Bottom command panel (between side panels)
     self.fill_rect(
-        self.extend(self.screen_left, 150, ExtendDirection.RIGHT),
-        self.screen_bottom,
-        self.extend(self.screen_right, 150, ExtendDirection.LEFT),
-        self.extend(self.screen_bottom, 80, ExtendDirection.UP),
+        V(
+            self.extend(self.screen_left, 150, ExtendDirection.RIGHT),
+            self.screen_bottom,
+        ),
+        V(
+            self.extend(self.screen_right, 150, ExtendDirection.LEFT),
+            self.extend(self.screen_bottom, 80, ExtendDirection.UP),
+        ),
         color=self.middle_panel_color,
         outline_thickness=self.panel_outline_thickness * self.gui_scale,
         outline_color=self.panel_outline_color,
     )
-
-    # Top menu panel
     self.fill_rect(
-        self.screen_left,
-        self.screen_top,
-        self.screen_right,
-        self.extend(self.screen_top, 30, ExtendDirection.DOWN),
+        V(self.screen_left, self.screen_top),
+        V(self.screen_right, self.extend(self.screen_top, 30, ExtendDirection.DOWN)),
         color=self.middle_panel_color,
         outline_thickness=self.panel_outline_thickness * self.gui_scale,
         outline_color=self.panel_outline_color,
     )
-
-    # Draw "Fleet Command" title with shadow effect
     shadow_offset = self.title_text_shadow_offset * self.gui_scale
     title_x = self.screen_center_x
     title_y = self.extend(self.screen_top, 15, ExtendDirection.DOWN)
     font = self.title_font.new_size(20 * self.gui_scale)
     origin = Origin.CENTER
     shadow_color = self.title_text_shadow_color
-
-    # Draw shadow in four directions for depth effect
-    # Above
     self.draw_text(
         "Fleet Command",
-        title_x,
-        title_y - shadow_offset,
-        font,
-        shadow_color,
-        origin,
+        pos=V(title_x, title_y - shadow_offset),
+        font=font,
+        color=shadow_color,
+        origin=origin,
     )
-    # Below
     self.draw_text(
         "Fleet Command",
-        title_x,
-        title_y + shadow_offset,
-        font,
-        shadow_color,
-        origin,
+        pos=V(title_x, title_y + shadow_offset),
+        font=font,
+        color=shadow_color,
+        origin=origin,
     )
-    # Left
     self.draw_text(
         "Fleet Command",
-        title_x - shadow_offset,
-        title_y,
-        font,
-        shadow_color,
-        origin,
+        pos=V(title_x - shadow_offset, title_y),
+        font=font,
+        color=shadow_color,
+        origin=origin,
     )
-    # Right
     self.draw_text(
         "Fleet Command",
-        title_x + shadow_offset,
-        title_y,
-        font,
-        shadow_color,
-        origin,
+        pos=V(title_x + shadow_offset, title_y),
+        font=font,
+        color=shadow_color,
+        origin=origin,
     )
-
-    # Draw title text main (bright color on top of shadow)
     self.draw_text(
-        "Fleet Command", title_x, title_y, font, self.title_text_color, origin
+        "Fleet Command",
+        pos=V(title_x, title_y),
+        font=font,
+        color=self.title_text_color,
+        origin=origin,
     )
-
-    # Draw team info above left side panel
     team_info_x = self.extend(self.screen_right, 5, ExtendDirection.LEFT)
     team_info_y = self.extend(self.screen_bottom, 100 + 20, ExtendDirection.UP)
     for i, team in enumerate(self.teams):
         self.draw_text(
             f"{team.name}: {team.type.name} - {len([u for u in self.units.values() if u.team_index == i])}",
-            team_info_x,
-            team_info_y + i * (15 * self.gui_scale),
-            self.context_font.new_size(12 * self.gui_scale),
-            team.color,
-            Origin.BOTTOMRIGHT,
+            pos=V(team_info_x, team_info_y + i * (15 * self.gui_scale)),
+            font=self.context_font.new_size(12 * self.gui_scale),
+            color=team.color,
+            origin=Origin.BOTTOMRIGHT,
         )
-
-    # Draw unit info in left side panel
     if len(self.selected_units_ids) > 0:
         info_x = self.extend(self.screen_left, 10, ExtendDirection.RIGHT)
         info_y = self.extend(self.screen_bottom, 95, ExtendDirection.UP)
         line_height = 15 * self.gui_scale
-
         selected_count = len(self.selected_units_ids)
 
         def safe_average(values):
@@ -1197,7 +934,6 @@ def draw_ui_panels(self):
         avg_max_health = safe_average(
             [self.units[i].max_health for i in self.selected_units_ids]
         )
-
         if selected_count == 1:
             lines = [
                 f"Unit Info: {selected_count}",
@@ -1212,15 +948,13 @@ def draw_ui_panels(self):
                 f"Average Health: {avg_health}",
                 f"Average Max Health: {avg_max_health}",
             ]
-
         for i, line in enumerate(lines):
             self.draw_text(
                 line,
-                info_x,
-                info_y - i * line_height,
-                self.context_font.new_size(12 * self.gui_scale),
-                Color(200, 200, 200),
-                Origin.TOPLEFT,
+                pos=V(info_x, info_y - i * line_height),
+                font=self.context_font.new_size(12 * self.gui_scale),
+                color=Color(200, 200, 200),
+                origin=Origin.TOPLEFT,
             )
     else:
         mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
@@ -1228,26 +962,21 @@ def draw_ui_panels(self):
         closest_unit_index_selectable = -1
         closest_distance = float("inf")
         closest_distance_selectable = float("inf")
-
         for unit_id, unit in self.units.items():
             dist = distance(
                 unit.position_x, unit.position_y, mouse_world_x, mouse_world_y
             )
-            # Track the closest unit overall
             if dist < closest_distance:
                 closest_distance = dist
                 closest_unit_index = unit_id
-            # Track the closest unit within selection range
             if dist < closest_distance_selectable and dist < self.selection_distance:
                 closest_distance_selectable = dist
                 closest_unit_index_selectable = unit_id
-
         if closest_unit_index_selectable != -1:
             unit = self.units[closest_unit_index_selectable]
             info_x = self.extend(self.screen_left, 10, ExtendDirection.RIGHT)
             info_y = self.extend(self.screen_bottom, 95, ExtendDirection.UP)
             line_height = 15 * self.gui_scale
-
             lines = [
                 f"Unit Info:",
                 f"Team: {self.teams[unit.team_index].name}",
@@ -1255,26 +984,25 @@ def draw_ui_panels(self):
                 f"Health: {round(unit.health)}",
                 f"Max Health: {round(unit.max_health)}",
             ]
-
             for i, line in enumerate(lines):
                 self.draw_text(
                     line,
-                    info_x,
-                    info_y - i * line_height,
-                    self.context_font.new_size(12 * self.gui_scale),
-                    Color(200, 200, 200),
-                    Origin.TOPLEFT,
+                    pos=V(info_x, info_y - i * line_height),
+                    font=self.context_font.new_size(12 * self.gui_scale),
+                    color=Color(200, 200, 200),
+                    origin=Origin.TOPLEFT,
                 )
 
 
 def draw_fps(self):
-    # Draw FPS counter in the top left corner of the screen
     fps = 0 if self.deltatime == 0 else round(1 / self.deltatime)
     self.draw_text(
         str(fps),
-        self.extend(self.screen_left, 7, ExtendDirection.RIGHT),
-        self.extend(self.screen_top, 2, ExtendDirection.DOWN),
-        self.title_font.new_size(20 * self.gui_scale),
-        Color(100, 100, 100),
-        Origin.TOPLEFT,
+        pos=V(
+            self.extend(self.screen_left, 7, ExtendDirection.RIGHT),
+            self.extend(self.screen_top, 2, ExtendDirection.DOWN),
+        ),
+        font=self.title_font.new_size(20 * self.gui_scale),
+        color=Color(100, 100, 100),
+        origin=Origin.TOPLEFT,
     )

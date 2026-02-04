@@ -10,8 +10,5 @@ source .venv/bin/activate
 # Upgrade pip
 python -m pip install --upgrade pip setuptools wheel
 
-# Install game requirements
+# Install requirements
 pip install -r requirements.txt
-
-# Install development tools
-pip install -r dev-requirements.txt

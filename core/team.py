@@ -5,27 +5,28 @@ from libraries.pgiud import Color
 
 
 class TeamType(Enum):
-    PLAYER = "player"  # Team controlled by the player
-    AI = "ai"  # Team controlled by AI
+    PLAYER = "player"
+    AI = "ai"
 
 
 class TeamColor:
+
     def __init__(self, name: str, color: Color) -> None:
-        self.name = name  # Team display name
-        self.color = color  # Team color for rendering
+        self.name = name
+        self.color = color
 
 
 class Team:
+
     def __init__(self, type: TeamType, name: str, color: Color) -> None:
-        self.type = type  # Team type (PLAYER or AI)
-        self.name = name  # Team display name
-        self.color = color  # Team color for rendering
+        self.type = type
+        self.name = name
+        self.color = color
 
 
 def random_teams(teams: int) -> list[Team]:
     remaining_colors = team_colors.copy()
     random.shuffle(remaining_colors)
-
     result = []
     for i in range(teams):
         if remaining_colors:
@@ -36,7 +37,6 @@ def random_teams(teams: int) -> list[Team]:
             team_color = random.choice(team_colors)
             name = team_color.name
             color = team_color.color
-
         if i == 0:
             result.append(Team(TeamType.PLAYER, name, color))
         else:
