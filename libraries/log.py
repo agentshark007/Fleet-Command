@@ -53,7 +53,7 @@ def _log(level: str, message: str, color: str = None):
     if _LEVELS[level] < _log_level:
         return
     ts = _timestamp()
-    line = f"{ts} [{level: <5}] {message}"
+    line = f"{ts} [{level}] {message}"
     with open(_log_file, "a") as f:
         f.write(line + "\n")
     if _console:
