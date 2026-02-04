@@ -556,8 +556,8 @@ def handle_camera_movement(self):
         if self.mousedownprimary:
             self.camera.velocity_x = 0
             self.camera.velocity_y = 0
-            self.camera.x += (self.mousex_last_frame - self.mousex) / self.camera.scale
-            self.camera.y += (self.mousey_last_frame - self.mousey) / self.camera.scale
+            self.camera.x += (self.mouse_last_frame.x - self.mousex) / self.camera.scale
+            self.camera.y += (self.mouse_last_frame.y - self.mousey) / self.camera.scale
     factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
     factor_y = self.camera_move_speed / self.camera.scale * self.deltatime
     if self.keydown(Key.LEFT):
