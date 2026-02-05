@@ -3,21 +3,8 @@ import math
 from enum import Enum
 from typing import Iterable, Optional, Tuple
 import pygame
-
-__version__ = "1.1.0"
-__all__ = [
-    "V",
-    "Key",
-    "Font",
-    "Color",
-    "Image",
-    "Sound",
-    "Origin",
-    "Resizable",
-    "Window",
-    "__version__",
-]
-
+__version__ = '1.1.0'
+__all__ = ['V', 'Key', 'Font', 'Color', 'Image', 'Sound', 'Origin', 'Resizable', 'Window', '__version__']
 
 class V:
 
@@ -36,7 +23,7 @@ class V:
 
     def __truediv__(self, scalar: float) -> V:
         if scalar == 0:
-            raise ZeroDivisionError("division by zero")
+            raise ZeroDivisionError('division by zero')
         return V(self.x / scalar, self.y / scalar)
 
     def __rmul__(self, scalar: float) -> V:
@@ -62,14 +49,12 @@ class V:
         if not isinstance(other, V):
             return False
         try:
-            return math.isclose(
-                self.x, other.x, rel_tol=1e-09, abs_tol=1e-09
-            ) and math.isclose(self.y, other.y, rel_tol=1e-09, abs_tol=1e-09)
+            return math.isclose(self.x, other.x, rel_tol=1e-09, abs_tol=1e-09) and math.isclose(self.y, other.y, rel_tol=1e-09, abs_tol=1e-09)
         except Exception:
             return self.x == other.x and self.y == other.y
 
     def __repr__(self) -> str:
-        return f"V({self.x}, {self.y})"
+        return f'V({self.x}, {self.y})'
 
     def distance_to(self, other: V) -> float:
         return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
@@ -80,7 +65,6 @@ class V:
     @staticmethod
     def distance(a: V, b: V) -> float:
         return a.distance_to(b)
-
 
 class Key(Enum):
     A = pygame.K_a
@@ -185,10 +169,9 @@ class Key(Enum):
     KP_ENTER = pygame.K_KP_ENTER
     KP_EQUALS = pygame.K_KP_EQUALS
 
-
 class Font:
 
-    def __init__(self, file: str = None, size: int = 24):
+    def __init__(self, file: str=None, size: int=24):
         pygame.font.init()
         self.size = size
         self.file = file
@@ -210,10 +193,9 @@ class Font:
     def new_size(self, size: int):
         return Font(self.file, int(size))
 
-
 class Color:
 
-    def __init__(self, r: int, g: int, b: int, a: int = 255):
+    def __init__(self, r: int, g: int, b: int, a: int=255):
         self.r = max(0, min(255, int(r)))
         self.g = max(0, min(255, int(g)))
         self.b = max(0, min(255, int(b)))
@@ -225,7 +207,7 @@ class Color:
     def rgb_tuple(self):
         return (self.r, self.g, self.b)
 
-    def mix(self, other: "Color", factor: float = 0.5):
+    def mix(self, other: 'Color', factor: float=0.5):
         factor = max(0.0, min(1.0, factor))
         r = int(round(self.r * (1 - factor) + other.r * factor))
         g = int(round(self.g * (1 - factor) + other.g * factor))
@@ -234,18 +216,12 @@ class Color:
         return Color(r, g, b, a)
 
     def __repr__(self) -> str:
-        return f"Color({self.r}, {self.g}, {self.b}, {self.a})"
+        return f'Color({self.r}, {self.g}, {self.b}, {self.a})'
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Color):
             return False
-        return (
-            self.r == other.r
-            and self.g == other.g
-            and (self.b == other.b)
-            and (self.a == other.a)
-        )
-
+        return self.r == other.r and self.g == other.g and (self.b == other.b) and (self.a == other.a)
 
 class Image:
 
@@ -265,7 +241,6 @@ class Image:
 
     def get_height(self):
         return self.surface.get_height()
-
 
 class Sound:
 
@@ -316,7 +291,6 @@ class Sound:
         else:
             return None
 
-
 class Origin(Enum):
     CENTER = (0, 0)
     TOP = (0, 1)
@@ -328,25 +302,16 @@ class Origin(Enum):
     BOTTOMLEFT = (-1, -1)
     BOTTOMRIGHT = (1, -1)
 
-
 class Resizable(Enum):
-    NONE = "none"
-    WIDTH = "width"
-    HEIGHT = "height"
-    BOTH = "both"
-    ASPECT = "aspect"
-
+    NONE = 'none'
+    WIDTH = 'width'
+    HEIGHT = 'height'
+    BOTH = 'both'
+    ASPECT = 'aspect'
 
 class Window:
 
-    def __init__(
-        self,
-        width: int = 800,
-        height: int = 600,
-        title: str = "PGIUD Window",
-        resizable: Resizable = Resizable.NONE,
-        origin: Origin = Origin.BOTTOMLEFT,
-    ):
+    def __init__(self, width: int=800, height: int=600, title: str='PGIUD Window', resizable: Resizable=Resizable.NONE, origin: Origin=Origin.BOTTOMLEFT):
         pygame.init()
         try:
             pygame.mixer.init()
@@ -466,11 +431,7 @@ class Window:
         elif self._resizable == Resizable.HEIGHT:
             w = self.width
         elif self._resizable == Resizable.ASPECT:
-            ratio = (
-                self._original_width / self._original_height
-                if self._original_height != 0
-                else 1
-            )
+            ratio = self._original_width / self._original_height if self._original_height != 0 else 1
             if w / h > ratio:
                 w = int(h * ratio)
             else:
@@ -533,18 +494,11 @@ class Window:
         """Called when the window is resized."""
         pass
 
-    def clear(self, color: "Color"):
+    def clear(self, color: 'Color'):
         """Clear the screen to the given color."""
         self._screen.fill(color.rgb_tuple() if color.a == 255 else color.to_tuple())
 
-    def fill_rect(
-        self,
-        a: V,
-        b: V,
-        color: "Color",
-        outline_thickness: int = 0,
-        outline_color: "Color" = None,
-    ):
+    def fill_rect(self, a: V, b: V, color: 'Color', outline_thickness: int=0, outline_color: 'Color'=None):
         """Draw a filled rectangle from a to b in IUD coordinates."""
         outline_thickness = int(outline_thickness)
         ax, ay = a.to_tuple()
@@ -569,26 +523,10 @@ class Window:
             temp.fill(color.to_tuple())
             self._screen.blit(temp, (x, y))
         if outline_thickness > 0 and outline_color:
-            col = (
-                outline_color.rgb_tuple()
-                if outline_color.a == 255
-                else outline_color.to_tuple()
-            )
+            col = outline_color.rgb_tuple() if outline_color.a == 255 else outline_color.to_tuple()
             pygame.draw.rect(self._screen, col, rect, outline_thickness)
 
-    def fill_rounded_rect(
-        self,
-        a: V,
-        b: V,
-        color: Color,
-        outline_thickness: int = 0,
-        outline_color: Color = None,
-        top_left_roundness: float = 0.0,
-        top_right_roundness: float = 0.0,
-        bottom_left_roundness: float = 0.0,
-        bottom_right_roundness: float = 0.0,
-        steps: int = 10,
-    ):
+    def fill_rounded_rect(self, a: V, b: V, color: Color, outline_thickness: int=0, outline_color: Color=None, top_left_roundness: float=0.0, top_right_roundness: float=0.0, bottom_left_roundness: float=0.0, bottom_right_roundness: float=0.0, steps: int=10):
         """Draw a filled rounded rectangle with optional outline."""
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
@@ -609,9 +547,7 @@ class Window:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi / 2 + math.pi / 2 * (i / steps)
-                arc_points.append(
-                    (cx + tl * math.cos(theta), cy + tl * math.sin(theta))
-                )
+                arc_points.append((cx + tl * math.cos(theta), cy + tl * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((left, top))
@@ -621,9 +557,7 @@ class Window:
             arc_points = []
             for i in range(steps + 1):
                 theta = 0 + math.pi / 2 * (i / steps)
-                arc_points.append(
-                    (cx + tr * math.cos(theta), cy + tr * math.sin(theta))
-                )
+                arc_points.append((cx + tr * math.cos(theta), cy + tr * math.sin(theta)))
             points.extend(reversed(arc_points[1:]))
         else:
             points.append((right, top))
@@ -632,9 +566,7 @@ class Window:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi / 2 + math.pi + math.pi / 2 * (i / steps)
-                arc_points.append(
-                    (cx + br * math.cos(theta), cy + br * math.sin(theta))
-                )
+                arc_points.append((cx + br * math.cos(theta), cy + br * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((right, bottom))
@@ -643,9 +575,7 @@ class Window:
             arc_points = []
             for i in range(steps + 1):
                 theta = math.pi + math.pi / 2 * (i / steps)
-                arc_points.append(
-                    (cx + bl * math.cos(theta), cy + bl * math.sin(theta))
-                )
+                arc_points.append((cx + bl * math.cos(theta), cy + bl * math.sin(theta)))
             points.extend(reversed(arc_points))
         else:
             points.append((left, bottom))
@@ -658,7 +588,7 @@ class Window:
             return
         self.fill_polygon(points, color, outline_thickness, outline_color)
 
-    def draw_line(self, a: V, b: V, color: "Color", width: int = 1):
+    def draw_line(self, a: V, b: V, color: 'Color', width: int=1):
         """Draw a line from (ax, ay) to (bx, by) in IUD coordinates."""
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
@@ -679,13 +609,7 @@ class Window:
             pygame.draw.line(temp, color.to_tuple(), (sax, say), (sbx, sby), width)
             self._screen.blit(temp, (min_x, min_y))
 
-    def fill_polygon(
-        self,
-        points: Iterable[Tuple[float, float]],
-        color: "Color",
-        outline_thickness: int = 0,
-        outline_color: "Color" = None,
-    ):
+    def fill_polygon(self, points: Iterable[Tuple[float, float]], color: 'Color', outline_thickness: int=0, outline_color: 'Color'=None):
         """Draw a filled polygon. Points should be an iterable of (x, y) pairs."""
         pg_points = [self._iud_to_pg(int(round(x)), int(round(y))) for x, y in points]
         if color.a == 255:
@@ -705,9 +629,7 @@ class Window:
             tw = max(1, int(round(width)))
             th = max(1, int(round(height)))
             temp = pygame.Surface((tw, th), pygame.SRCALPHA)
-            shifted = [
-                (int(round(x - min_x)), int(round(y - min_y))) for x, y in pg_points
-            ]
+            shifted = [(int(round(x - min_x)), int(round(y - min_y))) for x, y in pg_points]
             try:
                 pygame.draw.polygon(temp, color.to_tuple(), shifted)
                 self._screen.blit(temp, (min_x, min_y))
@@ -715,26 +637,11 @@ class Window:
                 return
         if outline_thickness > 0 and outline_color is not None:
             try:
-                pygame.draw.polygon(
-                    self._screen,
-                    outline_color.rgb_tuple(),
-                    pg_points,
-                    outline_thickness,
-                )
+                pygame.draw.polygon(self._screen, outline_color.rgb_tuple(), pg_points, outline_thickness)
             except Exception:
                 pass
 
-    def draw_image(
-        self,
-        image: "Image",
-        pos: V,
-        origin: Origin = Origin.BOTTOMLEFT,
-        image_filter: Optional["Color"] = None,
-        scale_x: float = 1.0,
-        scale_y: float = 1.0,
-        rotation: int = 0,
-        antialiasing: bool = True,
-    ):
+    def draw_image(self, image: 'Image', pos: V, origin: Origin=Origin.BOTTOMLEFT, image_filter: Optional['Color']=None, scale_x: float=1.0, scale_y: float=1.0, rotation: int=0, antialiasing: bool=True):
         """Draw an image at (x, y) in IUD coordinates.
 
         Optional:
@@ -747,7 +654,7 @@ class Window:
         px, py = self._iud_to_pg(int(x), int(y))
         ox, oy = origin.value
         oy *= -1
-        surf = getattr(image, "surface", None)
+        surf = getattr(image, 'surface', None)
         if surf is None:
             return
         if scale_y is None:
@@ -756,7 +663,7 @@ class Window:
             if scale_x != 1.0 or scale_y != 1.0:
                 new_w = max(1, int(round(image.get_width() * scale_x)))
                 new_h = max(1, int(round(image.get_height() * scale_y)))
-                if antialiasing and hasattr(pygame.transform, "smoothscale"):
+                if antialiasing and hasattr(pygame.transform, 'smoothscale'):
                     surf = pygame.transform.smoothscale(surf, (new_w, new_h))
                 else:
                     surf = pygame.transform.scale(surf, (new_w, new_h))
@@ -778,14 +685,7 @@ class Window:
         py -= oy * surf.get_height() // 2
         self._screen.blit(surf, (px, py))
 
-    def draw_text(
-        self,
-        text: str,
-        pos: V,
-        font: "Font",
-        color: "Color",
-        origin: Origin = Origin.BOTTOMLEFT,
-    ):
+    def draw_text(self, text: str, pos: V, font: 'Font', color: 'Color', origin: Origin=Origin.BOTTOMLEFT):
         """Draw text at (x, y) in IUD coordinates. `origin` specifies the text anchor."""
         x, y = pos.to_tuple()
         surf = font.font.render(text, True, color.rgb_tuple())

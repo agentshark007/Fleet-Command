@@ -11,53 +11,12 @@ This repository contains the source for Fleet-Command — a hobby project by Pay
 - Language: Python
 - Status: In Development
 - Entry point: `main.py`
-- Prerequisites: run `install.sh`
 
 ---
 
 ## Requirements
 
 The easiest way to install runtime dependencies and create a virtual environment is using `install.sh`. `pgiud` version `1.1` is used.
-
----
-
-## Run the game (development)
-
-From the repository root (after running `install.sh`):
-
-```bash
-python main.py
-```
-
-This will start the game window. If you hit errors about missing packages, make sure you have run `install.sh`.
-
----
-
-## Project layout
-
-- `main.py` — game entrypoint
-- `core/` — core game logic (units, projectiles, camera, utility helpers)
-- `iud/` — UI screens and game flow (menu, new game, settings, paused)
-- `assets/` — images, fonts, sounds used by the game
-- `libraries/` — small supporting modules (logging, pgiud wrapper)
-- `requirements.txt` — pinned Python dependencies
-
----
-
-## Controls & gameplay (short)
-
-- Use the mouse to select units and give movement/attack orders.
-- UI screens are accessible from the main menu (start new game, settings, pause).
-
-(For more detailed controls, see the in-game menu or inspect `iud/` screen code.)
-
----
-
-## Development notes
-
-- The code is intended as a small hobby project; feel free to explore `core/` and `iud/` for game logic and UI flow.
-- Run `format.sh` before creating a commit.
-- When adding assets, keep them organized under `assets/images`, `assets/sounds`, and `assets/fonts`.
 
 ---
 

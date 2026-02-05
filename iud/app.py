@@ -3,25 +3,18 @@ from iud import core, game, mainmenu, newgame, paused, settings
 from libraries import log
 from libraries.pgiud import *
 
-
 class GameWindow(Window):
     gui_scale: float = 1.0
 
     def __init__(self) -> None:
-        super().__init__(
-            width=800,
-            height=600,
-            title="Fleet Command",
-            resizable=Resizable.BOTH,
-            origin=Origin.CENTER,
-        )
+        super().__init__(width=800, height=600, title='Fleet Command', resizable=Resizable.BOTH, origin=Origin.CENTER)
         self.gui_scale = 1.0
 
     def extend(self, pivot, value, direction: ExtendDirection):
         return pivot + value * direction.value * self.gui_scale
 
     def initialize(self):
-        log.info("Global initialization started")
+        log.info('Global initialization started')
         self.menu_state = GameState.MAINMENU
         core.initialize(self)
         game.initialize(self)
@@ -30,7 +23,7 @@ class GameWindow(Window):
         paused.initialize(self)
         settings.initialize(self)
         core.late_initialize(self)
-        log.info("Global initialization complete")
+        log.info('Global initialization complete')
 
     def update(self):
         core.update(self)
@@ -62,12 +55,11 @@ class GameWindow(Window):
                 settings.draw(self)
         core.late_draw(self)
 
-
 def main():
-    log.reset("fleet-command.log", "WARN")
-    log.info("Creating game window")
+    log.reset('fleet-command.log', 'WARN')
+    log.info('Creating game window')
     window = GameWindow()
-    log.info("Game window created")
-    log.info("Starting game window")
+    log.info('Game window created')
+    log.info('Starting game window')
     window.start()
-    log.info("Game window closed")
+    log.info('Game window closed')

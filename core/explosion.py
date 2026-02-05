@@ -1,7 +1,6 @@
 from core.asset import asset
 from libraries.pgiud import Image, V
 
-
 class Explosion:
 
     def __init__(self, x, y):
@@ -10,10 +9,7 @@ class Explosion:
         self.frames = 10
         self.current_frame = 0
         self.scale = 1.0
-        self.images = [
-            Image(asset(f"images/explosion/explosion_{i}.png"))
-            for i in range(self.frames)
-        ]
+        self.images = [Image(asset(f'images/explosion/explosion_{i}.png')) for i in range(self.frames)]
 
     def image(self):
         return self.images[self.current_frame]

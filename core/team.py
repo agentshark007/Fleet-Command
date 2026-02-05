@@ -2,11 +2,9 @@ import random
 from enum import Enum
 from libraries.pgiud import Color
 
-
 class TeamType(Enum):
-    PLAYER = "player"
-    AI = "ai"
-
+    PLAYER = 'player'
+    AI = 'ai'
 
 class TeamColor:
 
@@ -14,14 +12,12 @@ class TeamColor:
         self.name = name
         self.color = color
 
-
 class Team:
 
     def __init__(self, type: TeamType, name: str, color: Color) -> None:
         self.type = type
         self.name = name
         self.color = color
-
 
 def random_teams(teams: int) -> list[Team]:
     remaining_colors = team_colors.copy()
@@ -41,14 +37,4 @@ def random_teams(teams: int) -> list[Team]:
         else:
             result.append(Team(TeamType.AI, name, color))
     return result
-
-
-team_colors = [
-    TeamColor("Red Fleet", Color(255, 0, 0)),
-    TeamColor("Blue Alliance", Color(0, 0, 255)),
-    TeamColor("Green Squadron", Color(0, 255, 0)),
-    TeamColor("Yellow Legion", Color(255, 255, 0)),
-    TeamColor("Purple Vanguard", Color(128, 0, 128)),
-    TeamColor("Orange Crew", Color(255, 165, 0)),
-    TeamColor("Cyan Force", Color(0, 255, 255)),
-]
+team_colors = [TeamColor('Red Fleet', Color(255, 0, 0)), TeamColor('Blue Alliance', Color(0, 0, 255)), TeamColor('Green Squadron', Color(0, 255, 0)), TeamColor('Yellow Legion', Color(255, 255, 0)), TeamColor('Purple Vanguard', Color(128, 0, 128)), TeamColor('Orange Crew', Color(255, 165, 0)), TeamColor('Cyan Force', Color(0, 255, 255))]

@@ -1,6 +1,5 @@
 from libraries.pgiud import V
 
-
 class Camera:
 
     def __init__(self, x: float, y: float, scale: float):
