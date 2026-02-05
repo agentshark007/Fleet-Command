@@ -3,7 +3,9 @@ import random
 from libraries.pgiud import V
 
 
-def calculate_direction(origin_x: float, origin_y: float, target_x: float, target_y: float) -> float:
+def calculate_direction(
+    origin_x: float, origin_y: float, target_x: float, target_y: float
+) -> float:
     dx = target_x - origin_x
     dy = target_y - origin_y
     angle_rad = math.atan2(dy, dx)
@@ -12,7 +14,18 @@ def calculate_direction(origin_x: float, origin_y: float, target_x: float, targe
 
 class Projectile:
 
-    def __init__(self, x: float, y: float, direction: float, shooter_id: int, speed: float, damage: int, cooldown: float, fuel: float, accuracy: float) -> None:
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        direction: float,
+        shooter_id: int,
+        speed: float,
+        damage: int,
+        cooldown: float,
+        fuel: float,
+        accuracy: float,
+    ) -> None:
         self.pos = V(x, y)
         self.direction = direction
         self.speed = speed
@@ -51,5 +64,14 @@ class Projectile:
 class Missile(Projectile):
 
     def __init__(self, x: float, y: float, direction: float, shooter_id: int) -> None:
-        super().__init__(x, y, direction, shooter_id=shooter_id,
-                         speed=100, damage=2, cooldown=0.5, fuel=15, accuracy=5)
+        super().__init__(
+            x,
+            y,
+            direction,
+            shooter_id=shooter_id,
+            speed=100,
+            damage=2,
+            cooldown=0.5,
+            fuel=15,
+            accuracy=5,
+        )

@@ -11,7 +11,9 @@ class Explosion:
         self.current_frame = 0
         self.scale = 1.0
         self.images = [
-            Image(asset(f'images/explosion/explosion_{i}.png')) for i in range(self.frames)]
+            Image(asset(f"images/explosion/explosion_{i}.png"))
+            for i in range(self.frames)
+        ]
 
     def image(self):
         return self.images[self.current_frame]
