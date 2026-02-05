@@ -240,10 +240,10 @@ class Color:
         if not isinstance(other, Color):
             return False
         return (
-                self.r == other.r
-                and self.g == other.g
-                and (self.b == other.b)
-                and (self.a == other.a)
+            self.r == other.r
+            and self.g == other.g
+            and (self.b == other.b)
+            and (self.a == other.a)
         )
 
 
@@ -340,12 +340,12 @@ class Resizable(Enum):
 class Window:
 
     def __init__(
-            self,
-            width: int = 800,
-            height: int = 600,
-            title: str = "PGIUD Window",
-            resizable: Resizable = Resizable.NONE,
-            origin: Origin = Origin.BOTTOMLEFT,
+        self,
+        width: int = 800,
+        height: int = 600,
+        title: str = "PGIUD Window",
+        resizable: Resizable = Resizable.NONE,
+        origin: Origin = Origin.BOTTOMLEFT,
     ):
         pygame.init()
         try:
@@ -538,12 +538,12 @@ class Window:
         self._screen.fill(color.rgb_tuple() if color.a == 255 else color.to_tuple())
 
     def fill_rect(
-            self,
-            a: V,
-            b: V,
-            color: "Color",
-            outline_thickness: int = 0,
-            outline_color: "Color" = None,
+        self,
+        a: V,
+        b: V,
+        color: "Color",
+        outline_thickness: int = 0,
+        outline_color: "Color" = None,
     ):
         """Draw a filled rectangle from a to b in IUD coordinates."""
         outline_thickness = int(outline_thickness)
@@ -577,17 +577,17 @@ class Window:
             pygame.draw.rect(self._screen, col, rect, outline_thickness)
 
     def fill_rounded_rect(
-            self,
-            a: V,
-            b: V,
-            color: Color,
-            outline_thickness: int = 0,
-            outline_color: Color = None,
-            top_left_roundness: float = 0.0,
-            top_right_roundness: float = 0.0,
-            bottom_left_roundness: float = 0.0,
-            bottom_right_roundness: float = 0.0,
-            steps: int = 10,
+        self,
+        a: V,
+        b: V,
+        color: Color,
+        outline_thickness: int = 0,
+        outline_color: Color = None,
+        top_left_roundness: float = 0.0,
+        top_right_roundness: float = 0.0,
+        bottom_left_roundness: float = 0.0,
+        bottom_right_roundness: float = 0.0,
+        steps: int = 10,
     ):
         """Draw a filled rounded rectangle with optional outline."""
         ax, ay = a.to_tuple()
@@ -680,11 +680,11 @@ class Window:
             self._screen.blit(temp, (min_x, min_y))
 
     def fill_polygon(
-            self,
-            points: Iterable[Tuple[float, float]],
-            color: "Color",
-            outline_thickness: int = 0,
-            outline_color: "Color" = None,
+        self,
+        points: Iterable[Tuple[float, float]],
+        color: "Color",
+        outline_thickness: int = 0,
+        outline_color: "Color" = None,
     ):
         """Draw a filled polygon. Points should be an iterable of (x, y) pairs."""
         pg_points = [self._iud_to_pg(int(round(x)), int(round(y))) for x, y in points]
@@ -725,15 +725,15 @@ class Window:
                 pass
 
     def draw_image(
-            self,
-            image: "Image",
-            pos: V,
-            origin: Origin = Origin.BOTTOMLEFT,
-            image_filter: Optional["Color"] = None,
-            scale_x: float = 1.0,
-            scale_y: float = 1.0,
-            rotation: int = 0,
-            antialiasing: bool = True,
+        self,
+        image: "Image",
+        pos: V,
+        origin: Origin = Origin.BOTTOMLEFT,
+        image_filter: Optional["Color"] = None,
+        scale_x: float = 1.0,
+        scale_y: float = 1.0,
+        rotation: int = 0,
+        antialiasing: bool = True,
     ):
         """Draw an image at (x, y) in IUD coordinates.
 
@@ -779,12 +779,12 @@ class Window:
         self._screen.blit(surf, (px, py))
 
     def draw_text(
-            self,
-            text: str,
-            pos: V,
-            font: "Font",
-            color: "Color",
-            origin: Origin = Origin.BOTTOMLEFT,
+        self,
+        text: str,
+        pos: V,
+        font: "Font",
+        color: "Color",
+        origin: Origin = Origin.BOTTOMLEFT,
     ):
         """Draw text at (x, y) in IUD coordinates. `origin` specifies the text anchor."""
         x, y = pos.to_tuple()

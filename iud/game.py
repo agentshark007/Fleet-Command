@@ -1,7 +1,6 @@
 import math
 import random
 import sys
-
 from core.camera import Camera
 from core.enums import ExtendDirection
 from core.explosion import Explosion
@@ -135,19 +134,16 @@ def handle_unit_selection(self):
                     if closest_unit_index_selectable not in self.selected_units_ids:
                         self.selected_units_ids.append(closest_unit_index_selectable)
                         log.info(
-                            f"selection_added unit_id={closest_unit_index_selectable} selected_units={
-                                self.selected_units_ids}"
+                            f"selection_added unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}"
                         )
                     else:
                         self.selected_units_ids.remove(closest_unit_index_selectable)
                         log.info(
-                            f"selection_removed unit_id={closest_unit_index_selectable} selected_units={
-                                self.selected_units_ids}"
+                            f"selection_removed unit_id={closest_unit_index_selectable} selected_units={self.selected_units_ids}"
                         )
                 else:
                     self.selected_units_ids = [closest_unit_index_selectable]
-                    log.info(f"selection_set selected_units={
-                            self.selected_units_ids}")
+                    log.info(f"selection_set selected_units={self.selected_units_ids}")
             else:
                 log.warn(
                     f"selection_non_player unit_id={closest_unit_index_selectable}"
@@ -181,20 +177,14 @@ def handle_unit_control(self):
                     unit.autonomous = True
                     unit.autonomous_target_x = mouse_world_x
                     unit.autonomous_target_y = mouse_world_y
-                    log.info(f"autonomous_target_set unit_id={
-                            getattr(
-                                unit,
-                                'unit_id',
-                                unit_id)} target=({
-                            unit.autonomous_target_x: .1f}, {
-                            unit.autonomous_target_y: .1f})")
+                    log.info(
+                        f"autonomous_target_set unit_id={getattr(unit, 'unit_id', unit_id)} target=({unit.autonomous_target_x: .1f}, {unit.autonomous_target_y: .1f})"
+                    )
                 if manual_override():
                     if getattr(unit, "autonomous", False):
-                        log.info(f"manual_override unit_id={
-                                getattr(
-                                    unit,
-                                    'unit_id',
-                                    unit_id)} autonomous_disabled=True")
+                        log.info(
+                            f"manual_override unit_id={getattr(unit, 'unit_id', unit_id)} autonomous_disabled=True"
+                        )
                     unit.autonomous = False
                 acc = 0
                 rot_acc = 0
@@ -213,8 +203,9 @@ def handle_unit_control(self):
         elif team.type == TeamType.AI:
             handle_ai_for_unit(self, unit_id, unit)
         else:
-            log.warn(f"unknown_team_type unit_id={unit_id} team_index={
-                    unit.team_index}")
+            log.warn(
+                f"unknown_team_type unit_id={unit_id} team_index={unit.team_index}"
+            )
         if getattr(unit, "autonomous", False):
             target_x, target_y = (unit.autonomous_target_x, unit.autonomous_target_y)
             dx = target_x - unit.position_x
@@ -282,11 +273,7 @@ def handle_unit_shooting(self):
                         pid = self.next_projectile_id
                         self.projectiles[pid] = projectile
                         log.info(
-                            f"projectile_created id={pid} type=Missile shooter_team={
-                                unit.team_index} pos=({
-                                unit.position_x: .1f}, {
-                                unit.position_y: .1f}) dir={
-                                direction: .1f}"
+                            f"projectile_created id={pid} type=Missile shooter_team={unit.team_index} pos=({unit.position_x: .1f}, {unit.position_y: .1f}) dir={direction: .1f}"
                         )
                         self.next_projectile_id += 1
                         unit.cooldown_timer = projectile.cooldown
@@ -312,16 +299,15 @@ def handle_unit_shooting(self):
                 )
                 pid = self.next_projectile_id
                 self.projectiles[pid] = projectile
-                log.info(f"projectile_created id={pid} type=Missile shooter_team={
-                        unit.team_index} pos=({
-                        unit.position_x: .1f}, {
-                        unit.position_y: .1f}) dir={
-                        direction: .1f}")
+                log.info(
+                    f"projectile_created id={pid} type=Missile shooter_team={unit.team_index} pos=({unit.position_x: .1f}, {unit.position_y: .1f}) dir={direction: .1f}"
+                )
                 self.next_projectile_id += 1
                 unit.cooldown_timer = projectile.cooldown
             else:
-                log.warn(f"unknown_team_type unit_id={unit_id} team_index={
-                        unit.team_index}")
+                log.warn(
+                    f"unknown_team_type unit_id={unit_id} team_index={unit.team_index}"
+                )
         else:
             unit.cooldown_timer -= self.deltatime
 
@@ -402,10 +388,9 @@ def handle_ai_for_unit(self, unit_id, unit):
 def update_projectiles(self):
     if len(self.projectiles) > self.projectile_limit:
         excess = len(self.projectiles) - self.projectile_limit
-        log.warn(f"too_many_projectiles limit={
-                self.projectile_limit} actual={
-                len(
-                    self.projectiles)}")
+        log.warn(
+            f"too_many_projectiles limit={self.projectile_limit} actual={len(self.projectiles)}"
+        )
         for _ in range(excess):
             if self.projectiles:
                 del self.projectiles[list(self.projectiles.keys())[0]]
@@ -435,16 +420,13 @@ def detect_collisions(self):
                 unit.health -= projectile.damage
                 projectiles_to_remove.add(projectile_id)
                 log.info(
-                    f"hit projectile_id={projectile_id} target_unit={unit_id} damage={
-                        projectile.damage} unit_health_after={
-                        unit.health}"
+                    f"hit projectile_id={projectile_id} target_unit={unit_id} damage={projectile.damage} unit_health_after={unit.health}"
                 )
                 if unit.health <= 0:
                     units_to_remove.add(unit_id)
-                    log.info(f"unit_destroyed unit_id={unit_id} team={
-                            unit.team_index} pos=({
-                            unit.position_x: .1f}, {
-                            unit.position_y: .1f})")
+                    log.info(
+                        f"unit_destroyed unit_id={unit_id} team={unit.team_index} pos=({unit.position_x: .1f}, {unit.position_y: .1f})"
+                    )
                     create_explosion(self, unit.position_x, unit.position_y)
                 break
     for unit_id_a, unit_a in self.units.items():
@@ -462,15 +444,7 @@ def detect_collisions(self):
                 units_to_remove.add(unit_id_a)
                 units_to_remove.add(unit_id_b)
                 log.info(
-                    f"unit_collision unit_a={unit_id_a} unit_b={unit_id_b} contact_pos=({
-                        (
-                            unit_a.position_x +
-                            unit_b.position_x) /
-                        2: .1f}, {
-                        (
-                            unit_a.position_y +
-                            unit_b.position_y) /
-                        2: .1f})"
+                    f"unit_collision unit_a={unit_id_a} unit_b={unit_id_b} contact_pos=({(unit_a.position_x + unit_b.position_x) / 2: .1f}, {(unit_a.position_y + unit_b.position_y) / 2: .1f})"
                 )
                 create_explosion(
                     self,
@@ -520,13 +494,13 @@ def handle_camera_movement(self):
                 [self.max_camera_scale, self.camera.scale + self.camera_zoom_speed]
             )
             if self.camera.scale != old_scale:
-                log.info(f"camera_zoom old_scale={
-                        old_scale: .2f} new_scale={
-                        self.camera.scale: .2f}")
+                log.info(
+                    f"camera_zoom old_scale={old_scale: .2f} new_scale={self.camera.scale: .2f}"
+                )
                 if self.camera.scale != attempted:
-                    log.warn(f"camera_zoom_clamped attempted={
-                            attempted: .2f} clamped_to={
-                            self.camera.scale: .2f}")
+                    log.warn(
+                        f"camera_zoom_clamped attempted={attempted: .2f} clamped_to={self.camera.scale: .2f}"
+                    )
         elif self.keydown(Key.MINUS) and (not self.minus_last_frame):
             old_scale = self.camera.scale
             attempted = old_scale - self.camera_zoom_speed
@@ -534,13 +508,13 @@ def handle_camera_movement(self):
                 [self.min_camera_scale, self.camera.scale - self.camera_zoom_speed]
             )
             if self.camera.scale != old_scale:
-                log.info(f"camera_zoom old_scale={
-                        old_scale: .2f} new_scale={
-                        self.camera.scale: .2f}")
+                log.info(
+                    f"camera_zoom old_scale={old_scale: .2f} new_scale={self.camera.scale: .2f}"
+                )
                 if self.camera.scale != attempted:
-                    log.warn(f"camera_zoom_clamped attempted={
-                            attempted: .2f} clamped_to={
-                            self.camera.scale: .2f}")
+                    log.warn(
+                        f"camera_zoom_clamped attempted={attempted: .2f} clamped_to={self.camera.scale: .2f}"
+                    )
     mouse_world_x, mouse_world_y = self.camera.deduce(
         self.mouse_pos.x, self.mouse_pos.y
     )
