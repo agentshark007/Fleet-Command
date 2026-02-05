@@ -15,4 +15,5 @@ echo "Log files deleted."
 
 echo "Formatting codebase..."
 python recompile.py
+black .
 echo "Codebase formatted."
