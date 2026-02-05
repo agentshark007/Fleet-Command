@@ -15,5 +15,5 @@ echo "Log files deleted."
 
 echo "Formatting codebase..."
 python recompile.py
-black .
+autopep8 --in-place --recursive .
 echo "Codebase formatted."

@@ -5,17 +5,7 @@ from libraries.pgiud import Image, V
 class Unit:
     pass
 
-    def __init__(
-        self,
-        image: Image,
-        image_scale: float,
-        health: int,
-        speed: int,
-        rotation_speed: int,
-        friction: float = 0.95,
-        rotation_friction: float = 0.9,
-        collision_radius: int = 20,
-    ) -> None:
+    def __init__(self, image: Image, image_scale: float, health: int, speed: int, rotation_speed: int, friction: float = 0.95, rotation_friction: float = 0.9, collision_radius: int = 20) -> None:
         self.image = image
         self.image_scale = 1.0
         self.team_index = -1
@@ -123,16 +113,8 @@ class Unit:
 class Battleship(Unit):
 
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
-        super().__init__(
-            Image(asset("images/units/battleship.png")),
-            image_scale=0.1,
-            health=600,
-            speed=200,
-            rotation_speed=100,
-            friction=0.97,
-            rotation_friction=0.9,
-            collision_radius=25,
-        )
+        super().__init__(Image(asset('images/units/battleship.png')), image_scale=0.1, health=600,
+                         speed=200, rotation_speed=100, friction=0.97, rotation_friction=0.9, collision_radius=25)
         self.team_index = team_index
         self.position = V(position_x, position_y)
         self.direction = direction
@@ -141,16 +123,8 @@ class Battleship(Unit):
 class Warship(Unit):
 
     def __init__(self, team_index, position_x=0, position_y=0, direction=0):
-        super().__init__(
-            Image(asset("images/units/warship.png")),
-            image_scale=0.1,
-            health=400,
-            speed=250,
-            rotation_speed=150,
-            friction=0.95,
-            rotation_friction=0.85,
-            collision_radius=25,
-        )
+        super().__init__(Image(asset('images/units/warship.png')), image_scale=0.1, health=400,
+                         speed=250, rotation_speed=150, friction=0.95, rotation_friction=0.85, collision_radius=25)
         self.team_index = team_index
         self.position = V(position_x, position_y)
         self.direction = direction
