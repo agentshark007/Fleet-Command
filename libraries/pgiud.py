@@ -2,9 +2,23 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Tuple
+from typing import Iterable, Optional, Tuple
 
 import pygame
+
+__version__ = "1.1.0"
+__all__ = [
+    "V",
+    "Key",
+    "Font",
+    "Color",
+    "Image",
+    "Sound",
+    "Origin",
+    "Resizable",
+    "Window",
+    "__version__",
+]
 
 
 class V:
@@ -221,6 +235,19 @@ class Color:
         a = int(round(self.a * (1 - factor) + other.a * factor))
         return Color(r, g, b, a)
 
+    def __repr__(self) -> str:
+        return f"Color({self.r}, {self.g}, {self.b}, {self.a})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Color):
+            return False
+        return (
+                self.r == other.r
+                and self.g == other.g
+                and (self.b == other.b)
+                and (self.a == other.a)
+        )
+
 
 class Image:
 
@@ -315,12 +342,12 @@ class Resizable(Enum):
 class Window:
 
     def __init__(
-        self,
-        width: int = 800,
-        height: int = 600,
-        title: str = "PGIUD Window",
-        resizable: Resizable = Resizable.NONE,
-        origin: Origin = Origin.BOTTOMLEFT,
+            self,
+            width: int = 800,
+            height: int = 600,
+            title: str = "PGIUD Window",
+            resizable: Resizable = Resizable.NONE,
+            origin: Origin = Origin.BOTTOMLEFT,
     ):
         pygame.init()
         try:
@@ -338,13 +365,13 @@ class Window:
         self._original_height = height
         self._clock = pygame.time.Clock()
         self._running = False
-        self._mousex = 0
-        self._mousey = 0
+        self._mouse_x = 0
+        self._mouse_y = 0
         self._deltatime = 0.0
         self._fonts = {}
-        self._mousedownprimary = False
-        self._mousedownmiddle = False
-        self._mousedownsecondary = False
+        self._mouse_down_primary = False
+        self._mouse_down_middle = False
+        self._mouse_down_secondary = False
 
     @property
     def width(self):
@@ -364,48 +391,19 @@ class Window:
 
     @property
     def mouse_pos(self):
-        return V(self._mousex, self._mousey)
-
-    @mouse_pos.setter
-    def mouse_pos(self, v: V):
-        try:
-            self._mousex = float(v.x)
-            self._mousey = float(v.y)
-        except Exception:
-            try:
-                x, y = v
-                self._mousex = float(x)
-                self._mousey = float(y)
-            except Exception:
-                pass
+        return V(self._mouse_x, self._mouse_y)
 
     @property
-    def mousex(self):
-        return self._mousex
-
-    @mousex.setter
-    def mousex(self, value):
-        self._mousex = float(value)
+    def mouse_down_primary(self):
+        return self._mouse_down_primary
 
     @property
-    def mousey(self):
-        return self._mousey
-
-    @mousey.setter
-    def mousey(self, value):
-        self._mousey = float(value)
+    def mouse_down_middle(self):
+        return self._mouse_down_middle
 
     @property
-    def mousedownprimary(self):
-        return self._mousedownprimary
-
-    @property
-    def mousedownmiddle(self):
-        return self._mousedownmiddle
-
-    @property
-    def mousedownsecondary(self):
-        return self._mousedownsecondary
+    def mouse_down_secondary(self):
+        return self._mouse_down_secondary
 
     @property
     def deltatime(self):
@@ -446,7 +444,7 @@ class Window:
     def screen_right(self):
         return self.screen_position(Origin.RIGHT).x
 
-    def _pg_to_iud(self, x: float, y: float):
+    def _pg_to_iud(self, x: int, y: int):
         ox, oy = self._origin.value
         cx = self.width // 2 if ox == 0 else 0 if ox == -1 else self.width
         cy = self.height // 2 if oy == 0 else 0 if oy == -1 else self.height
@@ -454,7 +452,7 @@ class Window:
         new_y = self.height - y - cy
         return (new_x, new_y)
 
-    def _iud_to_pg(self, x: float, y: float):
+    def _iud_to_pg(self, x: int, y: int):
         ox, oy = self._origin.value
         cx = self.width // 2 if ox == 0 else 0 if ox == -1 else self.width
         cy = self.height // 2 if oy == 0 else 0 if oy == -1 else self.height
@@ -496,57 +494,65 @@ class Window:
                     self.on_resize(event.w, event.h)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        self._mousedownprimary = True
+                        self._mouse_down_primary = True
                     elif event.button == 2:
-                        self._mousedownmiddle = True
+                        self._mouse_down_middle = True
                     elif event.button == 3:
-                        self._mousedownsecondary = True
+                        self._mouse_down_secondary = True
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
-                        self._mousedownprimary = False
+                        self._mouse_down_primary = False
                     elif event.button == 2:
-                        self._mousedownmiddle = False
+                        self._mouse_down_middle = False
                     elif event.button == 3:
-                        self._mousedownsecondary = False
-            self._mousex, self._mousey = self._pg_to_iud(*pygame.mouse.get_pos())
+                        self._mouse_down_secondary = False
+            self._mouse_x, self._mouse_y = self._pg_to_iud(*pygame.mouse.get_pos())
             self.update()
             self.draw()
             pygame.display.flip()
 
     def toggle_fullscreen(self):
+        """Toggles fullscreen mode."""
         pygame.display.toggle_fullscreen()
 
     def initialize(self):
+        """Called once when the window is initialized."""
         pass
 
     def update(self):
+        """Called every frame to update the window's state."""
         pass
 
     def draw(self):
+        """Called every frame to draw the window's contents."""
         pass
 
     def on_quit(self):
+        """Called when the window is closed."""
         pass
 
     def on_resize(self, width, height):
+        """Called when the window is resized."""
         pass
 
     def clear(self, color: "Color"):
+        """Clear the screen to the given color."""
         self._screen.fill(color.rgb_tuple() if color.a == 255 else color.to_tuple())
 
     def fill_rect(
-        self,
-        a: V,
-        b: V,
-        color: "Color",
-        outline_thickness: int = 0,
-        outline_color: "Color" = None,
+            self,
+            a: V,
+            b: V,
+            color: "Color",
+            outline_thickness: int = 0,
+            outline_color: "Color" = None,
     ):
+        """Draw a filled rectangle from a to b in IUD coordinates."""
         outline_thickness = int(outline_thickness)
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
-        ax, ay = self._iud_to_pg(ax, ay)
-        bx, by = self._iud_to_pg(bx, by)
+        ax, ay = self._iud_to_pg(int(ax), int(ay))
+        bx, by = self._iud_to_pg(int(bx), int(by))
         width = bx - ax
         height = by - ay
         x = ax
@@ -573,18 +579,19 @@ class Window:
             pygame.draw.rect(self._screen, col, rect, outline_thickness)
 
     def fill_rounded_rect(
-        self,
-        a: V,
-        b: V,
-        color: Color,
-        outline_thickness: int = 0,
-        outline_color: Color = None,
-        topleft_roundness: float = 0.0,
-        topright_roundness: float = 0.0,
-        bottomleft_roundness: float = 0.0,
-        bottomright_roundness: float = 0.0,
-        steps: int = 10,
+            self,
+            a: V,
+            b: V,
+            color: Color,
+            outline_thickness: int = 0,
+            outline_color: Color = None,
+            top_left_roundness: float = 0.0,
+            top_right_roundness: float = 0.0,
+            bottom_left_roundness: float = 0.0,
+            bottom_right_roundness: float = 0.0,
+            steps: int = 10,
     ):
+        """Draw a filled rounded rectangle with optional outline."""
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
         left, right = (min(ax, bx), max(ax, bx))
@@ -594,10 +601,10 @@ class Window:
         outline_thickness = int(outline_thickness)
         steps = max(1, int(steps))
         max_radius = min(w, h) / 2 if w > 0 and h > 0 else 0
-        tl = int(max(0, min(max_radius, topleft_roundness)))
-        tr = int(max(0, min(max_radius, topright_roundness)))
-        bl = int(max(0, min(max_radius, bottomleft_roundness)))
-        br = int(max(0, min(max_radius, bottomright_roundness)))
+        tl = int(max(0, min(max_radius, top_left_roundness)))
+        tr = int(max(0, min(max_radius, top_right_roundness)))
+        bl = int(max(0, min(max_radius, bottom_left_roundness)))
+        br = int(max(0, min(max_radius, bottom_right_roundness)))
         points = []
         if tl > 0:
             cx, cy = (left + tl, top - tl)
@@ -644,20 +651,21 @@ class Window:
             points.extend(reversed(arc_points))
         else:
             points.append((left, bottom))
-        xlist = [p[0] for p in points]
-        ylist = [p[1] for p in points]
-        xlist = xlist[:-1]
-        ylist = ylist[:-1]
-        points = list(zip(xlist, ylist))
+        x_list = [p[0] for p in points]
+        y_list = [p[1] for p in points]
+        x_list = x_list[:-1]
+        y_list = y_list[:-1]
+        points = list(zip(x_list, y_list))
         if len(points) < 3:
             return
         self.fill_polygon(points, color, outline_thickness, outline_color)
 
     def draw_line(self, a: V, b: V, color: "Color", width: int = 1):
+        """Draw a line from (ax, ay) to (bx, by) in IUD coordinates."""
         ax, ay = a.to_tuple()
         bx, by = b.to_tuple()
-        ax, ay = self._iud_to_pg(ax, ay)
-        bx, by = self._iud_to_pg(bx, by)
+        ax, ay = self._iud_to_pg(int(ax), int(ay))
+        bx, by = self._iud_to_pg(int(bx), int(by))
         if color.a == 255:
             pygame.draw.line(self._screen, color.rgb_tuple(), (ax, ay), (bx, by), width)
         else:
@@ -665,8 +673,8 @@ class Window:
             min_y = min(ay, by) - width
             max_x = max(ax, bx) + width
             max_y = max(ay, by) + width
-            tw = max(1, int(round(max_x - min_x)))
-            th = max(1, int(round(max_y - min_y)))
+            tw = max(1, max_x - min_x)
+            th = max(1, max_y - min_y)
             temp = pygame.Surface((tw, th), pygame.SRCALPHA)
             sax, say = (ax - min_x, ay - min_y)
             sbx, sby = (bx - min_x, by - min_y)
@@ -674,13 +682,14 @@ class Window:
             self._screen.blit(temp, (min_x, min_y))
 
     def fill_polygon(
-        self,
-        points: list[V],
-        color: "Color",
-        outline_thickness: int = 0,
-        outline_color: "Color" = None,
+            self,
+            points: Iterable[Tuple[float, float]],
+            color: "Color",
+            outline_thickness: int = 0,
+            outline_color: "Color" = None,
     ):
-        pg_points = [self._iud_to_pg(x, y) for x, y in points]
+        """Draw a filled polygon. Points should be an iterable of (x, y) pairs."""
+        pg_points = [self._iud_to_pg(int(round(x)), int(round(y))) for x, y in points]
         if color.a == 255:
             try:
                 pygame.draw.polygon(self._screen, color.rgb_tuple(), pg_points)
@@ -695,8 +704,8 @@ class Window:
             height = max_y - min_y
             if width <= 0 or height <= 0:
                 return
-            tw = max(1, int(round(max_x - min_x)))
-            th = max(1, int(round(max_y - min_y)))
+            tw = max(1, int(round(width)))
+            th = max(1, int(round(height)))
             temp = pygame.Surface((tw, th), pygame.SRCALPHA)
             shifted = [
                 (int(round(x - min_x)), int(round(y - min_y))) for x, y in pg_points
@@ -718,29 +727,37 @@ class Window:
                 pass
 
     def draw_image(
-        self,
-        image: "Image",
-        pos: V,
-        origin: Origin = Origin.BOTTOMLEFT,
-        image_filter: "Color" = Color(255, 255, 255, 255),
-        scalex: float = 1.0,
-        scaley: float = 1.0,
-        rotation: int = 0,
-        antialiasing: bool = True,
+            self,
+            image: "Image",
+            pos: V,
+            origin: Origin = Origin.BOTTOMLEFT,
+            image_filter: Optional["Color"] = None,
+            scale_x: float = 1.0,
+            scale_y: float = 1.0,
+            rotation: int = 0,
+            antialiasing: bool = True,
     ):
+        """Draw an image at (x, y) in IUD coordinates.
+
+        Optional:
+          - filter: a `Color` to tint/multiply the image with (None = no tint)
+          - scale_x, scale_y: scaling factors (scale_y defaults to scalex)
+          - rotation: rotation angle in degrees (clockwise)
+          - antialiasing: whether to use smooth scaling when available
+        """
         x, y = pos.to_tuple()
-        px, py = self._iud_to_pg(x, y)
+        px, py = self._iud_to_pg(int(x), int(y))
         ox, oy = origin.value
         oy *= -1
         surf = getattr(image, "surface", None)
         if surf is None:
             return
-        if scaley is None:
-            scaley = scalex
+        if scale_y is None:
+            scale_y = scale_x
         try:
-            if scalex != 1.0 or scaley != 1.0:
-                new_w = max(1, int(round(image.get_width() * scalex)))
-                new_h = max(1, int(round(image.get_height() * scaley)))
+            if scale_x != 1.0 or scale_y != 1.0:
+                new_w = max(1, int(round(image.get_width() * scale_x)))
+                new_h = max(1, int(round(image.get_height() * scale_y)))
                 if antialiasing and hasattr(pygame.transform, "smoothscale"):
                     surf = pygame.transform.smoothscale(surf, (new_w, new_h))
                 else:
@@ -764,13 +781,14 @@ class Window:
         self._screen.blit(surf, (px, py))
 
     def draw_text(
-        self,
-        text: str,
-        pos: V,
-        font: "Font",
-        color: "Color",
-        origin: Origin = Origin.BOTTOMLEFT,
+            self,
+            text: str,
+            pos: V,
+            font: "Font",
+            color: "Color",
+            origin: Origin = Origin.BOTTOMLEFT,
     ):
+        """Draw text at (x, y) in IUD coordinates. `origin` specifies the text anchor."""
         x, y = pos.to_tuple()
         surf = font.font.render(text, True, color.rgb_tuple())
         try:
@@ -780,7 +798,7 @@ class Window:
                 surf = surf.convert()
             except Exception:
                 pass
-        px, py = self._iud_to_pg(x, y)
+        px, py = self._iud_to_pg(int(x), int(y))
         ox, oy = origin.value
         oy *= -1
         px -= surf.get_width() // 2

@@ -45,9 +45,9 @@ def update(self) -> None:
 def late_update(self) -> None:
     self.plus_last_frame = self.keydown(Key.EQUALS)
     self.minus_last_frame = self.keydown(Key.MINUS)
-    self.mouse_primary_last_frame = self.mousedownprimary
-    self.mouse_middle_last_frame = self.mousedownmiddle
-    self.mouse_secondary_last_frame = self.mousedownsecondary
+    self.mouse_primary_last_frame = self.mouse_down_primary
+    self.mouse_middle_last_frame = self.mouse_down_middle
+    self.mouse_secondary_last_frame = self.mouse_down_secondary
     self.mouse_last_frame = self.mouse_pos
 
 

@@ -32,7 +32,7 @@ def update(self) -> None:
     for index, (button_id, action) in enumerate(reversed(buttons)):
         left, bottom, right, top = get_button_bounds(self, index)
         if mouse_in_area(*self.mouse_pos.to_tuple(), left, right, bottom, top):
-            if self.mousedownprimary:
+            if self.mouse_down_primary:
                 action(self)
                 log.info(f"Main menu button clicked: id={button_id}")
                 break
@@ -101,10 +101,10 @@ def draw_button(self, text, index, max_index):
         color=button_color,
         outline_thickness=self.mainmenu_button_outline_thickness * self.gui_scale,
         outline_color=self.mainmenu_button_outline_color,
-        topleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        topright_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        bottomleft_roundness=self.mainmenu_button_roundness * self.gui_scale,
-        bottomright_roundness=self.mainmenu_button_roundness * self.gui_scale,
+        top_left_roundness=self.mainmenu_button_roundness * self.gui_scale,
+        top_right_roundness=self.mainmenu_button_roundness * self.gui_scale,
+        bottom_left_roundness=self.mainmenu_button_roundness * self.gui_scale,
+        bottom_right_roundness=self.mainmenu_button_roundness * self.gui_scale,
     )
     self.draw_text(
         text,

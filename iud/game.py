@@ -127,7 +127,7 @@ def handle_unit_selection(self):
         if dist < closest_distance_selectable and dist < self.selection_distance:
             closest_distance_selectable = dist
             closest_unit_index_selectable = unit_id
-    if self.mousedownprimary and (not self.mouse_primary_last_frame):
+    if self.mouse_down_primary and (not self.mouse_primary_last_frame):
         if closest_unit_index_selectable != -1:
             team = self.teams[self.units[closest_unit_index_selectable].team_index]
             if team.type == TeamType.PLAYER:
@@ -174,9 +174,9 @@ def handle_unit_control(self):
         team = self.teams[unit.team_index]
         if team.type == TeamType.PLAYER:
             if unit_id in self.selected_units_ids:
-                if self.mousedownsecondary:
+                if self.mouse_down_secondary:
                     mouse_world_x, mouse_world_y = self.camera.deduce(
-                        self.mousex, self.mousey
+                        self.mouse_pos.x, self.mouse_pos.y
                     )
                     unit.autonomous = True
                     unit.autonomous_target_x = mouse_world_x
@@ -267,7 +267,9 @@ def handle_unit_shooting(self):
             if team.type == TeamType.PLAYER:
                 if unit_id in self.selected_units_ids:
                     if self.keydown(Key.SPACE):
-                        mouse_world_pos = self.camera.deduce(self.mousex, self.mousey)
+                        mouse_world_pos = self.camera.deduce(
+                            self.mouse_pos.x, self.mouse_pos.y
+                        )
                         direction = calculate_direction(
                             unit.position_x, unit.position_y, *mouse_world_pos
                         )
@@ -539,7 +541,9 @@ def handle_camera_movement(self):
                     log.warn(f"camera_zoom_clamped attempted={
                             attempted: .2f} clamped_to={
                             self.camera.scale: .2f}")
-    mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+    mouse_world_x, mouse_world_y = self.camera.deduce(
+        self.mouse_pos.x, self.mouse_pos.y
+    )
     closest_unit_index = -1
     closest_unit_index_selectable = -1
     closest_distance = float("inf")
@@ -553,11 +557,15 @@ def handle_camera_movement(self):
             closest_distance_selectable = dist
             closest_unit_index_selectable = unit_id
     if closest_unit_index_selectable == -1:
-        if self.mousedownprimary:
+        if self.mouse_down_primary:
             self.camera.velocity_x = 0
             self.camera.velocity_y = 0
-            self.camera.x += (self.mouse_last_frame.x - self.mousex) / self.camera.scale
-            self.camera.y += (self.mouse_last_frame.y - self.mousey) / self.camera.scale
+            self.camera.x += (
+                self.mouse_last_frame.x - self.mouse_pos.x
+            ) / self.camera.scale
+            self.camera.y += (
+                self.mouse_last_frame.y - self.mouse_pos.y
+            ) / self.camera.scale
     factor_x = self.camera_move_speed / self.camera.scale * self.deltatime
     factor_y = self.camera_move_speed / self.camera.scale * self.deltatime
     if self.keydown(Key.LEFT):
@@ -592,7 +600,9 @@ def draw(self):
 
 
 def draw_units(self):
-    mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+    mouse_world_x, mouse_world_y = self.camera.deduce(
+        self.mouse_pos.x, self.mouse_pos.y
+    )
     closest_unit_index = -1
     closest_unit_index_selectable = -1
     closest_distance = float("inf")
@@ -612,8 +622,8 @@ def draw_units(self):
                 unit.image,
                 pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
-                scalex=0.5 * self.camera.scale,
-                scaley=0.5 * self.camera.scale,
+                scale_x=0.5 * self.camera.scale,
+                scale_y=0.5 * self.camera.scale,
                 image_filter=self.selected_unit_filter,
                 rotation=unit.direction,
             )
@@ -625,8 +635,8 @@ def draw_units(self):
                     self.autonomous_target_image,
                     pos=V(target_screen_x, target_screen_y),
                     origin=Origin.CENTER,
-                    scalex=self.autonomous_target_image_scale * self.camera.scale,
-                    scaley=self.autonomous_target_image_scale * self.camera.scale,
+                    scale_x=self.autonomous_target_image_scale * self.camera.scale,
+                    scale_y=self.autonomous_target_image_scale * self.camera.scale,
                     rotation=0,
                 )
         elif unit_id == closest_unit_index_selectable:
@@ -634,8 +644,8 @@ def draw_units(self):
                 unit.image,
                 pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
-                scalex=0.5 * self.camera.scale,
-                scaley=0.5 * self.camera.scale,
+                scale_x=0.5 * self.camera.scale,
+                scale_y=0.5 * self.camera.scale,
                 image_filter=self.hover_unit_filter,
                 rotation=unit.direction,
             )
@@ -651,8 +661,8 @@ def draw_units(self):
                         self.autonomous_target_image,
                         pos=V(target_screen_x, target_screen_y),
                         origin=Origin.CENTER,
-                        scalex=self.autonomous_target_image_scale * self.camera.scale,
-                        scaley=self.autonomous_target_image_scale * self.camera.scale,
+                        scale_x=self.autonomous_target_image_scale * self.camera.scale,
+                        scale_y=self.autonomous_target_image_scale * self.camera.scale,
                         rotation=0,
                     )
         else:
@@ -660,8 +670,8 @@ def draw_units(self):
                 unit.image,
                 pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
-                scalex=0.5 * self.camera.scale,
-                scaley=0.5 * self.camera.scale,
+                scale_x=0.5 * self.camera.scale,
+                scale_y=0.5 * self.camera.scale,
                 image_filter=self.other_unit_filter,
                 rotation=unit.direction,
             )
@@ -673,8 +683,8 @@ def draw_units(self):
                 screen_x, screen_y + self.selection_marker_offset * self.camera.scale
             ),
             origin=Origin.BOTTOM,
-            scalex=self.selection_marker_scale * self.camera.scale,
-            scaley=self.selection_marker_scale * self.camera.scale,
+            scale_x=self.selection_marker_scale * self.camera.scale,
+            scale_y=self.selection_marker_scale * self.camera.scale,
             image_filter=self.teams[unit.team_index].color,
             rotation=0,
         )
@@ -691,8 +701,8 @@ def draw_projectiles(self):
                 img,
                 pos=V(screen_x, screen_y),
                 origin=Origin.CENTER,
-                scalex=1 * self.camera.scale,
-                scaley=1 * self.camera.scale,
+                scale_x=1 * self.camera.scale,
+                scale_y=1 * self.camera.scale,
                 image_filter=Color(255, 255, 255, 255),
                 rotation=90 - projectile.direction,
             )
@@ -706,8 +716,8 @@ def draw_explosions(self):
             img,
             pos=V(screen_x, screen_y),
             origin=Origin.CENTER,
-            scalex=explosion.scale * self.camera.scale,
-            scaley=explosion.scale * self.camera.scale,
+            scale_x=explosion.scale * self.camera.scale,
+            scale_y=explosion.scale * self.camera.scale,
             image_filter=Color(255, 255, 255, 255),
             rotation=0,
         )
@@ -809,8 +819,8 @@ def draw_tiled_water(
                 self.water_image,
                 pos=V(sx, sy),
                 origin=Origin.BOTTOMLEFT,
-                scalex=scalex,
-                scaley=scaley,
+                scale_x=scalex,
+                scale_y=scaley,
                 image_filter=filter_color,
                 rotation=0,
             )
@@ -826,10 +836,10 @@ def draw_ui_panels(self):
         color=self.side_panel_color,
         outline_thickness=self.panel_outline_thickness * self.gui_scale,
         outline_color=self.panel_outline_color,
-        topleft_roundness=0,
-        topright_roundness=self.side_panel_roundness * self.gui_scale,
-        bottomleft_roundness=0,
-        bottomright_roundness=0,
+        top_left_roundness=0,
+        top_right_roundness=self.side_panel_roundness * self.gui_scale,
+        bottom_left_roundness=0,
+        bottom_right_roundness=0,
     )
     self.fill_rounded_rect(
         V(
@@ -840,10 +850,10 @@ def draw_ui_panels(self):
         color=self.side_panel_color,
         outline_thickness=self.panel_outline_thickness * self.gui_scale,
         outline_color=self.panel_outline_color,
-        topleft_roundness=self.side_panel_roundness * self.gui_scale,
-        topright_roundness=0,
-        bottomleft_roundness=0,
-        bottomright_roundness=0,
+        top_left_roundness=self.side_panel_roundness * self.gui_scale,
+        top_right_roundness=0,
+        bottom_left_roundness=0,
+        bottom_right_roundness=0,
     )
     self.fill_rect(
         V(
@@ -957,7 +967,9 @@ def draw_ui_panels(self):
                 origin=Origin.TOPLEFT,
             )
     else:
-        mouse_world_x, mouse_world_y = self.camera.deduce(self.mousex, self.mousey)
+        mouse_world_x, mouse_world_y = self.camera.deduce(
+            self.mouse_pos.x, self.mouse_pos.y
+        )
         closest_unit_index = -1
         closest_unit_index_selectable = -1
         closest_distance = float("inf")

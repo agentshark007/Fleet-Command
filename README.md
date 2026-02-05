@@ -17,7 +17,7 @@ This repository contains the source for Fleet-Command — a hobby project by Pay
 
 ## Requirements
 
-The easiest way to install runtime dependencies and create a virtual environment is using `install.sh`. `pgiud` version `1.0` is used.
+The easiest way to install runtime dependencies and create a virtual environment is using `install.sh`. `pgiud` version `1.1` is used.
 
 ---
 
