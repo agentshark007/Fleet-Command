@@ -11,25 +11,29 @@ This repository contains the source for Fleet-Command — a hobby project by Pay
 - Language: Python
 - Status: In Development
 - Entry point: `main.py`
+- Python version: `3.12.10`
 
 ---
 
 ## Requirements
 
-The easiest way to install runtime dependencies and create a virtual environment is using `install.sh`. `pgiud` version `1.1` is used.
+Requirements in `requirements.txt`.
+Manual installation of `pgiud` version `1.1` may be necessary depending on your platform.
 
 ---
 
 ## License
 
-This project is released under the PayaLabs Non-Commercial Open Source License v1.0. In short:
+This project is released under the PayaLabs License:
 
-- You may use, modify, and distribute this software for non-commercial purposes only.
-- Credit must be given to PayaLabs for uses or derivative works.
-- You may not sell or otherwise commercially exploit the software.
-- Provided as-is without warranty.
+Non-Commercial Open Source License v1.0:
 
-Refer to the original license text included in the repository for the full terms.
+- Use, modify, and distribute for non-commercial purposes only.
+- Give credit to PayaLabs for any use or derivatives.
+- Do not sell, license, or profit from this software.
+- Provided “as-is” without any warranty.
+
+Full license at (andrucupala.com/payalabs)[https://andrucupala.com/payalabs/home.html#license].
 
 ---
 
