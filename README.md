@@ -1,17 +1,25 @@
 # Fleet Command
 
-A small, tile-based naval strategy game written in Python using `pygame`.
+A small, naval strategy game written in Python using `pygame`.
 
 This repository contains the source for Fleet-Command — a hobby project by PayaLabs. The game is playable from the `main.py` entrypoint and bundles assets (images, sounds, fonts) under the `assets/` directory.
 
 ---
 
-## Quick summary
+## Quick Summary
 
 - Language: Python
 - Status: In Development
 - Entry point: `main.py`
 - Python version: `3.12.10`
+
+---
+
+## Run Arguments
+
+- `--no-water` — Disable water rendering (for performance testing).
+- `--no-ui` — Disable UI rendering (for performance testing).
+- `--fps` — Display FPS counter in the window title.
 
 ---
 
