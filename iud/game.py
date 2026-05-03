@@ -1,6 +1,7 @@
 import math
 import random
 import sys
+
 from core.camera import Camera
 from core.enums import ExtendDirection
 from core.explosion import Explosion
